@@ -8,4 +8,5 @@
 4. Include the search path for BOOST and Gurobi and link them to your project.
 5. Add all .cpp and .hpp files to your project.
 6. Add all .cpp files to the compile source.
-7. Create your own main.cpp file.
+7. Run BB.cpp/ RSCF.cpp or PB.cpp. If everything is installed correctly, no error will be thrown.
+8. Create your own main.cpp file.
