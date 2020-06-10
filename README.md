@@ -1,6 +1,6 @@
 # ROCPP
 -----
-#### Steps to use ROCPP
+### Steps to use ROCPP
 
 1. Download and install the [BOOST](https://www.boost.org/) and [Gurobi](https://www.gurobi.com/) library. 
 2. Download/Clone ROCPP.
