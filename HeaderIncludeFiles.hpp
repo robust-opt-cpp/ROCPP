@@ -9,6 +9,7 @@
 #ifndef HeaderIncludeFiles_hpp
 #define HeaderIncludeFiles_hpp
 
+#undef INFINITY
 
 // ONLY INCLUDE IN THIS FILE HEADER FILES THAT ARE USED IN ALMOST ALL ***HEADER FILES***
 
