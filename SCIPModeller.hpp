@@ -1,51 +1,51 @@
 //
-//  GurobiModeller.hpp
-//  RobustOptimizationPlatform
+//  SCIPModeller.hpp
+//  ROCPP
 //
-// This software is Copyright © 2020 Phebe Vayanos. All Rights Reserved.
-// Software created by Phebe Vayanos, Qing Jin, and George Elissaios
+//  Created by 靳晴 on 1/16/21.
 //
 
-#ifndef GurobiModeller_hpp
-#define GurobiModeller_hpp
+#ifndef SCIPModeller_hpp
+#define SCIPModeller_hpp
 
+#include <stdio.h>
 #include "HeaderIncludeFiles.hpp"
 #include "SolverModeller.hpp"
-#include "gurobi_c++.h"
+#include <scip/scip.h>
+#include <scip/scipdefplugins.h>
 #include <map>
 
-class GRBVar;
 class ConstraintIF;
 class ObjectiveFunctionIF;
 class CPLEXMISOCP;
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%% GUROBI VARIABLE CONTAINER %%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%% SCIP VARIABLE CONTAINER %%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-struct GurobiVariableContainer
+struct SCIPVariableContainer
 {
-    GurobiVariableContainer(){}
-    ~GurobiVariableContainer(){}
+    SCIPVariableContainer(){}
+    ~SCIPVariableContainer(){}
     
     void Reset(){m_contVarMap.clear();m_boolVarMap.clear();m_intVarMap.clear(); m_allVarsMap.clear();}
     
-    map<string,GRBVar> m_contVarMap;
-    map<string,GRBVar> m_boolVarMap;
-    map<string,GRBVar> m_intVarMap;
-    map<string,GRBVar> m_allVarsMap;
+    map<string,SCIP_Var*> m_contVarMap;
+    map<string,SCIP_Var*> m_boolVarMap;
+    map<string,SCIP_Var*> m_intVarMap;
+    map<string,SCIP_Var*> m_allVarsMap;
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%% GUROBI MODELLER %%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%% SCIP MODELLER %%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-/// Class used to interface with the Gurobi deterministic optimization solvers
-class GurobiModeller : public SolverModellerIF
+/// Class used to interface with the SCIP deterministic optimization solvers
+class SCIPModeller : public SolverModellerIF
 {
 public:
     
@@ -53,14 +53,14 @@ public:
     //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    /// Constructor of the GurobiModeller class
-    GurobiModeller(const SolverParams &pSParams, bool useLazyNACs=false);
+    /// Constructor of the SCIPModeller class
+    SCIPModeller(const SolverParams &pSParams, bool useLazyNACs=false);
     
-    /// Constructor of the GurobiModeller class with default parameters
-    GurobiModeller();
+    /// Constructor of the SCIPModeller class with default parameters
+    SCIPModeller();
     
-    /// Destructor of the GurobiModeller class
-    ~GurobiModeller(){}
+    /// Destructor of the SCIPModeller class
+    ~SCIPModeller(){}
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
@@ -75,33 +75,30 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Private Member %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    GurobiVariableContainer m_pGurobiVC;
+    SCIPVariableContainer m_pSCIPVC;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    void setParameters(GRBModel& Model) const;
-    void setPriorities(map<string,GRBVar>& VarMap, const map<string,int>& priorities);
-    void saveResults(GRBModel& Model, pair<bool,string> writeSlnToFile) const;
+    void setParameters(SCIP* scip) const;
+    void saveResults(SCIP* scip, pair<bool,string> writeSlnToFile) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%% Creater Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    void createGUROBImodel(boost::shared_ptr<CPLEXMISOCP> pModel,GRBEnv &env,GRBModel &Model); //  IloNumVarArray &contVars,IloBoolVarArray &boolVars, IloIntVarArray &intVars,
-    void addGUROBIdecisionVars(boost::shared_ptr<CPLEXMISOCP> pModel, GRBEnv &env, GRBModel &Model);
-    void addConstraint(GRBEnv &env, GRBModel& Model, boost::shared_ptr<ConstraintIF> pCstrIn) const;
-    void addObjective(GRBEnv &env, GRBModel& Model, boost::shared_ptr<ObjectiveFunctionIF> pObjIn) const;
-    void addGUROBIwarmstart(const map<string,double>& WSvars) const;
+    bool createSCIPmodel(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* scip);
+    bool addSCIPdecisionVars(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* scip);
+    bool addConstraint(SCIP* scip, boost::shared_ptr<ConstraintIF> pCstrIn, uint num);
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%% GUROBI SOLVER TYPE DEFS %%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%% SCIP SOLVER TYPE DEFS %%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-typedef GurobiModeller ROCPPGurobi;
-typedef boost::shared_ptr<GurobiModeller> ROCPPGurobi_Ptr;
-#endif /* GurobiModeller_hpp */
+typedef SCIPModeller ROCPPSCIP;
+typedef boost::shared_ptr<SCIPModeller> ROCPPSCIP_Ptr;
+#endif /* SCIPModeller_hpp */

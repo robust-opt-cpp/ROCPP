@@ -13,9 +13,6 @@
 #include <iostream>
 #include <iomanip>
 
-#include <scip/scip.h>
-#include <scip/scipdefplugins.h>
-
 
 
 int main()

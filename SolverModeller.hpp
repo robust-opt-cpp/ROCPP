@@ -10,8 +10,7 @@
 #define SolverModeller_hpp
 
 class OptimizationModelIF;
-class GRBVar;
-class GRBModel;
+
 
 #include "HeaderIncludeFiles.hpp"
 
@@ -177,12 +176,6 @@ public:
     double getMIPGap() const;
     double getSolvingTime() const;
     
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    void setParameters(GRBModel &Model) const;
-    
 protected:
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -193,14 +186,6 @@ protected:
     SolverParams m_pSParams;
     map<string, double> m_solution;
     resultParams m_results;
-    
-    void saveResults(GRBModel& model, pair<bool,string> writeSlnToFile) const;
-    
-private:
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%% Private Function %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     int getThreadsToRun() const;
 };
@@ -215,13 +200,6 @@ boost::shared_ptr<SolverModellerIF> InstantiateSolverModeller( string solver, co
 
 boost::shared_ptr<SolverModellerIF> InstantiateSolverModeller( string solver, bool useLazyNACs=false );
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%% PRIORITIES FUNCTION %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void setPriorities(map<string,GRBVar>& VarMap, const map<string,int>& priorities);
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

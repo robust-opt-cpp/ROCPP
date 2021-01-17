@@ -133,47 +133,6 @@ double SolverModellerIF::getSolvingTime() const
     return m_results.m_solveTime;
 }
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void SolverModellerIF::setParameters(GRBModel &Model) const
-{
-    
-    Model.getEnv().set(GRB_IntParam_Threads, getThreadsToRun());
-    
-    Model.getEnv().set(GRB_IntParam_OutputFlag,boost::lexical_cast<int>(m_pSParams.getVerbose()));
-    
-    if (getEpAGapLimit().first)
-        Model.getEnv().set(GRB_DoubleParam_MIPGapAbs,getEpAGapLimit().second);
-    
-    if (getEpOptLimit().first)
-        Model.getEnv().set(GRB_DoubleParam_OptimalityTol,getEpOptLimit().second);
-    
-    if (getEpRHSLimit().first)
-        Model.getEnv().set(GRB_DoubleParam_FeasibilityTol,getEpRHSLimit().second);
-    
-    if (getEpIntLimit().first)
-        Model.getEnv().set(GRB_DoubleParam_IntFeasTol,max(getEpIntLimit().second,1.e-9));
-    
-    if (getTimeLimit().first)
-        Model.getEnv().set(GRB_DoubleParam_TimeLimit,getTimeLimit().second);
-    
-    if (getEpGapLimit().first)
-        Model.getEnv().set(GRB_DoubleParam_MIPGap,getEpGapLimit().second);
-}
-
-void SolverModellerIF::saveResults(GRBModel& model, pair<bool,string> writeSlnToFile) const
-{
-    if (model.get(GRB_IntAttr_Status) == GRB_OPTIMAL)
-    {
-        if (writeSlnToFile.first)
-        {
-            model.write((writeSlnToFile.second+"All.sol").c_str());
-        }
-    }
-}
-
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%% CREATE SOLVER FUNCTION %%%%%%%%%%%%%%%%%%%%%
@@ -202,22 +161,4 @@ boost::shared_ptr<SolverModellerIF> InstantiateSolverModeller( string solver, bo
     throw MyException("unknown solver");
 }
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%% PRIORITIES FUNCTION %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-void setPriorities(map<string,GRBVar>& VarMap, const map<string,int>& priorities)
-{
-    for (map<string,int>::const_iterator pit = priorities.begin(); pit != priorities.end(); pit++)
-    {
-        map<string,GRBVar>::iterator vit = VarMap.find(pit->first);
-        
-        if (vit == VarMap.end() )
-            throw MyException("GRBVar not found in map");
-        
-        vit->second.set(GRB_IntAttr_BranchPriority,pit->second);
-    }
-}
