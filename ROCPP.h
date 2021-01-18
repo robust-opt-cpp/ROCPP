@@ -27,6 +27,7 @@
 #include "DDUApproximatorOther.hpp"
 #include "SolverModeller.hpp"
 #include "GurobiModeller.hpp"
+#include "SCIPModeller.hpp"
 #include "Interface.hpp"
 #include "FileRelations.hpp"
 

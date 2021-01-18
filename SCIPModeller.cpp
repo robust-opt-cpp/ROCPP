@@ -14,7 +14,6 @@
 #include "ObjectiveFunction.hpp"
 #include "OptimizationModel.hpp"
 #include "OptModelConverters.hpp"
-#include "GurobiModeller.hpp"
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -33,9 +32,176 @@ SCIPModeller::SCIPModeller() : SolverModellerIF(SolverParams()) {}
 void SCIPModeller::Reset()
 {
     m_pSCIPVC.Reset();
+    m_pCstr.clear();
     m_problemSolved = false;
 }
 
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+void SCIPModeller::solve(boost::shared_ptr<OptimizationModelIF> pModelIn, bool writeSlnToFile, string fileName, bool writeSlnToConsle, const map<string, double>& WSvars, const map<string,int>& priorities, bool deleteModel)
+{
+    Reset();
+    
+    boost::shared_ptr<CPLEXMISOCP> pCplex;
+    
+    if(pModelIn->getType() == cplexmisocpType)
+        pCplex = boost::dynamic_pointer_cast<CPLEXMISOCP>(pModelIn);
+    
+    else{
+        boost::shared_ptr<MISOCP> pInNew(new MISOCP());
+        
+        if(pModelIn->getType() == misocpType){
+            pInNew = boost::dynamic_pointer_cast<MISOCP>(pModelIn);
+            pCplex = boost::shared_ptr<CPLEXMISOCP>( new CPLEXMISOCP(pInNew) );
+        }
+        
+        else{
+            throw MyException("Wrong model type, please use the function convertToMISOCP() to convert and check your model before solving");
+        }
+        
+    }
+    
+    solveSCIPModel(pCplex, writeSlnToFile, fileName, writeSlnToFile);
+    
+    // other stuff
+    if (deleteModel)
+        delete pModelIn.get();
+    
+    m_problemSolved = true;
+}
+
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+bool SCIPModeller::setParameters(SCIP* scip) const
+{
+    if (getEpAGapLimit().first)
+        SCIP_CALL( SCIPsetRealParam(scip, "limit_absgap", getEpAGapLimit().second) );
+    
+    if (getEpOptLimit().first)
+        throw MyException("Not sure about this in SCIP");
+    
+    if (getEpRHSLimit().first)
+        SCIP_CALL( SCIPsetRealParam(scip, "num_feastol", getEpRHSLimit().second) );
+    
+    if (getEpIntLimit().first)
+        throw MyException("Not sure about this in SCIP");
+    
+    if (getTimeLimit().first)
+        SCIP_CALL( SCIPsetRealParam(scip, "limit_time", getTimeLimit().second) );
+    
+    if (getEpGapLimit().first)
+        SCIP_CALL( SCIPsetRealParam(scip, "limit_gap", getEpGapLimit().second) );
+    
+    return true;
+}
+
+bool SCIPModeller::solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pCplex, bool writeSlnToFile, string fileName, bool writeSlnToConsle)
+{
+    //Setting up the SCIP environment
+    SCIP* scip = nullptr; /* Declaring the scip environment*/
+    SCIP_CALL( SCIPcreate(&scip) ); /*Creating the SCIP environment */
+    SCIP_CALL( SCIPincludeDefaultPlugins(scip) ); /* include default plugins */
+    SCIP_CALL( SCIPcreateProbBasic(scip, "myModel") ); /* creating the SCIP Problem. */
+    SCIP_CALL( SCIPsetObjsense(scip, SCIP_OBJSENSE_MINIMIZE) );/* Minimization problem by default */
+    
+
+    cout << "Creating model" << endl;
+    createSCIPmodel(pCplex, scip);
+    
+    /* TODO: haven't found
+    if (writeSlnToFile)
+        model.write(fileName+".lp");
+    */
+    
+    // set parameter
+    // TODO: need to find in the document
+    // setParameters(scip);
+    // set display
+    if(!writeSlnToConsle)
+        SCIP_CALL( SCIPsetIntParam(scip, "display/verblevel", 0) );
+    else
+        SCIP_CALL( SCIPsetIntParam(scip, "display/verblevel", 1) );
+    
+    // solve
+    SCIP_CALL( SCIPsolve(scip) );
+    // get solution status
+    SCIP_STATUS solutionstatus = SCIPgetStatus( scip );
+    // get solution
+    SCIP_SOL* sol;
+    sol = SCIPgetBestSol( scip );
+    
+    // get solving time
+    double realSolveTime( SCIPsolGetTime(sol));
+    cout << "Solver time: " << realSolveTime/60 << " minutes" << endl;
+    m_results.m_solveTime = realSolveTime;
+    
+    // output results
+    m_results.m_optStatus = solutionstatus;
+    if (solutionstatus == SCIP_STATUS_OPTIMAL)
+    {
+        cout << "\nOpt: " << SCIPgetSolOrigObj(scip, sol) << endl;
+        cout << endl;
+        m_results.m_optValue = SCIPsolGetOrigObj(sol);
+    }
+    else{
+        cout << "\nStatus: " << solutionstatus << endl;
+        exit(1);
+        //???: not sure about this
+        m_results.m_optValue = 0.0;
+    }
+    
+    
+    if ( m_pSCIPVC.m_boolVarMap.size() + m_pSCIPVC.m_intVarMap.size() > 0)
+        m_results.m_isMIP = true;
+    else
+        m_results.m_isMIP = false;
+    
+    //???: not sure what to do here
+    m_results.m_MIPGap = 0.;
+    
+    //saveResults(scip, make_pair(writeSlnToFile, fileName));
+    
+    m_solution.clear();
+    
+    // get solution of variables
+    map<string,SCIP_Var*>::iterator var(m_pSCIPVC.m_allVarsMap.begin());
+    
+    for(; var != m_pSCIPVC.m_allVarsMap.end(); var++)
+    {
+        pair<string, double> tmp;
+        tmp.first = var->first;
+        tmp.second = SCIPgetSolVal(scip, sol, var->second);
+        m_solution.insert(tmp);
+        SCIP_CALL( SCIPreleaseVar(scip, &(var->second)));
+    }
+    
+    for( auto &cstr : m_pCstr )
+    {
+       SCIP_CALL( SCIPreleaseCons(scip, &cstr) );
+    }
+    Reset();
+    
+    SCIP_CALL( SCIPfree(&scip) );
+    
+    return true;
+}
+/*
+void SCIPModeller::saveResults(SCIP* scip, pair<bool,string> writeSlnToFile) const
+{
+    if ( SCIPgetStatus(scip) == SCIP_STATUS_OPTIMAL)
+    {
+        if (writeSlnToFile.first)
+        {
+            //???: not found
+        }
+    }
+}
+*/
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%% Creater Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -53,7 +219,6 @@ bool SCIPModeller::createSCIPmodel(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* 
     // =========== CREATE CONSTRAINTS =================================================
     // ================================================================================
     
-    
     uint cnt(0);
     for (OptimizationModelIF::constraintIterator c_it=pModel->constraintBegin(); c_it != pModel->constraintEnd(); c_it++)
     {
@@ -62,7 +227,6 @@ bool SCIPModeller::createSCIPmodel(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* 
             cout << cnt << " constraints modelled from " << pModel->getNumConstraints() << endl;
         
         addConstraint( scip, *c_it, cnt);
-        
     }
     return true;
 }
@@ -76,12 +240,13 @@ bool SCIPModeller::addSCIPdecisionVars(boost::shared_ptr<CPLEXMISOCP> pModel, SC
         throw MyException("SCIP can only solve MILP problem with linear objective function");
     
     map<string, double> varCoeff;
+    double objOffSet(0.0);
     // iterate through the terms and find the coefficient of the decision variables
     LHSExpression::const_iterator t_it = obj->begin();
     for(; t_it != obj->end(); t_it++)
     {
         if((*t_it)->getNumVars() == 0)
-            throw MyException("Term in the objective function must involve decision variable");
+            objOffSet += (*t_it)->getCoeff();
         
         string name((*t_it)->getDVContainer()->begin()->first);
         varCoeff.insert(make_pair(name, (*t_it)->getCoeff()));
@@ -129,6 +294,8 @@ bool SCIPModeller::addSCIPdecisionVars(boost::shared_ptr<CPLEXMISOCP> pModel, SC
         else throw MyException("unexpected type");
     }
     
+    if(objOffSet != 0.0)
+        cout << "The offset of the objective function is not counted" << endl;
     return true;
 }
 
@@ -164,7 +331,8 @@ bool SCIPModeller::addConstraint(SCIP* scip, boost::shared_ptr<ConstraintIF> pCs
                     throw MyException("cplexmisocp should not involve uncertainties");
 
                 if (pPT->getNumVars()==0)
-                    throw MyException("term in left hand-side expression must have decision variable");
+                    rhs -= pPT->getCoeff();
+                
                 else
                 {
                     map<string, SCIP_VAR*>::const_iterator vit (m_pSCIPVC.m_allVarsMap.find( pPT->varsBegin()->second->getName()));
@@ -178,7 +346,16 @@ bool SCIPModeller::addConstraint(SCIP* scip, boost::shared_ptr<ConstraintIF> pCs
                     else throw ("unacceptable term type");
                 }
             }
-            num += 1;
+            
+            if (pClassic->isEqConstraint())
+                lhs = rhs;
+            SCIP_CALL( SCIPchgRhsLinear(scip, cons, rhs));
+            SCIP_CALL( SCIPchgLhsLinear(scip, cons, lhs));
+            
+            SCIP_CALL( SCIPaddCons(scip, cons) );
+            
+            m_pCstr.push_back(cons);
+            
         }
         else throw ("SCIP can only support linear constraint");
     }

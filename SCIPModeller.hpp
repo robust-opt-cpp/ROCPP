@@ -9,6 +9,7 @@
 #define SCIPModeller_hpp
 
 #include <stdio.h>
+#include <vector>
 #include "HeaderIncludeFiles.hpp"
 #include "SolverModeller.hpp"
 #include <scip/scip.h>
@@ -76,18 +77,19 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%%% Private Member %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     SCIPVariableContainer m_pSCIPVC;
+    vector<SCIP_CONS*> m_pCstr;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    void setParameters(SCIP* scip) const;
-    void saveResults(SCIP* scip, pair<bool,string> writeSlnToFile) const;
+    bool setParameters(SCIP* scip) const;
+    //void saveResults(SCIP* scip, pair<bool,string> writeSlnToFile) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%% Creater Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+    bool solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pModelIn, bool writeSlnToFile, string fileName, bool writeSlnToConsle);
     bool createSCIPmodel(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* scip);
     bool addSCIPdecisionVars(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* scip);
     bool addConstraint(SCIP* scip, boost::shared_ptr<ConstraintIF> pCstrIn, uint num);
