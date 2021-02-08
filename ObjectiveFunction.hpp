@@ -138,7 +138,7 @@ public:
     /// Get the number of times the term given in the multimap appears in this objective function
     /// @param term multimap from the name of the decision variable to the desicion variable used to define this term
     /// @note The same decision variable may appear many times in a term (indicating that we have a product of the same variable)
-    uint getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const;
+    virtual uint getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const = 0;
     
     /// Replace in this objective function the term given with the decision variable provided
     /// @param term map including the decision variables in the term to be replaced
@@ -277,6 +277,8 @@ public:
     /// @note Return 1 for SimpleObjective
     size_t getNumTermsMaxObjective() const {return 1;}
     
+    uint getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const;
+    
     /// @note Return true for SimpleObjective
     bool isSimpleObjective() const {return true;}
     
@@ -400,6 +402,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     size_t getNumTermsMaxObjective() const {return m_pObjFuns.size();}
+    uint getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const;
     vector<boost::shared_ptr<LHSExpression> > getObj() const;
     boost::shared_ptr<LHSExpression> getObj(uint i) const;
     

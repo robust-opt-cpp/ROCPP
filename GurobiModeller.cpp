@@ -6,6 +6,7 @@
 // Software created by Phebe Vayanos, Qing Jin, and George Elissaios
 //
 
+#ifdef USE_GUROBI
 #include "IncludeFiles.hpp"
 #include "Exceptions.hpp"
 #include "DecisionVariable.hpp"
@@ -35,6 +36,34 @@ void GurobiModeller::Reset()
 {
     m_pGurobiVC.Reset();
     m_problemSolved = false;
+}
+
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+double GurobiModeller::getMIPGap() const
+{
+    if(!m_problemSolved)
+        throw MyException("No problem is solved now");
+    
+    if(m_results.m_isMIP)
+        return m_results.m_MIPGap;
+    else{
+        cout << "No integer variable in this problem." << endl;
+        return 0.0;
+    }
+}
+
+double GurobiModeller::getOptValue() const
+{
+    if(getOptStatus() == 2)
+        return m_results.m_optValue;
+    else {
+        cout << "No optimal value in status: " + to_string(getOptStatus() ) << endl;
+        return 0.0;
+    }
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -514,3 +543,4 @@ void GurobiModeller::addGUROBIwarmstart(const map<string,double>& WSvars) const
         wsVars[i].set(GRB_DoubleAttr_Start, wsVals[i]);
     }
 }
+#endif

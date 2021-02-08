@@ -6,6 +6,7 @@
 // Software created by Phebe Vayanos, Qing Jin, and George Elissaios
 //
 
+#ifdef USE_GUROBI
 #ifndef GurobiModeller_hpp
 #define GurobiModeller_hpp
 
@@ -63,6 +64,13 @@ public:
     ~GurobiModeller(){}
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    double getMIPGap() const;
+    double getOptValue() const;
+    
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
@@ -105,3 +113,4 @@ private:
 typedef GurobiModeller ROCPPGurobi;
 typedef boost::shared_ptr<GurobiModeller> ROCPPGurobi_Ptr;
 #endif /* GurobiModeller_hpp */
+#endif

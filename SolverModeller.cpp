@@ -6,10 +6,8 @@
 // Software created by Phebe Vayanos, Qing Jin, and George Elissaios
 //
 
-#include "gurobi_c++.h"
 #include "IncludeFiles.hpp"
 #include "SolverModeller.hpp"
-#include "GurobiModeller.hpp"
 #include <boost/thread.hpp>
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -35,7 +33,9 @@ void SolverParams::printMainSolverParamsToScreen() const
     if (m_timeLimit.first)
         cout << "Time Limit:" << m_timeLimit.second << endl;
     if (m_epGapLimit.first)
-        cout << "AGap Limit:" << m_epGapLimit.second << endl;
+        cout << "Gap Limit:" << m_epGapLimit.second << endl;
+    if (m_epAGapLimit.first)
+        cout << "AGap Limit:" << m_epAGapLimit.second << endl;
     if (m_epOptLimit.first)
         cout << "Opt Limit:" << m_epOptLimit.second << endl;
     if (m_epRHSLimit.first)
@@ -102,29 +102,6 @@ uint SolverModellerIF::getOptStatus() const
     return m_results.m_optStatus;
 }
 
-double SolverModellerIF::getOptValue() const
-{
-    if(getOptStatus() == 2)
-        return m_results.m_optValue;
-    else {
-        cout << "No optimal value in status: " + to_string(getOptStatus() ) << endl;
-        return 0.0;
-    }
-}
-
-double SolverModellerIF::getMIPGap() const
-{
-    if(!m_problemSolved)
-        throw MyException("No problem is solved now");
-    
-    if(m_results.m_isMIP)
-        return m_results.m_MIPGap;
-    else{
-        cout << "No integer variable in this problem." << endl;
-        return 0.0;
-    }
-}
-
 double SolverModellerIF::getSolvingTime() const
 {
     if(!m_problemSolved)
@@ -133,32 +110,5 @@ double SolverModellerIF::getSolvingTime() const
     return m_results.m_solveTime;
 }
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%% CREATE SOLVER FUNCTION %%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-boost::shared_ptr<SolverModellerIF> InstantiateSolverModeller( string solver, const SolverParams &pSParams, bool useLazyNACs )
-{
-    if (solver=="cplex")
-        throw MyException("CPLEX not available");
-
-    else if (solver=="gurobi")
-        return  boost::shared_ptr<SolverModellerIF>( new  GurobiModeller(pSParams, useLazyNACs ) );
-    
-    throw MyException("unknown solver");
-}
-
-boost::shared_ptr<SolverModellerIF> InstantiateSolverModeller( string solver, bool useLazyNACs )
-{
-    if (solver=="cplex")
-        MyException("CPLEX not available");
-
-    else if (solver=="gurobi")
-        return  boost::shared_ptr<SolverModellerIF>( new  GurobiModeller( useLazyNACs ) );
-    
-    throw MyException("unknown solver");
-}
 
 

@@ -5,6 +5,7 @@
 //  Created by 靳晴 on 1/16/21.
 //
 
+#ifdef USE_SCIP
 #ifndef SCIPModeller_hpp
 #define SCIPModeller_hpp
 
@@ -14,6 +15,8 @@
 #include "SolverModeller.hpp"
 #include <scip/scip.h>
 #include <scip/scipdefplugins.h>
+#include "scip/cons_nonlinear.h"
+#include "nlpi/nlpi_ipopt.h"
 #include <map>
 
 class ConstraintIF;
@@ -71,6 +74,12 @@ public:
     
     void Reset();
     
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    double getMIPGap() const;
+    double getOptValue() const;
+    
 private:
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -84,12 +93,11 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     bool setParameters(SCIP* scip) const;
-    //void saveResults(SCIP* scip, pair<bool,string> writeSlnToFile) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%% Creater Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    bool solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pModelIn, bool writeSlnToFile, string fileName, bool writeSlnToConsle);
+    bool solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pModelIn, bool writeSlnToConsle);
     bool createSCIPmodel(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* scip);
     bool addSCIPdecisionVars(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* scip);
     bool addConstraint(SCIP* scip, boost::shared_ptr<ConstraintIF> pCstrIn, uint num);
@@ -104,3 +112,4 @@ private:
 typedef SCIPModeller ROCPPSCIP;
 typedef boost::shared_ptr<SCIPModeller> ROCPPSCIP_Ptr;
 #endif /* SCIPModeller_hpp */
+#endif

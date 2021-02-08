@@ -17,7 +17,12 @@
 #include "OptModelConverters.hpp"
 #include "UncertaintyConverter.hpp"
 #include "helpersOpt.hpp"
+#include "SolverModeller.hpp"
+#ifdef USE_GUROBI
 #include "GurobiModeller.hpp"
+#elif defined(USE_SCIP)
+#include "SCIPModeller.hpp"
+#endif
 
 void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pModelIn, map<string,pair<double,double> > &margSupp, boost::shared_ptr<Bilinear_MItoMB_Converter> pMIMBConverter, const map<string,uint> &numPartitionsMap, string solver,bool onlyObsUnc, bool onlyUncInMap, const map<string,pair<double,double> >&outerApproxMargSupp)
 {
@@ -211,8 +216,20 @@ void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pM
                 
                 
                 SolverParams sparams = SolverParams();
-                boost::shared_ptr<SolverModellerIF> pModeller( InstantiateSolverModeller(solver, sparams,false) );
-                
+                boost::shared_ptr<SolverModellerIF> pModeller;
+//                if (solver == "gurobi")
+//                    pModeller =  boost::shared_ptr<SolverModellerIF>(new GurobiModeller(sparams, false) );
+//                else if (solver == "SCIP")
+//                    pModeller =  boost::shared_ptr<SolverModellerIF>(new SCIPModeller(sparams, false) );
+//                else
+//                    throw MyException("Can not find your solver.");
+#ifdef USE_GUROBI
+                pModeller =  boost::shared_ptr<SolverModellerIF>(new GurobiModeller(sparams, false) );
+#elif defined(USE_SCIP)
+                pModeller =  boost::shared_ptr<SolverModellerIF>(new SCIPModeller(sparams, false) );
+#else
+                throw MyException("Can not find your solver.");
+#endif
                 
                 double opt_lb;
                 uint status_lb;
@@ -257,7 +274,7 @@ void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pM
                 }
                 
                 opt_ub *= -1.0;
-                
+#ifdef USE_GUROBI
                 if ( (status_lb == GRB_OPTIMAL) && (status_ub == GRB_OPTIMAL) )
                 {
                     if (opt_lb > opt_ub )
@@ -267,6 +284,17 @@ void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pM
                 }
                 else
                     throw MyException("an error occured when finding the marginal supports: either empty or unbounded");
+#elif defined(USE_SCIP)
+                if ( (status_lb == SCIP_STATUS_OPTIMAL) && (status_ub == SCIP_STATUS_OPTIMAL) )
+                {
+                    if (opt_lb > opt_ub )
+                        throw MyException("an unexpected error occurred when computing the marginal supports");
+                    
+                    margSupp.insert( pair<string,pair<double,double> >( u_it->second->getName() ,pair<double,double>( opt_lb, opt_ub ) ));
+                }
+                else
+                    throw MyException("an error occured when finding the marginal supports: either empty or unbounded");
+#endif
             }
         }
     }

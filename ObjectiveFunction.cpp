@@ -22,22 +22,6 @@
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-uint ObjectiveFunctionIF::getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const
-{
-    uint out(0);
-    
-    vector<boost::shared_ptr<LHSExpression> >::const_iterator objIterator = getObj().begin();
-    
-    for(; objIterator != getObj().end(); objIterator++)
-        out += (*objIterator)->getNumTimesTermAppears(term);
-    
-    return out;
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -137,6 +121,13 @@ void SimpleObjective::convertToEpigraph(boost::shared_ptr<DecisionVariableIF> ep
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+uint SimpleObjective::getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const
+{
+    uint out(m_pObjFun->getNumTimesTermAppears(term));
+    
+    return out;
+}
 
 vector<boost::shared_ptr<LHSExpression> > SimpleObjective::getObj() const
 {
@@ -371,6 +362,17 @@ void MaxObjective::convertToEpigraph(boost::shared_ptr<DecisionVariableIF> epigr
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+uint MaxObjective::getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const
+{
+    uint out(0);
+    obj_iterator o_it(m_pObjFuns.begin());
+    
+    for(; o_it != m_pObjFuns.end(); o_it++)
+        out += (*o_it)->getNumTimesTermAppears(term);
+    
+    return out;
+}
+
 vector<boost::shared_ptr<LHSExpression> > MaxObjective::getObj() const
 {
     return m_pObjFuns;
@@ -458,9 +460,9 @@ boost::shared_ptr<ObjectiveFunctionIF> MaxObjective::Clone() const
 {
     vector<boost::shared_ptr<LHSExpression> > newObjs;
 
-    vector<boost::shared_ptr<LHSExpression> >::const_iterator o_it(getObj().begin());
+    obj_iterator o_it(m_pObjFuns.begin());
     
-    for(; o_it != getObj().end(); o_it++)
+    for(; o_it != m_pObjFuns.end(); o_it++)
         newObjs.push_back((*o_it)->Clone());
     
     boost::shared_ptr<ObjectiveFunctionIF> newObj(new MaxObjective(newObjs));

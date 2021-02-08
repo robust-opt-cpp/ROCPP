@@ -4,7 +4,7 @@
 //
 //  Created by 靳晴 on 1/16/21.
 //
-
+#ifdef USE_SCIP
 #include "SCIPModeller.hpp"
 #include "Exceptions.hpp"
 #include "DecisionVariable.hpp"
@@ -36,6 +36,34 @@ void SCIPModeller::Reset()
     m_problemSolved = false;
 }
 
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+double SCIPModeller::getMIPGap() const
+{
+    if(!m_problemSolved)
+        throw MyException("No problem is solved now");
+    
+    if(m_results.m_isMIP){
+        cout << "Warning: No such result in SCIP." << endl;
+        return 0.0;
+    }
+    else{
+        cout << "No integer variable in this problem." << endl;
+        return 0.0;
+    }
+}
+
+double SCIPModeller::getOptValue() const
+{
+    if(getOptStatus() == 11)
+        return m_results.m_optValue;
+    else {
+        cout << "No optimal value in status: " + to_string(getOptStatus() ) << endl;
+        return 0.0;
+    }
+}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -63,7 +91,7 @@ void SCIPModeller::solve(boost::shared_ptr<OptimizationModelIF> pModelIn, bool w
         
     }
     
-    solveSCIPModel(pCplex, writeSlnToFile, fileName, writeSlnToFile);
+    solveSCIPModel(pCplex, writeSlnToConsle);
     
     // other stuff
     if (deleteModel)
@@ -80,27 +108,27 @@ void SCIPModeller::solve(boost::shared_ptr<OptimizationModelIF> pModelIn, bool w
 bool SCIPModeller::setParameters(SCIP* scip) const
 {
     if (getEpAGapLimit().first)
-        SCIP_CALL( SCIPsetRealParam(scip, "limit_absgap", getEpAGapLimit().second) );
-    
+        SCIP_CALL( SCIPsetRealParam(scip, "limits/absgap", getEpAGapLimit().second) );
+
     if (getEpOptLimit().first)
-        throw MyException("Not sure about this in SCIP");
-    
-    if (getEpRHSLimit().first)
-        SCIP_CALL( SCIPsetRealParam(scip, "num_feastol", getEpRHSLimit().second) );
+        SCIP_CALL( SCIPsetRealParam(scip, "numerics/dualfeastol", getEpOptLimit().second) );
     
     if (getEpIntLimit().first)
-        throw MyException("Not sure about this in SCIP");
+        throw MyException("Not sure about this in SCIP, please set to default");
     
     if (getTimeLimit().first)
-        SCIP_CALL( SCIPsetRealParam(scip, "limit_time", getTimeLimit().second) );
+        SCIP_CALL( SCIPsetRealParam(scip, "limits/time", getTimeLimit().second) );
     
     if (getEpGapLimit().first)
-        SCIP_CALL( SCIPsetRealParam(scip, "limit_gap", getEpGapLimit().second) );
+        SCIP_CALL( SCIPsetRealParam(scip, "limits/gap", getEpGapLimit().second) );
+    
+    if (getEpRHSLimit().first)
+        SCIP_CALL( SCIPsetRealParam(scip, "numerics/feastol", getEpRHSLimit().second) );
     
     return true;
 }
 
-bool SCIPModeller::solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pCplex, bool writeSlnToFile, string fileName, bool writeSlnToConsle)
+bool SCIPModeller::solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pCplex, bool writeSlnToConsle)
 {
     //Setting up the SCIP environment
     SCIP* scip = nullptr; /* Declaring the scip environment*/
@@ -113,14 +141,9 @@ bool SCIPModeller::solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pCplex, bool wr
     cout << "Creating model" << endl;
     createSCIPmodel(pCplex, scip);
     
-    /* TODO: haven't found
-    if (writeSlnToFile)
-        model.write(fileName+".lp");
-    */
-    
     // set parameter
-    // TODO: need to find in the document
-    // setParameters(scip);
+    setParameters(scip);
+    
     // set display
     if(!writeSlnToConsle)
         SCIP_CALL( SCIPsetIntParam(scip, "display/verblevel", 0) );
@@ -128,7 +151,9 @@ bool SCIPModeller::solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pCplex, bool wr
         SCIP_CALL( SCIPsetIntParam(scip, "display/verblevel", 1) );
     
     // solve
+    cout << "start solving" << endl;
     SCIP_CALL( SCIPsolve(scip) );
+    cout << "solved" << endl;
     // get solution status
     SCIP_STATUS solutionstatus = SCIPgetStatus( scip );
     // get solution
@@ -150,21 +175,14 @@ bool SCIPModeller::solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pCplex, bool wr
     }
     else{
         cout << "\nStatus: " << solutionstatus << endl;
-        exit(1);
-        //???: not sure about this
-        m_results.m_optValue = 0.0;
+        m_results.m_optValue = SCIPsolGetOrigObj(sol);
     }
     
     
-    if ( m_pSCIPVC.m_boolVarMap.size() + m_pSCIPVC.m_intVarMap.size() > 0)
+    if ( (m_pSCIPVC.m_boolVarMap.size() + m_pSCIPVC.m_intVarMap.size() ) > 0)
         m_results.m_isMIP = true;
     else
         m_results.m_isMIP = false;
-    
-    //???: not sure what to do here
-    m_results.m_MIPGap = 0.;
-    
-    //saveResults(scip, make_pair(writeSlnToFile, fileName));
     
     m_solution.clear();
     
@@ -190,18 +208,6 @@ bool SCIPModeller::solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pCplex, bool wr
     
     return true;
 }
-/*
-void SCIPModeller::saveResults(SCIP* scip, pair<bool,string> writeSlnToFile) const
-{
-    if ( SCIPgetStatus(scip) == SCIP_STATUS_OPTIMAL)
-    {
-        if (writeSlnToFile.first)
-        {
-            //???: not found
-        }
-    }
-}
-*/
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%% Creater Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -223,7 +229,7 @@ bool SCIPModeller::createSCIPmodel(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* 
     for (OptimizationModelIF::constraintIterator c_it=pModel->constraintBegin(); c_it != pModel->constraintEnd(); c_it++)
     {
         cnt++;
-        if ( cnt % 10000 == 0)
+        if ( cnt % 100 == 0)
             cout << cnt << " constraints modelled from " << pModel->getNumConstraints() << endl;
         
         addConstraint( scip, *c_it, cnt);
@@ -305,10 +311,10 @@ bool SCIPModeller::addConstraint(SCIP* scip, boost::shared_ptr<ConstraintIF> pCs
     {
         boost::shared_ptr<ClassicConstraintIF> pClassic ( boost::static_pointer_cast<ClassicConstraintIF> (pCstrIn) );
         
+        SCIP_CONS* cons = nullptr;
+        
         if (pClassic->isLinear())
         {
-            SCIP_CONS* cons = nullptr;
-            
             // decide the lhs and the rhs
             double lhs, rhs((pClassic->get_rhs()).first);
             if (pClassic->isEqConstraint())
@@ -355,9 +361,60 @@ bool SCIPModeller::addConstraint(SCIP* scip, boost::shared_ptr<ConstraintIF> pCs
             SCIP_CALL( SCIPaddCons(scip, cons) );
             
             m_pCstr.push_back(cons);
-            
         }
-        else throw ("SCIP can only support linear constraint");
+        else if (pClassic->isQuadratic()){
+            if(SCIPgetNNlpis(scip) == 0)
+                throw ("No avaliable NLP solver");
+            // decide the lhs and the rhs
+            double lhs, rhs((pClassic->get_rhs()).first);
+            if (pClassic->isEqConstraint())
+                throw MyException("cannot have quadratic equality");
+            else
+                lhs = -SCIPinfinity(scip);
+            
+            // set name of the constraint base on the number
+            string name("cstr" + to_string(num));
+            SCIP_CALL( SCIPcreateConsBasicQuadratic(scip, &cons, name.c_str(),
+                                                  0, nullptr, nullptr, 0, nullptr, nullptr, nullptr, lhs, rhs) );
+            for (ClassicConstraintIF::const_iterator tit = pClassic->begin(); tit != pClassic->end(); tit++)
+            {
+                if (!(*tit)->isProductTerm() )
+                    throw MyException("cplexmisocp cannot have non-prod terms");
+                
+                boost::shared_ptr<ProductTerm> pPT = boost::static_pointer_cast<ProductTerm>(*tit);
+                if (pPT->getNumUncertainties() != 0)
+                    throw MyException("cplexmisocp should not involve uncertainties");
+
+                if (pPT->getNumVars()==0)
+                    SCIPaddConstantQuadratic(scip, cons, pPT->getCoeff() );
+                else{
+                    map<string, SCIP_VAR*>::const_iterator vit;
+                    vit = m_pSCIPVC.m_allVarsMap.find( pPT->varsBegin()->second->getName());
+                    if (vit == m_pSCIPVC.m_allVarsMap.end())
+                        throw MyException("SCIPVar not found");
+                    
+                    SCIP_Var* var1 = vit->second;
+                    if(pPT->isLinear())
+                    {
+                        SCIP_CALL( SCIPaddLinearVarQuadratic(scip, cons, var1, pPT->getCoeff()) );
+                    }
+                    else if ( pPT->isQuadratic() )
+                    {
+                        vit = m_pSCIPVC.m_allVarsMap.find( (++pPT->varsBegin())->second->getName());
+                        if (vit == m_pSCIPVC.m_allVarsMap.end())
+                            throw MyException("GRBVar not found");
+                        
+                        SCIP_Var* var2 = vit->second;
+                        SCIP_CALL( SCIPaddBilinTermQuadratic(scip, cons, var1, var2, pPT->getCoeff()) );
+                    }
+                    else throw ("unacceptable term type");
+                }
+            }
+            SCIP_CALL( SCIPaddCons(scip, cons) );
+            m_pCstr.push_back(cons);
+        }
+        else
+           throw MyException("unknown constraint type");
     }
     else if ( pCstrIn->isSOSConstraint() )
     {
@@ -371,3 +428,5 @@ bool SCIPModeller::addConstraint(SCIP* scip, boost::shared_ptr<ConstraintIF> pCs
     
     return true;
 }
+
+#endif

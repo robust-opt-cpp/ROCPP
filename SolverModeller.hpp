@@ -172,8 +172,8 @@ public:
     double getSolution(string dvName) const;
     
     uint getOptStatus() const;
-    double getOptValue() const;
-    double getMIPGap() const;
+    virtual double getOptValue() const = 0;
+    virtual double getMIPGap() const = 0;
     double getSolvingTime() const;
     
 protected:
@@ -189,17 +189,6 @@ protected:
     
     int getThreadsToRun() const;
 };
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%% CREATE SOLVER FUNCTION %%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-boost::shared_ptr<SolverModellerIF> InstantiateSolverModeller( string solver, const SolverParams &pSParams, bool useLazyNACs=false  );
-
-boost::shared_ptr<SolverModellerIF> InstantiateSolverModeller( string solver, bool useLazyNACs=false );
-
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
