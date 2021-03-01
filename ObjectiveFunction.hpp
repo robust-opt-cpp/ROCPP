@@ -12,13 +12,6 @@
 #include "HeaderIncludeFiles.hpp"
 #include <stdio.h>
 
-class ConstraintIF;
-class UncertaintyIF;
-class DecisionVariableIF;
-class dvContainer;
-class uncContainer;
-class LHSExpression;
-
 
 /// Enumerator listing the possible objective function types
 enum objType {
@@ -74,7 +67,7 @@ public:
     virtual uncsIterator uncEnd() const = 0;
     
     /// Constant iterator to a collection of LHSExpressions defining the objective function
-    typedef vector<boost::shared_ptr<LHSExpression> >::const_iterator obj_fun_iterator;
+    typedef vector<ROCPPExpr_Ptr >::const_iterator obj_fun_iterator;
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
@@ -83,7 +76,7 @@ public:
     /// Check compatibility for the given expression to be given as (one of the) objective functions
     /// @param pExpression expression of the objective function
     /// @note throws an exception if pExpression is nonlinear (has products of decision variables, products of uncertain parameters, or norm terms)
-    void checkCompatibility(boost::shared_ptr<LHSExpression> pExpression) const;
+    void checkCompatibility(ROCPPExpr_Ptr pExpression) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -92,24 +85,24 @@ public:
     /// Add the product of the inputs as a new term to all parts of the objective function
     /// @param pVar decision variable in the ProductTerm to add to all parts of the objective function
     /// @param cost cost in the ProductTerm to add to all parts of the objective function
-    virtual void add_to_obj(boost::shared_ptr<DecisionVariableIF> pVar, double cost) = 0;
+    virtual void add_to_obj(ROCPPVarIF_Ptr pVar, double cost) = 0;
     
     /// Map the decision variables in this objective function to new variables
-    virtual boost::shared_ptr<ObjectiveFunctionIF> mapObjVars(const map<string,boost::shared_ptr<DecisionVariableIF> > &mapFromOldToNewVars) const = 0;
+    virtual ROCPPObjectiveIF_Ptr mapObjVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const = 0;
     
     /// Map the uncertain parameters in this objective function to new uncertain parameters
-    virtual boost::shared_ptr<ObjectiveFunctionIF> mapObjUnc(const map<string,boost::shared_ptr<UncertaintyIF> > &mapFromOldToNewUnc) const = 0;
+    virtual ROCPPObjectiveIF_Ptr mapObjUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const = 0;
     
     /// Map the decision variables in this objective function to an expression
-    virtual boost::shared_ptr<ObjectiveFunctionIF> mapVars(const map<string, boost::shared_ptr<LHSExpression> > &mapFromVarToExpression) const = 0;
+    virtual ROCPPObjectiveIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const = 0;
     
     /// Map the uncertain parameters in this objective function to an expression
-    virtual boost::shared_ptr<ObjectiveFunctionIF> mapUncs(const map<string, boost::shared_ptr<LHSExpression> > &mapFromUncToExpression) const = 0;
+    virtual ROCPPObjectiveIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const = 0;
     
     /// Convert the objective function to constraints using an epigraph reformulation
     /// @param epigraphVar epigraph variable used to write the problem in epigraph form
     /// @param epigraphConstraints will contain all the constraints used to write the objective function in epigraph form
-    virtual void convertToEpigraph(boost::shared_ptr<DecisionVariableIF> epigraphVar, vector<boost::shared_ptr<ConstraintIF> > &epigraphConstraints) const = 0;
+    virtual void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraint_Ptr > &epigraphConstraints) const = 0;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -129,22 +122,22 @@ public:
     virtual size_t getNumTermsMaxObjective() const = 0;
     
     /// Get the vector of all objective functions
-    virtual vector<boost::shared_ptr<LHSExpression> > getObj() const = 0;
+    virtual vector<ROCPPExpr_Ptr > getObj() const = 0;
     
     /// Get the i th objective function expression
     /// @param i Number of the objective function
-    virtual boost::shared_ptr<LHSExpression> getObj(uint i) const = 0;
+    virtual ROCPPExpr_Ptr getObj(uint i) const = 0;
     
     /// Get the number of times the term given in the multimap appears in this objective function
     /// @param term multimap from the name of the decision variable to the desicion variable used to define this term
     /// @note The same decision variable may appear many times in a term (indicating that we have a product of the same variable)
-    virtual uint getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const = 0;
+    virtual uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const = 0;
     
     /// Replace in this objective function the term given with the decision variable provided
     /// @param term map including the decision variables in the term to be replaced
     /// @param var variable used to replace the term
     /// @note Only replace the nonlinear term with variable
-    virtual boost::shared_ptr<ObjectiveFunctionIF> replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const = 0;
+    virtual ROCPPObjectiveIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const = 0;
     
     /// Return true if this objective function is linear
     virtual bool isSimpleObjective() const {return false;}
@@ -177,7 +170,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    virtual boost::shared_ptr<ObjectiveFunctionIF> Clone() const = 0;
+    virtual ROCPPObjectiveIF_Ptr Clone() const = 0;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -216,7 +209,7 @@ public:
     
     /// Constructor of the SimpleObjective class
     /// @param objFun expression used to define the objective function
-    SimpleObjective(boost::shared_ptr<LHSExpression> objFun);
+    SimpleObjective(ROCPPExpr_Ptr objFun);
     
     /// Destructor of the SimpleObjective class
     ~SimpleObjective(){}
@@ -241,7 +234,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    void add_to_obj(boost::shared_ptr<DecisionVariableIF> pVar, double cost);
+    void add_to_obj(ROCPPVarIF_Ptr pVar, double cost);
     
     /// @note Call LHExpression::add_vars_involved_in_prod() on the expression used to define the objective function
     void add_vars_involved_in_prod(dvContainer &dvs) const;
@@ -249,35 +242,35 @@ public:
     /// @note Call LHExpression::add_int_vars() on the expression used to define the objective function
     void add_int_vars(dvContainer &dvs) const;
     
-    boost::shared_ptr<ObjectiveFunctionIF> replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const;
+    ROCPPObjectiveIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
     
     /// @note Call LHExpression::mapExprVars() on the expression defining the objective function
-    boost::shared_ptr<ObjectiveFunctionIF> mapObjVars(const map<string,boost::shared_ptr<DecisionVariableIF> > &mapFromOldToNewVars) const;
+    ROCPPObjectiveIF_Ptr mapObjVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const;
     
     /// @note Call LHExpression::mapExprUnc() on the expression defining the objective function
-    boost::shared_ptr<ObjectiveFunctionIF> mapObjUnc(const map<string,boost::shared_ptr<UncertaintyIF> > &mapFromOldToNewUnc) const;
+    ROCPPObjectiveIF_Ptr mapObjUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const;
     
     /// @note Call LHExpression::mapVars() for the expression defining the objective function
-    boost::shared_ptr<ObjectiveFunctionIF> mapVars(const map<string, boost::shared_ptr<LHSExpression> > &mapFromVarToExpression) const;
+    ROCPPObjectiveIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const;
     
     /// @note Call LHExpression::mapUncs() for the expression defining the objective function
-    boost::shared_ptr<ObjectiveFunctionIF> mapUncs(const map<string, boost::shared_ptr<LHSExpression> > &mapFromUncToExpression) const;
+    ROCPPObjectiveIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const;
     
-    void convertToEpigraph(boost::shared_ptr<DecisionVariableIF> epigraphVar, vector<boost::shared_ptr<ConstraintIF> > &epigraphConstraints) const;
+    void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraint_Ptr > &epigraphConstraints) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    vector<boost::shared_ptr<LHSExpression> > getObj() const;
+    vector<ROCPPExpr_Ptr > getObj() const;
     
     /// @warning The input parameter for SimpleObjective must be 1
-    boost::shared_ptr<LHSExpression> getObj(uint i) const;
+    ROCPPExpr_Ptr getObj(uint i) const;
     
     /// @note Return 1 for SimpleObjective
     size_t getNumTermsMaxObjective() const {return 1;}
     
-    uint getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const;
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const;
     
     /// @note Return true for SimpleObjective
     bool isSimpleObjective() const {return true;}
@@ -302,7 +295,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    boost::shared_ptr<ObjectiveFunctionIF> Clone() const;
+    ROCPPObjectiveIF_Ptr Clone() const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -317,7 +310,7 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Expression used to define the objective function
-    boost::shared_ptr<LHSExpression> m_pObjFun;
+    ROCPPExpr_Ptr m_pObjFun;
 };
 
  
@@ -339,7 +332,7 @@ public:
     MaxObjective();
     
     /// Constructor of the MaxObjective class
-    MaxObjective(vector<boost::shared_ptr<LHSExpression> > objFuns);
+    MaxObjective(vector<ROCPPExpr_Ptr > objFuns);
     
     /// Destructor of the MaxObjective class
     ~MaxObjective(){}
@@ -361,7 +354,7 @@ public:
     uncsIterator uncEnd() const;
     
     /// Constant iterator on the parts of the objective function
-    typedef vector<boost::shared_ptr<LHSExpression> >::const_iterator obj_iterator;
+    typedef vector<ROCPPExpr_Ptr >::const_iterator obj_iterator;
     
     /// Return a constant iterator pointing to the beginning of the vector of objective functions
     obj_iterator objectiveBegin() const {return m_pObjFuns.begin();}
@@ -373,7 +366,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    void add_to_obj(boost::shared_ptr<DecisionVariableIF> pVar, double cost);
+    void add_to_obj(ROCPPVarIF_Ptr pVar, double cost);
     
     /// @note Call dvContainter::add_vars_involved_in_prod() on the dvContainer of this objective
     virtual void add_vars_involved_in_prod(dvContainer &dvs) const;
@@ -382,29 +375,29 @@ public:
     virtual void add_int_vars(dvContainer &dvs) const;
     
     /// @note Call LHExpression::mapExprVars() on every expression of the objective function
-    boost::shared_ptr<ObjectiveFunctionIF> mapObjVars(const map<string,boost::shared_ptr<DecisionVariableIF> > &mapFromOldToNewVars) const;
+    ROCPPObjectiveIF_Ptr mapObjVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const;
     
     /// @note Call LHExpression::mapExprUnc() on every expression of the objective function
-    boost::shared_ptr<ObjectiveFunctionIF> mapObjUnc(const map<string,boost::shared_ptr<UncertaintyIF> > &mapFromOldToNewUnc) const;
+    ROCPPObjectiveIF_Ptr mapObjUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const;
     
     /// @note Call LHExpression::mapVars() on every expression of the objective function
-    boost::shared_ptr<ObjectiveFunctionIF> mapVars(const map<string, boost::shared_ptr<LHSExpression> > &mapFromVarToExpression) const;
+    ROCPPObjectiveIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const;
     
     /// @note Call LHExpression::mapUncs() on every expression of the objective function
-    boost::shared_ptr<ObjectiveFunctionIF> mapUncs(const map<string, boost::shared_ptr<LHSExpression> > &mapFromUncToExpression) const;
+    ROCPPObjectiveIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const;
     
-    boost::shared_ptr<ObjectiveFunctionIF> replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const;
+    ROCPPObjectiveIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
     
-    void convertToEpigraph(boost::shared_ptr<DecisionVariableIF> epigraphVar, vector<boost::shared_ptr<ConstraintIF> > &epigraphConstraints) const;
+    void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraint_Ptr > &epigraphConstraints) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     size_t getNumTermsMaxObjective() const {return m_pObjFuns.size();}
-    uint getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const;
-    vector<boost::shared_ptr<LHSExpression> > getObj() const;
-    boost::shared_ptr<LHSExpression> getObj(uint i) const;
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const;
+    vector<ROCPPExpr_Ptr > getObj() const;
+    ROCPPExpr_Ptr getObj(uint i) const;
     
     bool isMaxObjective() const {return true;}
     bool hasNonlinearities() const;
@@ -420,7 +413,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    boost::shared_ptr<ObjectiveFunctionIF> Clone() const;
+    ROCPPObjectiveIF_Ptr Clone() const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -430,40 +423,23 @@ public:
     
 private:
     /// Vector of the objective expressions
-    vector<boost::shared_ptr<LHSExpression> > m_pObjFuns;
+    vector<ROCPPExpr_Ptr > m_pObjFuns;
     
     /// Decision variable container
-    boost::shared_ptr<dvContainer> m_dvContainer;
+    ROCPPdvContainer_Ptr m_dvContainer;
     
     /// Uncertain parameter container
-    boost::shared_ptr<uncContainer> m_uncContainer;
+    ROCPPuncContainer_Ptr m_uncContainer;
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%% CREATE VAR FUNCTION %%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%% CREATE OBJ FUNCTION %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<ObjectiveFunctionIF> createObjective(boost::shared_ptr<LHSExpression> objFun);
-boost::shared_ptr<ObjectiveFunctionIF> creatMaxObjective(vector<boost::shared_ptr<LHSExpression> > objFuns);
-
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%% OBJECTIVE TYPE DEFS %%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-typedef ObjectiveFunctionIF ROCPPObjectiveIF;
-typedef boost::shared_ptr<ROCPPObjectiveIF> ROCPPObjectiveIF_Ptr;
-
-typedef SimpleObjective ROCPPSimpleObjective;
-typedef boost::shared_ptr<ROCPPSimpleObjective> ROCPPSimpleObjective_Ptr;
-
-typedef MaxObjective ROCPPMaxObjective;
-typedef boost::shared_ptr<ROCPPMaxObjective> ROCPPMaxObjective_Ptr;
+ROCPPObjectiveIF_Ptr createObjective(ROCPPExpr_Ptr objFun);
+ROCPPObjectiveIF_Ptr creatMaxObjective(vector<ROCPPExpr_Ptr > objFuns);
 
 
 #endif /* ObjectiveFunction_hpp */

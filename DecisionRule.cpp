@@ -33,7 +33,7 @@
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void ContinuousVarsDRIF::findVarsToTranslate(vector<boost::shared_ptr<ConstraintIF> >::const_iterator first, vector<boost::shared_ptr<ConstraintIF> >::const_iterator last, boost::shared_ptr<ObjectiveFunctionIF> obj, dvContainer &container)
+void ContinuousVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
 {
     for (ObjectiveFunctionIF::varsIterator vit = obj->varsBegin(); vit != obj->varsEnd(); vit++)
     {
@@ -41,7 +41,7 @@ void ContinuousVarsDRIF::findVarsToTranslate(vector<boost::shared_ptr<Constraint
             container += vit->second;
     }
     
-    for (vector<boost::shared_ptr<ConstraintIF> >::const_iterator cit = first; cit != last; cit++)
+    for (vector<ROCPPConstraint_Ptr >::const_iterator cit = first; cit != last; cit++)
     {
         for (ConstraintIF::varsIterator vit = (*cit)->varsBegin(); vit != (*cit)->varsEnd(); vit++)
         {
@@ -61,15 +61,15 @@ void ContinuousVarsDRIF::findVarsToTranslate(vector<boost::shared_ptr<Constraint
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<OptimizationModelIF> LinearDecisionRule::doMyThing(boost::shared_ptr<OptimizationModelIF> pIn, bool resetAndSave)
+ROCPPOptModelIF_Ptr LinearDecisionRule::doMyThing(ROCPPOptModelIF_Ptr pIn, bool resetAndSave)
 {
-    boost::shared_ptr<UncertainOptimizationModel> pInUnc = boost::static_pointer_cast<UncertainOptimizationModel>(pIn);
+    ROCPPUncOptModel_Ptr pInUnc = static_pointer_cast<UncertainOptimizationModel>(pIn);
     setUncContainer(pInUnc->getUncContainer());
     
     return VariableConverterIF::doMyThing(pIn,resetAndSave);
 }
 
-void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, map<string,boost::shared_ptr<LHSExpression> >  &translationMap, vector<boost::shared_ptr<ConstraintIF> > &toAdd)
+void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd)
 {
     if (!m_uncContSet)
         throw MyException("uncertainty container in LDR is not set");
@@ -79,10 +79,10 @@ void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, m
     {
         
         // ---- create expression for LDR
-        boost::shared_ptr<LHSExpression> ldr ( new LHSExpression() );
+        ROCPPExpr_Ptr ldr ( new LHSExpression() );
         
         // constant term
-        boost::shared_ptr<DecisionVariableIF> cst ( new VariableDouble( vit->second->getName() + "_cst" ) );
+        ROCPPVarIF_Ptr cst ( new VariableDouble( vit->second->getName() + "_cst" ) );
         (*ldr) += cst;
         
         m_cst.insert(make_pair(vit->second->getName(), cst->getName()));
@@ -95,8 +95,8 @@ void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, m
             
             if ( (uit->second->isObservable() ) && (uit->second->getTimeStage() <= vit->second->getTimeStage() ) && (uit->second->getTimeStage() + getMemory() > vit->second->getTimeStage() ) )
             {
-                boost::shared_ptr<DecisionVariableIF> dv ( new VariableDouble( vit->second->getName() + "_" + uit->second->getName() ) );
-                (*ldr) += boost::shared_ptr<ConstraintTermIF> (new ProductTerm( 1., uit->second, dv ) );
+                ROCPPVarIF_Ptr dv ( new VariableDouble( vit->second->getName() + "_" + uit->second->getName() ) );
+                (*ldr) += ROCPPCstrTerm_Ptr (new ProductTerm( 1., uit->second, dv ) );
                 cnt++;
                 
                 m_mapOrigDVUncPairToCoeffDV.insert( make_pair( make_pair(vit->second->getName(), uit->second->getName() ), dv) );
@@ -115,7 +115,7 @@ void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, m
         
         if (ub < INFINITY)
         {
-            boost::shared_ptr<ClassicConstraintIF> cstr ( new IneqConstraint() );
+            ROCPPClassicConstraint_Ptr cstr ( new IneqConstraint() );
             cstr->add_lhs(ldr->Clone());
             
             bool isZero = (ub >= -10e-4)&&(ub <= 10e-4);
@@ -125,8 +125,8 @@ void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, m
         }
         if (lb > -INFINITY)
         {
-            boost::shared_ptr<ClassicConstraintIF> cstr ( new IneqConstraint() );
-            boost::shared_ptr<LHSExpression> expr( ldr->Clone() );
+            ROCPPClassicConstraint_Ptr cstr ( new IneqConstraint() );
+            ROCPPExpr_Ptr expr( ldr->Clone() );
             (*expr) *= -1.;
             cstr->add_lhs(expr);
             
@@ -142,9 +142,9 @@ void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, m
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<DecisionVariableIF> LinearDecisionRule::getCoeffDV(string dvName, string uncName) const
+ROCPPVarIF_Ptr LinearDecisionRule::getCoeffDV(string dvName, string uncName) const
 {
-    map< pair<string,string>, boost::shared_ptr<DecisionVariableIF> >::const_iterator it ( m_mapOrigDVUncPairToCoeffDV.find(make_pair(dvName,uncName)) );
+    map< pair<string,string>, ROCPPVarIF_Ptr >::const_iterator it ( m_mapOrigDVUncPairToCoeffDV.find(make_pair(dvName,uncName)) );
     
     if (it==m_mapOrigDVUncPairToCoeffDV.end())
         throw MyException("this pair " + dvName + " " + uncName + " is not available in the linear decision rule");
@@ -156,7 +156,7 @@ boost::shared_ptr<DecisionVariableIF> LinearDecisionRule::getCoeffDV(string dvNa
 //%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void LinearDecisionRule::printOut(const boost::shared_ptr<OptimizationModelIF> pIn, const map<string, double> &variableValue, boost::shared_ptr<DecisionVariableIF> dv)
+void LinearDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &variableValue, ROCPPVarIF_Ptr dv)
 {
     string name = dv->getName();
     if(!dv->isAdaptive()){
@@ -164,12 +164,12 @@ void LinearDecisionRule::printOut(const boost::shared_ptr<OptimizationModelIF> p
         return;
     }
     
-    map<string, boost::shared_ptr<DecisionVariableIF> > expression;
-    multimap<string, pair<string, boost::shared_ptr<DecisionVariableIF> > > copy = getLDRExpr();
+    map<string, ROCPPVarIF_Ptr > expression;
+    multimap<string, pair<string, ROCPPVarIF_Ptr > > copy = getLDRExpr();
     
     cout << name <<" = ";
     double value;
-    multimap<string, pair<string, boost::shared_ptr<DecisionVariableIF> > >::iterator term = copy.find(name);
+    multimap<string, pair<string, ROCPPVarIF_Ptr > >::iterator term = copy.find(name);
     string sign;
     
     while(term != copy.end())
@@ -212,7 +212,7 @@ void LinearDecisionRule::printOut(const boost::shared_ptr<OptimizationModelIF> p
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void DiscreteVarsDRIF::findVarsToTranslate(vector<boost::shared_ptr<ConstraintIF> >::const_iterator first, vector<boost::shared_ptr<ConstraintIF> >::const_iterator last, boost::shared_ptr<ObjectiveFunctionIF> obj, dvContainer &container)
+void DiscreteVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
 {
     for (ObjectiveFunctionIF::varsIterator vit = obj->varsBegin(); vit != obj->varsEnd(); vit++)
     {
@@ -220,7 +220,7 @@ void DiscreteVarsDRIF::findVarsToTranslate(vector<boost::shared_ptr<ConstraintIF
             container += vit->second;
     }
     
-    for (vector<boost::shared_ptr<ConstraintIF> >::const_iterator cit = first; cit != last; cit++)
+    for (vector<ROCPPConstraint_Ptr >::const_iterator cit = first; cit != last; cit++)
     {
         for (ConstraintIF::varsIterator vit = (*cit)->varsBegin(); vit != (*cit)->varsEnd(); vit++)
         {
@@ -239,7 +239,7 @@ void DiscreteVarsDRIF::findVarsToTranslate(vector<boost::shared_ptr<ConstraintIF
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void ConstantDecisionRule::createTranslationMap(const dvContainer &tmpContainer, map<string,boost::shared_ptr<DecisionVariableIF> >  &translationMap, vector<boost::shared_ptr<ConstraintIF> > &toAdd)
+void ConstantDecisionRule::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd)
 {
     // iterate through variables to convert
     for (dvContainer::const_iterator vit = tmpContainer.begin(); vit != tmpContainer.end(); vit++)
@@ -247,15 +247,15 @@ void ConstantDecisionRule::createTranslationMap(const dvContainer &tmpContainer,
         //// ---- create expression for CDR (consists of a variable only)
         
         // --- convert adaptive variable to constant
-        boost::shared_ptr<DecisionVariableIF> cst;
+        ROCPPVarIF_Ptr cst;
         
         if (!vit->second->isAdaptive())
             throw MyException("variable should be adaptive");
         
         if (vit->second->isBooleanVar())
-            cst = boost::shared_ptr<DecisionVariableIF>( new VariableBool( vit->second->getName(), vit->second->getLB(), vit->second->getUB() ) );
+            cst = ROCPPVarIF_Ptr( new VariableBool( vit->second->getName(), vit->second->getLB(), vit->second->getUB() ) );
         else if (vit->second->isIntegerVar())
-            cst = boost::shared_ptr<DecisionVariableIF>( new VariableInt( vit->second->getName(), vit->second->getLB(), vit->second->getUB() ) );
+            cst = ROCPPVarIF_Ptr( new VariableInt( vit->second->getName(), vit->second->getLB(), vit->second->getUB() ) );
         
         // add variable to translation map
         translationMap[vit->second->getName()] = cst;
@@ -266,14 +266,14 @@ void ConstantDecisionRule::createTranslationMap(const dvContainer &tmpContainer,
 //%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void ConstantDecisionRule::printOut(const boost::shared_ptr<OptimizationModelIF> pIn, const map<string, double> &variableValue, boost::shared_ptr<DecisionVariableIF> dv)
+void ConstantDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &variableValue, ROCPPVarIF_Ptr dv)
 {
     string name = dv->getName();
     string sign;
     double value = variableValue.find(name)->second;
     
     if (dv->isIntegerVar() || dv->isBooleanVar())
-        cout << name << " = " << boost::lexical_cast<int>(round(value)) << endl;
+        cout << name << " = " << (int)(round(value)) << endl;
     else
         cout << name << " = " << value << endl;
 }
@@ -290,7 +290,7 @@ void ConstantDecisionRule::printOut(const boost::shared_ptr<OptimizationModelIF>
 
 string PartitionConverter::convertPartitionToString(uint partition) const
 {
-    string tmp2( boost::lexical_cast<string>(partition) );
+    string tmp2( to_string(partition) );
     string tmp1;
     for (uint i=1; i+tmp2.length() <= m_numEls; i++)
         tmp1 += "0";
@@ -300,18 +300,18 @@ string PartitionConverter::convertPartitionToString(uint partition) const
     return out;
 }
 
-string PartitionConverter::convertPartitionToString(const map<string,uint> &partitionIn, boost::shared_ptr<OptimizationModelIF> pModel) const
+string PartitionConverter::convertPartitionToString(const map<string,uint> &partitionIn, ROCPPOptModelIF_Ptr pModel) const
 {
     if (!pModel->isUncertainOptimizationModel())
         throw MyException("only applicable to uncertain models");
     
-    boost::shared_ptr<const UncertainOptimizationModel> pInUnc = boost::static_pointer_cast<const UncertainOptimizationModel>(pModel);
+    ROCPPconstUncOptModel_Ptr pInUnc = static_pointer_cast<const UncertainOptimizationModel>(pModel);
     
     
     string out;
     for (map<string,uint>::const_iterator mit = partitionIn.begin(); mit!=partitionIn.end(); mit++)
     {
-        boost::shared_ptr<UncertaintyIF> unc( pInUnc->getUnc( mit->first ) );
+        ROCPPUnc_Ptr unc( pInUnc->getUnc( mit->first ) );
         if (unc->isObservable())
             out += convertPartitionToString(mit->second);
     }
@@ -324,20 +324,20 @@ string PartitionConverter::convertPartitionToString(const map<string,uint> &part
 
 // if it can be observe, then itself is the basic partition; if not then it must be euqal to the first segment so that the variable for all segment will be the same(equal to we do not have partition on that uncertainty in this time stage)
 
-string PartitionConverter::getBasicPartition(const map<string,uint> &partitionIn, uint t, boost::shared_ptr<OptimizationModelIF> pModel, uint memory) const
+string PartitionConverter::getBasicPartition(const map<string,uint> &partitionIn, uint t, ROCPPOptModelIF_Ptr pModel, uint memory) const
 {
     map<string,uint> partitionOut;
     
     if (!pModel->isUncertainOptimizationModel())
         throw MyException("only applicable to uncertain models");
     
-    boost::shared_ptr<const UncertainOptimizationModel> pInUnc = boost::static_pointer_cast<const UncertainOptimizationModel>(pModel);
+    ROCPPconstUncOptModel_Ptr pInUnc = static_pointer_cast<const UncertainOptimizationModel>(pModel);
     
     map<string, pair<uint, uint> > timeStage = pInUnc->getdduStagesObs();
     
     for (map<string,uint>::const_iterator mit = partitionIn.begin(); mit!=partitionIn.end(); mit++)
     {
-        boost::shared_ptr<UncertaintyIF> unc( pInUnc->getUnc( mit->first ) );
+        ROCPPUnc_Ptr unc( pInUnc->getUnc( mit->first ) );
 
         //For ordinary uncertain model, the fisrt observable is the time stage of the uncertainty, the last one is the time stage of the model
         if (  (unc->isObservable() ) && (unc->getTimeStage() <= t) && (unc->getTimeStage()+memory > t) )
@@ -371,7 +371,7 @@ m_bpdvs ( new dvContainer() )
 
 PartitionConstructorIF::usconstraints_iterator PartitionConstructorIF::USCbegin(string partition) const
 {
-    map< string, vector< boost::shared_ptr<ConstraintIF> > >::const_iterator mit( m_partitionUSconstraints.find(partition) );
+    map< string, vector< ROCPPConstraint_Ptr > >::const_iterator mit( m_partitionUSconstraints.find(partition) );
     
     if (mit == m_partitionUSconstraints.end() )
         throw MyException("partition not found");
@@ -381,7 +381,7 @@ PartitionConstructorIF::usconstraints_iterator PartitionConstructorIF::USCbegin(
 
 PartitionConstructorIF::usconstraints_iterator PartitionConstructorIF::USCend(string partition) const
 {
-    map< string, vector< boost::shared_ptr<ConstraintIF> > >::const_iterator mit( m_partitionUSconstraints.find(partition) );
+    map< string, vector< ROCPPConstraint_Ptr > >::const_iterator mit( m_partitionUSconstraints.find(partition) );
     
     if (mit == m_partitionUSconstraints.end() )
         throw MyException("partition not found");
@@ -393,7 +393,7 @@ PartitionConstructorIF::usconstraints_iterator PartitionConstructorIF::USCend(st
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void PartitionConstructorIF::getReady(boost::shared_ptr<OptimizationModelIF> pIn, boost::shared_ptr<PartitionConverter> pPartConverter, boost::shared_ptr<Bilinear_MItoMB_Converter> pMIMBConverter, map<string, pair<double,double> > &margSupp, const map<string,pair<double,double> >& OAmargSupp, string solver)
+void PartitionConstructorIF::getReady(ROCPPOptModelIF_Ptr pIn, ROCPPParConverter_Ptr pPartConverter, ROCPPMItoMB_Ptr pMIMBConverter, map<string, pair<double,double> > &margSupp, const map<string,pair<double,double> >& OAmargSupp, string solver)
 {
     
     constructPartitionsMap(pIn,pPartConverter);
@@ -404,12 +404,12 @@ void PartitionConstructorIF::getReady(boost::shared_ptr<OptimizationModelIF> pIn
     if (!pIn->isUncertainOptimizationModel())
         throw MyException("only applicable to uncertain problems");
     
-    boost::shared_ptr<const UncertainOptimizationModel> pInUnc = boost::static_pointer_cast<const UncertainOptimizationModel>(pIn);
+    ROCPPconstUncOptModel_Ptr pInUnc = static_pointer_cast<const UncertainOptimizationModel>(pIn);
     
     
     for (map<string, map<string,uint> >::const_iterator pm_it=m_partitionsMap.begin(); pm_it!=m_partitionsMap.end(); pm_it++)
     {
-        vector<boost::shared_ptr<ConstraintIF> > tmp;
+        vector<ROCPPConstraint_Ptr > tmp;
         
         for (UncertainOptimizationModel::uncertaintiesIterator u_it=pInUnc->uncertaintiesBegin(); u_it!=pInUnc->uncertaintiesEnd();u_it++)
         {
@@ -428,14 +428,14 @@ void PartitionConstructorIF::getReady(boost::shared_ptr<OptimizationModelIF> pIn
             
             if (bpNum+1<=r)
             {
-                map<pair<string,uint>, boost::shared_ptr<LHSExpression> >::const_iterator loc2( m_uncToBreakpointMap.find( make_pair(u_it->second->getName(), bpNum) ) );
+                map<pair<string,uint>, ROCPPExpr_Ptr >::const_iterator loc2( m_uncToBreakpointMap.find( make_pair(u_it->second->getName(), bpNum) ) );
                 if (loc2==m_uncToBreakpointMap.end())
                     throw MyException("pair not found in m_uncToBreakpointMap");
                 
-                boost::shared_ptr<ClassicConstraintIF> pOutConstraint(new IneqConstraint(true));
+                ROCPPClassicConstraint_Ptr pOutConstraint(new IneqConstraint(true));
                 
                 pOutConstraint->add_lhs( 1. , u_it->second );
-                boost::shared_ptr<LHSExpression> expr( loc2->second->Clone() );
+                ROCPPExpr_Ptr expr( loc2->second->Clone() );
                 (*expr) *= -1.;
                 pOutConstraint->add_lhs( expr );
                 pOutConstraint->set_rhs(make_pair(0.,true));
@@ -445,14 +445,14 @@ void PartitionConstructorIF::getReady(boost::shared_ptr<OptimizationModelIF> pIn
             }
             if (bpNum>1)
             {
-                map<pair<string,uint>, boost::shared_ptr<LHSExpression> >::const_iterator loc2( m_uncToBreakpointMap.find( make_pair(u_it->second->getName(), bpNum-1) ) );
+                map<pair<string,uint>, ROCPPExpr_Ptr >::const_iterator loc2( m_uncToBreakpointMap.find( make_pair(u_it->second->getName(), bpNum-1) ) );
                 if (loc2==m_uncToBreakpointMap.end())
                     throw MyException("pair not found in m_uncToBreakpointMap");
                 
-                boost::shared_ptr<ClassicConstraintIF> pOutConstraint(new IneqConstraint(true));
+                ROCPPClassicConstraint_Ptr pOutConstraint(new IneqConstraint(true));
                 
                 pOutConstraint->add_lhs( -1. , u_it->second );
-                boost::shared_ptr<LHSExpression> expr( loc2->second->Clone() );
+                ROCPPExpr_Ptr expr( loc2->second->Clone() );
                 pOutConstraint->add_lhs( expr );
                 pOutConstraint->set_rhs(make_pair(0.,true));
                 
@@ -496,9 +496,9 @@ bool PartitionConstructorIF::hasPartition(string uncNme) const
     return true;
 }
 
-boost::shared_ptr<LHSExpression> PartitionConstructorIF::getBp(pair<string, uint> uncOnPartition) const
+ROCPPExpr_Ptr PartitionConstructorIF::getBp(pair<string, uint> uncOnPartition) const
 {
-    map< pair<string,uint>, boost::shared_ptr<LHSExpression> > ::const_iterator bp(m_uncToBreakpointMap.find(uncOnPartition));
+    map< pair<string,uint>, ROCPPExpr_Ptr > ::const_iterator bp(m_uncToBreakpointMap.find(uncOnPartition));
     
     if (bp == m_uncToBreakpointMap.end())
         throw MyException("Partition and uncertainty pair not found");
@@ -510,7 +510,7 @@ boost::shared_ptr<LHSExpression> PartitionConstructorIF::getBp(pair<string, uint
 //%%%%%%%%%%%%%%%%%%%%%% Protected Function %%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void PartitionConstructorIF::constructPartitionsMap(boost::shared_ptr<OptimizationModelIF> pIn, boost::shared_ptr<PartitionConverter> pPartConverter)
+void PartitionConstructorIF::constructPartitionsMap(ROCPPOptModelIF_Ptr pIn, ROCPPParConverter_Ptr pPartConverter)
 {
     m_partitionsMap.clear();
     
@@ -518,7 +518,7 @@ void PartitionConstructorIF::constructPartitionsMap(boost::shared_ptr<Optimizati
         throw MyException("only applicable to uncertain problems");
     
     
-    boost::shared_ptr<const UncertainOptimizationModel> pInUnc = boost::static_pointer_cast<const UncertainOptimizationModel>(pIn);
+    ROCPPconstUncOptModel_Ptr pInUnc = static_pointer_cast<const UncertainOptimizationModel>(pIn);
     
     
     size_t k( pInUnc->getNumUncertainties() );
@@ -635,9 +635,9 @@ void StaticPartitionConstructor::constructUncToBreakpointMap(const map<string,pa
         
         for (uint i=1; i<cNumP; i++)
         {
-            boost::shared_ptr<LHSExpression> expr ( new LHSExpression() );
+            ROCPPExpr_Ptr expr ( new LHSExpression() );
             double tmp( ( (*ms_it).second.first ) + ( (static_cast<double>(i))*step) );
-            (*expr) += boost::shared_ptr<ConstraintTermIF>( new ProductTerm( tmp ) ) ;
+            (*expr) += ROCPPCstrTerm_Ptr( new ProductTerm( tmp ) ) ;
             m_uncToBreakpointMap[make_pair( (*ms_it).first, i)] = expr;
         }
     }
@@ -664,11 +664,11 @@ void AdaptivePartitionConstructor::constructUncToBreakpointMap(const map<string,
         else
             cNumP=(*c_loc).second;
         
-        boost::shared_ptr<DecisionVariableIF> prevbpdv;
+        ROCPPVarIF_Ptr prevbpdv;
         for (uint i=1; i<cNumP; i++)
         {
-            boost::shared_ptr<LHSExpression> expr ( new LHSExpression() );
-            boost::shared_ptr<DecisionVariableIF> bpdv( new VariableDouble( "bp_"+ms_it->first+"_"+boost::lexical_cast<string>(i), ms_it->second.first , ms_it->second.second) );
+            ROCPPExpr_Ptr expr ( new LHSExpression() );
+            ROCPPVarIF_Ptr bpdv( new VariableDouble( "bp_"+ms_it->first+"_"+to_string(i), ms_it->second.first , ms_it->second.second) );
             
             *m_bpdvs += bpdv;
             
@@ -677,7 +677,7 @@ void AdaptivePartitionConstructor::constructUncToBreakpointMap(const map<string,
             
             if (i>1) // add constraint on breakpoint ordering
             {
-                boost::shared_ptr<ClassicConstraintIF> cst( new IneqConstraint() );
+                ROCPPClassicConstraint_Ptr cst( new IneqConstraint() );
                 cst->add_lhs(1.,bpdv);
                 cst->add_lhs(-1.,prevbpdv);
                 cst->set_rhs(make_pair(0.,true));

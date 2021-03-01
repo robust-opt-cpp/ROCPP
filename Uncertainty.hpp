@@ -60,7 +60,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Return a copy of the uncertain parameter
-    boost::shared_ptr<UncertaintyIF> Clone();
+    ROCPPUnc_Ptr Clone();
     
 private:
     
@@ -78,17 +78,6 @@ private:
     /// Indicator of observability. It is equal to true if and only if the uncertain parameter can be observed
     bool m_isObservable;
 };
-
-
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%% UNCERTAIN PARAMETER MAP %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-/// Map from string to uncertain parameters used for storage
-typedef map<string, boost::shared_ptr<UncertaintyIF> > uncMapType;
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -124,7 +113,7 @@ public:
     /// Add uncertain parameter unc to this container
     ///
     /// @note If the uncertainty already exists, it will be ignored. If an uncertain parameter with the same name already exists in this container, an error will be thrown.
-    void operator+=(const boost::shared_ptr<UncertaintyIF>& unc);
+    void operator+=(const ROCPPUnc_Ptr& unc);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -197,17 +186,7 @@ private:
 /// @param uncName name of the uncertain parameter
 /// @param timeStage time-stage of the uncertain parameter
 /// @param isObservable true if and only if the uncertain parameter is observable
-boost::shared_ptr<UncertaintyIF> createUncertainty(string uncName, uint timeStage = 1, bool isObservable = true);
+ROCPPUnc_Ptr createUncertainty(string uncName, uint timeStage = 1, bool isObservable = true);
 
-
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%% UNCERTAIN PARAMETER TYPEDEF %%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-typedef UncertaintyIF ROCPPUnc;
-typedef boost::shared_ptr<ROCPPUnc> ROCPPUnc_Ptr;
 
 #endif /* Uncertainty_hpp */

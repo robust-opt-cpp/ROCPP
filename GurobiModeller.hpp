@@ -16,9 +16,7 @@
 #include <map>
 
 class GRBVar;
-class ConstraintIF;
-class ObjectiveFunctionIF;
-class CPLEXMISOCP;
+
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -74,7 +72,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    void solve(boost::shared_ptr<OptimizationModelIF> pModelIn, bool writeSlnToFile = false, string fileName = "", bool writeSlnToConsle = true, const map<string, double>& WSvars = (map<string, double>()), const map<string,int>& priorities = (map<string,int>()), bool deleteModel=false);
+    void solve(ROCPPOptModelIF_Ptr pModelIn, bool writeSlnToFile = false, string fileName = "", bool writeSlnToConsle = true, const map<string, double>& WSvars = (map<string, double>()), const map<string,int>& priorities = (map<string,int>()), bool deleteModel=false);
     
     void Reset();
     
@@ -90,27 +88,20 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     void setParameters(GRBModel& Model) const;
-    void setPriorities(map<string,GRBVar>& VarMap, const map<string,int>& priorities);
+    void setPriorities(const map<string,int>& priorities);
     void saveResults(GRBModel& Model, pair<bool,string> writeSlnToFile) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%% Creater Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    void createGUROBImodel(boost::shared_ptr<CPLEXMISOCP> pModel,GRBEnv &env,GRBModel &Model); //  IloNumVarArray &contVars,IloBoolVarArray &boolVars, IloIntVarArray &intVars,
-    void addGUROBIdecisionVars(boost::shared_ptr<CPLEXMISOCP> pModel, GRBEnv &env, GRBModel &Model);
-    void addConstraint(GRBEnv &env, GRBModel& Model, boost::shared_ptr<ConstraintIF> pCstrIn) const;
-    void addObjective(GRBEnv &env, GRBModel& Model, boost::shared_ptr<ObjectiveFunctionIF> pObjIn) const;
+    void createGUROBImodel(ROCPPCPLEXMISOCP_Ptr pModel,GRBEnv &env,GRBModel &Model); //  IloNumVarArray &contVars,IloBoolVarArray &boolVars, IloIntVarArray &intVars,
+    void addGUROBIdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, GRBEnv &env, GRBModel &Model);
+    void addConstraint(GRBEnv &env, GRBModel& Model, ROCPPConstraint_Ptr pCstrIn) const;
+    void addObjective(GRBEnv &env, GRBModel& Model, ROCPPObjectiveIF_Ptr pObjIn) const;
     void addGUROBIwarmstart(const map<string,double>& WSvars) const;
 };
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%% GUROBI SOLVER TYPE DEFS %%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-typedef GurobiModeller ROCPPGurobi;
-typedef boost::shared_ptr<GurobiModeller> ROCPPGurobi_Ptr;
 #endif /* GurobiModeller_hpp */
 #endif

@@ -8,7 +8,7 @@
 
 #include "IncludeFiles.hpp"
 #include "SolverModeller.hpp"
-#include <boost/thread.hpp>
+#include <thread>
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -57,9 +57,9 @@ string SolverParams::getColumnTitlesOfOutputDataFile() const
 
 string SolverParams::getParams(string delimitter) const
 {
-    string out(boost::lexical_cast<string>(m_useLazyNACs));
+    string out(to_string(m_useLazyNACs));
     out += delimitter;
-    out += boost::lexical_cast<string>(m_timeLimit.second);
+    out += to_string(m_timeLimit.second);
     return out;
 }
 
@@ -83,7 +83,7 @@ double SolverModellerIF::getSolution(string dvName) const
 
 int SolverModellerIF::getThreadsToRun() const
 {
-    int numThreads(static_cast<int>( boost::thread::hardware_concurrency() ));
+    int numThreads(static_cast<int>( thread::hardware_concurrency() ));
 
     if (numThreads>2)
         numThreads -= 1;

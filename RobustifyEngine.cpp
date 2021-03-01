@@ -17,9 +17,9 @@
 #include "DecisionRule.hpp"
 #include "RobustifyEngine.hpp"
 
-boost::shared_ptr<Bilinear_MISOCP> RobustifyEngine::doMyThing(boost::shared_ptr<UncertainSingleStageOptimizationModel> pIn, bool feasible)
+ROCPPBilinMISOCP_Ptr RobustifyEngine::doMyThing(ROCPPUncSSOptModel_Ptr pIn, bool feasible)
 {
-    boost::shared_ptr<Bilinear_MISOCP> pOut( new Bilinear_MISOCP() );
+    ROCPPBilinMISOCP_Ptr pOut( new Bilinear_MISOCP() );
     calculateUncertaintySetMatrices(pIn);
     
     // iterate through constraints of pModelIn
@@ -49,13 +49,13 @@ boost::shared_ptr<Bilinear_MISOCP> RobustifyEngine::doMyThing(boost::shared_ptr<
     return pOut;
 }
 
-void RobustifyEngine::calculateUncertaintySetMatrices(boost::shared_ptr<UncertainSingleStageOptimizationModel> const pIn)
+void RobustifyEngine::calculateUncertaintySetMatrices(ROCPPUncSSOptModel_Ptr const pIn)
 {
     
     size_t l (pIn->getNumUncertaintySetConstraints() );
-    vector<vector<vector< pair<bool, boost::shared_ptr<LHSExpression> > > > > EMvec;
+    vector<vector<vector< pair<bool, ROCPPExpr_Ptr > > > > EMvec;
     EMvec.resize(l);
-    vector<vector< boost::shared_ptr<LHSExpression> > > EVvec;
+    vector<vector< ROCPPExpr_Ptr > > EVvec;
     EVvec.resize(l);
     
     uint cl(0);
@@ -69,10 +69,10 @@ void RobustifyEngine::calculateUncertaintySetMatrices(boost::shared_ptr<Uncertai
         
         if ( (*cit)->definesUncertaintySet() )
         {
-            boost::shared_ptr<ClassicConstraintIF> pClassic ( boost::static_pointer_cast<ClassicConstraintIF>(*cit) );
+            ROCPPClassicConstraint_Ptr pClassic ( static_pointer_cast<ClassicConstraintIF>(*cit) );
             
-            boost::shared_ptr<LHSExpression> lin_part ( pClassic->getLinearPart() );
-            boost::shared_ptr<NormTerm> norm_term;
+            ROCPPExpr_Ptr lin_part ( pClassic->getLinearPart() );
+            ROCPPNormTerm_Ptr norm_term;
             
             if ( pClassic->hasNormTerm() )
                 norm_term = ( pClassic->getNormTerm() );
@@ -99,7 +99,7 @@ void RobustifyEngine::calculateUncertaintySetMatrices(boost::shared_ptr<Uncertai
                 
                 // - c(x)^T terms
                 {
-                    pair<bool,boost::shared_ptr<LHSExpression> > tmp ( lin_part->factorOut(uit->second) );
+                    pair<bool,ROCPPExpr_Ptr > tmp ( lin_part->factorOut(uit->second) );
                     (*tmp.second) *= -1.;
                     EMvec[cl][m-1][ck] = tmp;
                 }
@@ -109,14 +109,14 @@ void RobustifyEngine::calculateUncertaintySetMatrices(boost::shared_ptr<Uncertai
                     uint cm(0);
                     for (NormTerm::const_iterator ntit = norm_term->begin(); ntit != norm_term->end(); ntit++, cm++)
                     {
-                        pair<bool,boost::shared_ptr<LHSExpression> > tmp ( (*ntit)->factorOut(uit->second) );
+                        pair<bool,ROCPPExpr_Ptr > tmp ( (*ntit)->factorOut(uit->second) );
                         EMvec[cl][cm][ck] = tmp;
                     }
                 }
             }
             // - d(x) + h terms
             {
-                boost::shared_ptr<LHSExpression> det_lin_part ( lin_part->getDeterministicLinearPart() );
+                ROCPPExpr_Ptr det_lin_part ( lin_part->getDeterministicLinearPart() );
                 (*det_lin_part) *= -1.;
                 EVvec[cl][m-1] = det_lin_part;
             }
@@ -126,7 +126,7 @@ void RobustifyEngine::calculateUncertaintySetMatrices(boost::shared_ptr<Uncertai
                 uint cm(0);
                 for (NormTerm::const_iterator ntit = norm_term->begin(); ntit != norm_term->end(); ntit++, cm++)
                 {
-                    boost::shared_ptr<LHSExpression> tmp ( (*ntit)->getDeterministicLinearPart() );
+                    ROCPPExpr_Ptr tmp ( (*ntit)->getDeterministicLinearPart() );
                     EVvec[cl][cm] = tmp;
                 }
             }
@@ -144,7 +144,7 @@ void RobustifyEngine::calculateUncertaintySetMatrices(boost::shared_ptr<Uncertai
 }
 
 
-void RobustifyEngine::createDualVars(boost::shared_ptr<Bilinear_MISOCP> pOut, boost::shared_ptr<ConstraintIF> pCstr, vector<vector<boost::shared_ptr<DecisionVariableIF> > >& dualVars, bool feasible)
+void RobustifyEngine::createDualVars(ROCPPBilinMISOCP_Ptr pOut, ROCPPConstraint_Ptr pCstr, vector<vector<ROCPPVarIF_Ptr > >& dualVars, bool feasible)
 {
     dualVars.clear();
     
@@ -163,8 +163,8 @@ void RobustifyEngine::createDualVars(boost::shared_ptr<Bilinear_MISOCP> pOut, bo
     
     // find this time stage in m_EMvec and m_EVvec
     
-    map<uint, vector<vector<vector< pair<bool, boost::shared_ptr<LHSExpression> > > > > >::const_iterator em_it( m_EMvec.find(t) );
-    map<uint, vector<vector< boost::shared_ptr<LHSExpression> > > >::const_iterator ev_it( m_EVvec.find(t) );
+    map<uint, vector<vector<vector< pair<bool, ROCPPExpr_Ptr > > > > >::const_iterator em_it( m_EMvec.find(t) );
+    map<uint, vector<vector< ROCPPExpr_Ptr > > >::const_iterator ev_it( m_EVvec.find(t) );
     
     if (em_it == m_EMvec.end())
         throw MyException("robustify stage not found in EMvec");
@@ -188,13 +188,13 @@ void RobustifyEngine::createDualVars(boost::shared_ptr<Bilinear_MISOCP> pOut, bo
         
         dualVars[cl].resize(em_it->second[cl].size());
         
-        boost::shared_ptr<DecisionVariableIF> conehead;
-        vector<boost::shared_ptr<DecisionVariableIF> > nonheaddvs;
+        ROCPPVarIF_Ptr conehead;
+        vector<ROCPPVarIF_Ptr > nonheaddvs;
         for (uint cm = 0; cm<em_it->second[cl].size(); cm++) // iterate, in each constraint, through the first dimension of the constraint matrix
         {
-            boost::shared_ptr<DecisionVariableIF> dv;
+            ROCPPVarIF_Ptr dv;
             
-            string nme(m_dualNme+"_"+ boost::lexical_cast<string>(++m_dualVarsCounter));
+            string nme(m_dualNme+"_"+ to_string(++m_dualVarsCounter));
             if (m_dualNme_suff!="")
                 nme += "_"+m_dualNme_suff;
             
@@ -208,17 +208,17 @@ void RobustifyEngine::createDualVars(boost::shared_ptr<Bilinear_MISOCP> pOut, bo
                     if ( em_it->second[cl].size() != 1 )
                         throw MyException("something wrong: equality constraint should have dimension 1");
                     
-                    dv = boost::shared_ptr<DecisionVariableIF>(  new VariableDouble(nme) );
+                    dv = ROCPPVarIF_Ptr(  new VariableDouble(nme) );
                 }
                 else{
-                    dv = boost::shared_ptr<DecisionVariableIF>(  new VariableDouble(nme, 0.) );
+                    dv = ROCPPVarIF_Ptr(  new VariableDouble(nme, 0.) );
                 }
                 
                 conehead = dv;
             }
             else
             {
-                dv = boost::shared_ptr<DecisionVariableIF>(  new VariableDouble(nme ) );
+                dv = ROCPPVarIF_Ptr(  new VariableDouble(nme ) );
                 nonheaddvs.push_back(dv);
             }
             
@@ -229,7 +229,7 @@ void RobustifyEngine::createDualVars(boost::shared_ptr<Bilinear_MISOCP> pOut, bo
     }
 }
 
-void RobustifyEngine::robustifyConstraint(boost::shared_ptr<ConstraintIF> pConstraint, boost::shared_ptr<UncertainSingleStageOptimizationModel> const pIn, boost::shared_ptr<Bilinear_MISOCP> pOut, bool feasible)
+void RobustifyEngine::robustifyConstraint(ROCPPConstraint_Ptr pConstraint, ROCPPUncSSOptModel_Ptr const pIn, ROCPPBilinMISOCP_Ptr pOut, bool feasible)
 {
     if (pConstraint->definesUncertaintySet())
         return;
@@ -243,7 +243,7 @@ void RobustifyEngine::robustifyConstraint(boost::shared_ptr<ConstraintIF> pConst
     if (!pConstraint->isClassicConstraint() )
         throw MyException("cannot robustify non classic constraint");
     
-    boost::shared_ptr<ClassicConstraintIF> pClassic ( boost::static_pointer_cast<ClassicConstraintIF>(pConstraint) );
+    ROCPPClassicConstraint_Ptr pClassic ( static_pointer_cast<ClassicConstraintIF>(pConstraint) );
     
     
     if (pClassic->hasNormTerm())
@@ -254,7 +254,7 @@ void RobustifyEngine::robustifyConstraint(boost::shared_ptr<ConstraintIF> pConst
         throw MyException("cannot robustify uncertain equality constraint");
     
     
-    vector<vector<boost::shared_ptr<DecisionVariableIF> > > dualVars;
+    vector<vector<ROCPPVarIF_Ptr > > dualVars;
     createDualVars(pOut,pClassic,dualVars,feasible);
     
     // get the time-stage associated with robustification of the constraint that we want to robustify
@@ -263,8 +263,8 @@ void RobustifyEngine::robustifyConstraint(boost::shared_ptr<ConstraintIF> pConst
     
     // find this time stage in m_EMvec and m_EVvec
     
-    map<uint, vector<vector<vector< pair<bool, boost::shared_ptr<LHSExpression> > > > > >::const_iterator em_it( m_EMvec.find(t) );
-    map<uint, vector<vector< boost::shared_ptr<LHSExpression> > > >::const_iterator ev_it( m_EVvec.find(t) );
+    map<uint, vector<vector<vector< pair<bool, ROCPPExpr_Ptr > > > > >::const_iterator em_it( m_EMvec.find(t) );
+    map<uint, vector<vector< ROCPPExpr_Ptr > > >::const_iterator ev_it( m_EVvec.find(t) );
     
     if (em_it == m_EMvec.end())
         throw MyException("robustify stage not found in EMvec");
@@ -277,14 +277,14 @@ void RobustifyEngine::robustifyConstraint(boost::shared_ptr<ConstraintIF> pConst
     
     // first constraint
     {
-        boost::shared_ptr<ClassicConstraintIF> cstr( new IneqConstraint() );
+        ROCPPClassicConstraint_Ptr cstr( new IneqConstraint() );
         cstr->add_lhs( pClassic->getLinearPart()->getDeterministicLinearPart()  );
         
         for (uint cl=0; cl<em_it->second.size(); cl++)  // iterate through the constraints defining the uncertainty set
         {
             for (uint cm=0; cm<ev_it->second[cl].size(); cm++) // iterate, in each constraint, through the first dimension of the constraint matrix
             {
-                boost::shared_ptr<LHSExpression> tmp( ev_it->second[cl][cm]->Clone() );
+                ROCPPExpr_Ptr tmp( ev_it->second[cl][cm]->Clone() );
                 (*tmp) *= dualVars[cl][cm];
                 cstr->add_lhs( tmp  );
             }
@@ -295,20 +295,20 @@ void RobustifyEngine::robustifyConstraint(boost::shared_ptr<ConstraintIF> pConst
     // second constraint (set of constraints)
     {
         // first build c vec
-        vector<pair<bool,boost::shared_ptr<LHSExpression> > > cvec;
+        vector<pair<bool,ROCPPExpr_Ptr > > cvec;
         {
-            boost::shared_ptr<LHSExpression> lin_part ( pClassic->getLinearPart() );
+            ROCPPExpr_Ptr lin_part ( pClassic->getLinearPart() );
             
             for (UncertainOptimizationModel::uncertaintiesIterator uit = pIn->uncertaintiesBegin(); uit != pIn->uncertaintiesEnd(); uit++)
             {
-                pair<bool,boost::shared_ptr<LHSExpression> > tmp ( lin_part->factorOut(uit->second) );
+                pair<bool,ROCPPExpr_Ptr > tmp ( lin_part->factorOut(uit->second) );
                 cvec.push_back(tmp);
             }
         }
         // now the constraints
         for (uint ck = 0; ck < pIn->getNumUncertainties(); ck++) // uncertainty count
         {
-            boost::shared_ptr<ClassicConstraintIF> cstr( new EqConstraint() );
+            ROCPPClassicConstraint_Ptr cstr( new EqConstraint() );
             
             bool found(false);
             
@@ -321,8 +321,8 @@ void RobustifyEngine::robustifyConstraint(boost::shared_ptr<ConstraintIF> pConst
             {
                 for (uint cm=0; cm<ev_it->second[cl].size(); cm++) // row of uncertainty set constraint matrix count
                 {
-                    pair<bool,boost::shared_ptr<LHSExpression> > tmptmp( em_it->second[cl][cm][ck] );
-                    pair<bool,boost::shared_ptr<LHSExpression> > tmp( make_pair(tmptmp.first, tmptmp.second->Clone() ));
+                    pair<bool,ROCPPExpr_Ptr > tmptmp( em_it->second[cl][cm][ck] );
+                    pair<bool,ROCPPExpr_Ptr > tmp( make_pair(tmptmp.first, tmptmp.second->Clone() ));
                     if (tmp.first)
                     {
                         (*tmp.second) *= dualVars[cl][cm];

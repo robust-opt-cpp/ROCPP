@@ -62,52 +62,52 @@ void ConstraintIF::add_lhs(double c)
     throw MyException("not applicable to this type of constraint");
 }
 
-void ConstraintIF::add_lhs(double c, boost::shared_ptr<DecisionVariableIF> pVariable)
+void ConstraintIF::add_lhs(double c, ROCPPVarIF_Ptr pVariable)
 {
     throw MyException("not applicable to this type of constraint");
 }
 
-void ConstraintIF::add_lhs(double c, boost::shared_ptr<UncertaintyIF> pUncertainty,  boost::shared_ptr<DecisionVariableIF> pVariable)
+void ConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty,  ROCPPVarIF_Ptr pVariable)
 {
     throw MyException("not applicable to this type of constraint");
 }
 
-void ConstraintIF::add_lhs(double c, boost::shared_ptr<UncertaintyIF> pUncertainty)
+void ConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty)
 {
     throw MyException("not applicable to this type of constraint");
 }
 
-void ConstraintIF::add_lhs(double c, boost::shared_ptr<DecisionVariableIF> pVariable1, boost::shared_ptr<DecisionVariableIF> pVariable2)
+void ConstraintIF::add_lhs(double c, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2)
 {
     throw MyException("not applicable to this type of constraint");
 }
 
-void ConstraintIF::add_lhs(double c, boost::shared_ptr<UncertaintyIF> pUncertainty, boost::shared_ptr<DecisionVariableIF> pVariable1, boost::shared_ptr<DecisionVariableIF> pVariable2)
+void ConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2)
 {
     throw MyException("not applicable to this type of constraint");
 }
 
-void ConstraintIF::add_lhs(boost::shared_ptr<const ConstraintTermIF> term)
+void ConstraintIF::add_lhs(ROCPPconstCstrTerm_Ptr term)
 {
     throw MyException("not applicable to this type of constraint");
 }
 
-void ConstraintIF::add_lhs(double c, boost::shared_ptr<const ConstraintTermIF> term)
+void ConstraintIF::add_lhs(double c, ROCPPconstCstrTerm_Ptr term)
 {
     throw MyException("not applicable to this type of constraint");
 }
 
-void ConstraintIF::add_lhs(boost::shared_ptr<const LHSExpression> pExpression)
+void ConstraintIF::add_lhs(ROCPPconstExpr_Ptr pExpression)
 {
     throw MyException("not applicable to this type of constraint");
 }
 
-void ConstraintIF::add_lhs(double c, boost::shared_ptr<const LHSExpression> pExpression)
+void ConstraintIF::add_lhs(double c, ROCPPconstExpr_Ptr pExpression)
 {
     throw MyException("not applicable to this type of constraint");
 }
 
-void ConstraintIF::add_lhs(double c, boost::shared_ptr<const LHSExpression> pExpression,  boost::shared_ptr<DecisionVariableIF> pVariable)
+void ConstraintIF::add_lhs(double c, ROCPPconstExpr_Ptr pExpression,  ROCPPVarIF_Ptr pVariable)
 {
     throw MyException("not applicable to this type of constraint");
 }
@@ -129,7 +129,7 @@ void ConstraintIF::set_rhs(pair<double,bool> rhs)
 
 ClassicConstraintIF::ClassicConstraintIF(bool definesUncertaintySet, bool isNAC) :
 ConstraintIF(definesUncertaintySet, isNAC),
-m_pLHS(boost::shared_ptr<LHSExpression>( new LHSExpression() ) ),
+m_pLHS(ROCPPExpr_Ptr( new LHSExpression() ) ),
 m_rhsParams()
 {}
 
@@ -157,63 +157,63 @@ ConstraintIF::uncertaintiesIterator ClassicConstraintIF::uncertaintiesEnd() cons
 
 void ClassicConstraintIF::add_lhs(double c)
 {
-    boost::shared_ptr<ConstraintTermIF> toAdd ( new ProductTerm(c) );
+    ROCPPCstrTerm_Ptr toAdd ( new ProductTerm(c) );
     add_lhs( toAdd );
 }
 
-void ClassicConstraintIF::add_lhs(double c, boost::shared_ptr<DecisionVariableIF> pVariable)
+void ClassicConstraintIF::add_lhs(double c, ROCPPVarIF_Ptr pVariable)
 {
-    boost::shared_ptr<ConstraintTermIF> toAdd ( new ProductTerm(c,pVariable) );
+    ROCPPCstrTerm_Ptr toAdd ( new ProductTerm(c,pVariable) );
     add_lhs( toAdd );
 }
 
-void ClassicConstraintIF::add_lhs(double c, boost::shared_ptr<UncertaintyIF> pUncertainty,  boost::shared_ptr<DecisionVariableIF> pVariable)
+void ClassicConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty,  ROCPPVarIF_Ptr pVariable)
 {
     m_pLHS->add(c,pUncertainty,pVariable);
 }
 
-void ClassicConstraintIF::add_lhs(double c, boost::shared_ptr<UncertaintyIF> pUncertainty)
+void ClassicConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty)
 {
     m_pLHS->add(c,pUncertainty);
 }
 
-void ClassicConstraintIF::add_lhs(double c, boost::shared_ptr<DecisionVariableIF> pVariable1, boost::shared_ptr<DecisionVariableIF> pVariable2)
+void ClassicConstraintIF::add_lhs(double c, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2)
 {
     m_pLHS->add(c,pVariable1,pVariable2);
 }
 
-void ClassicConstraintIF::add_lhs(double c, boost::shared_ptr<UncertaintyIF> pUncertainty, boost::shared_ptr<DecisionVariableIF> pVariable1, boost::shared_ptr<DecisionVariableIF> pVariable2)
+void ClassicConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2)
 {
     m_pLHS->add(c,pUncertainty,pVariable1,pVariable2);
 }
 
-void ClassicConstraintIF::add_lhs(boost::shared_ptr<const ConstraintTermIF> term)
+void ClassicConstraintIF::add_lhs(ROCPPconstCstrTerm_Ptr term)
 {
     m_pLHS->add( term->Clone() );
 }
 
-void ClassicConstraintIF::add_lhs(double c, boost::shared_ptr<const LHSExpression> pExpression)
+void ClassicConstraintIF::add_lhs(double c, ROCPPconstExpr_Ptr pExpression)
 {
-    boost::shared_ptr<LHSExpression> scaled_expr( pExpression->Clone() );
+    ROCPPExpr_Ptr scaled_expr( pExpression->Clone() );
     *scaled_expr *= c;
     add_lhs(scaled_expr);
 }
 
-void ClassicConstraintIF::add_lhs(double c, boost::shared_ptr<const ConstraintTermIF> term)
+void ClassicConstraintIF::add_lhs(double c, ROCPPconstCstrTerm_Ptr term)
 {
-    boost::shared_ptr<ConstraintTermIF> scaled_term( term->Clone() );
+    ROCPPCstrTerm_Ptr scaled_term( term->Clone() );
     *scaled_term *= c;
     add_lhs(scaled_term);
 }
-void ClassicConstraintIF::add_lhs(boost::shared_ptr<const LHSExpression> pExpression)
+void ClassicConstraintIF::add_lhs(ROCPPconstExpr_Ptr pExpression)
 {
     for (LHSExpression::const_iterator it = pExpression->begin(); it != pExpression->end(); it++)
         add_lhs((*it)->Clone());
 }
 
-void ClassicConstraintIF::add_lhs(double c, boost::shared_ptr<const LHSExpression> pExpression,  boost::shared_ptr<DecisionVariableIF> pVariable)
+void ClassicConstraintIF::add_lhs(double c, ROCPPconstExpr_Ptr pExpression,  ROCPPVarIF_Ptr pVariable)
 {
-    boost::shared_ptr<LHSExpression> expr( pExpression->Clone() );
+    ROCPPExpr_Ptr expr( pExpression->Clone() );
     *expr *= c;
     *expr *= pVariable;
     
@@ -228,13 +228,13 @@ void ClassicConstraintIF::set_rhs(pair<double,bool> rhs)
     return;
 }
 
-boost::shared_ptr<ConstraintIF> ClassicConstraintIF::mapVars(const map<string, boost::shared_ptr<LHSExpression> > &mapFromVarToExpression) const
+ROCPPConstraint_Ptr ClassicConstraintIF::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
 {
-    boost::shared_ptr<ClassicConstraintIF> out;
+    ROCPPClassicConstraint_Ptr out;
     if (this->isEqConstraint())
-        out=boost::shared_ptr<ClassicConstraintIF>(new EqConstraint(this->definesUncertaintySet(),this->isNAC()));
+        out=ROCPPClassicConstraint_Ptr(new EqConstraint(this->definesUncertaintySet(),this->isNAC()));
     else
-        out=boost::shared_ptr<ClassicConstraintIF>(new IneqConstraint(this->definesUncertaintySet(),this->isNAC()));
+        out=ROCPPClassicConstraint_Ptr(new IneqConstraint(this->definesUncertaintySet(),this->isNAC()));
     
     
     out->set_rhs( get_rhs() );
@@ -244,13 +244,13 @@ boost::shared_ptr<ConstraintIF> ClassicConstraintIF::mapVars(const map<string, b
     return out;
 }
 
-boost::shared_ptr<ConstraintIF> ClassicConstraintIF::mapUncs(const map<string, boost::shared_ptr<LHSExpression> > &mapFromUncToExpression) const
+ROCPPConstraint_Ptr ClassicConstraintIF::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const
 {
-    boost::shared_ptr<ClassicConstraintIF> out;
+    ROCPPClassicConstraint_Ptr out;
     if (this->isEqConstraint())
-        out=boost::shared_ptr<ClassicConstraintIF>(new EqConstraint(this->definesUncertaintySet(),this->isNAC()));
+        out=ROCPPClassicConstraint_Ptr(new EqConstraint(this->definesUncertaintySet(),this->isNAC()));
     else
-        out=boost::shared_ptr<ClassicConstraintIF>(new IneqConstraint(this->definesUncertaintySet(),this->isNAC()));
+        out=ROCPPClassicConstraint_Ptr(new IneqConstraint(this->definesUncertaintySet(),this->isNAC()));
     
     out->set_rhs( get_rhs() );
     
@@ -259,12 +259,12 @@ boost::shared_ptr<ConstraintIF> ClassicConstraintIF::mapUncs(const map<string, b
     return out;
 }
 
-boost::shared_ptr<ConstraintIF> ClassicConstraintIF::replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const
+ROCPPConstraint_Ptr ClassicConstraintIF::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
 {
     if (term.size()==2) // shortcut for the case when the term has 2 variables
     {
         map< pair<string,string>, uint> freqMap;
-        map< pair<string,string>, multimap<string, boost::shared_ptr<DecisionVariableIF> > > termMap;
+        map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > termMap;
         getAllProductsOf2Variables(freqMap, termMap);
         
         bool tmp1(freqMap.find(make_pair(term.begin()->first,term.rbegin()->first)) == freqMap.end());
@@ -274,11 +274,11 @@ boost::shared_ptr<ConstraintIF> ClassicConstraintIF::replaceTermWithVar(const mu
             return this->Clone();
     }
     
-    boost::shared_ptr<ClassicConstraintIF> out;
+    ROCPPClassicConstraint_Ptr out;
     if (this->isEqConstraint())
-        out=boost::shared_ptr<ClassicConstraintIF>(new EqConstraint(this->definesUncertaintySet(),this->isNAC()));
+        out=ROCPPClassicConstraint_Ptr(new EqConstraint(this->definesUncertaintySet(),this->isNAC()));
     else
-        out=boost::shared_ptr<ClassicConstraintIF>(new IneqConstraint(this->definesUncertaintySet(),this->isNAC()));
+        out=ROCPPClassicConstraint_Ptr(new IneqConstraint(this->definesUncertaintySet(),this->isNAC()));
     
     out->set_rhs( get_rhs() );
     
@@ -287,19 +287,19 @@ boost::shared_ptr<ConstraintIF> ClassicConstraintIF::replaceTermWithVar(const mu
     return out;
 }
 
-boost::shared_ptr<ConstraintIF> ClassicConstraintIF::replaceBilinearTerm(map<pair<string,string>, boost::shared_ptr<DecisionVariableIF> > &allTerm, uint &count) const
+ROCPPConstraint_Ptr ClassicConstraintIF::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const
 {
-    boost::shared_ptr<LHSExpression> newLhs;
+    ROCPPExpr_Ptr newLhs;
     
     if(isEqConstraint()){
-        boost::shared_ptr<ConstraintIF> newCstr(new EqConstraint(definesUncertaintySet(), isNAC()));
+        ROCPPConstraint_Ptr newCstr(new EqConstraint(definesUncertaintySet(), isNAC()));
         newLhs = m_pLHS->replaceBilinearTerm(allTerm, count);
         newCstr->add_lhs(newLhs);
         newCstr->set_rhs(get_rhs());
         return newCstr;
     }
     else{
-        boost::shared_ptr<ConstraintIF> newCstr(new IneqConstraint(definesUncertaintySet(), isNAC()));
+        ROCPPConstraint_Ptr newCstr(new IneqConstraint(definesUncertaintySet(), isNAC()));
         newLhs = m_pLHS->replaceBilinearTerm(allTerm, count);
         newCstr->add_lhs(newLhs);
         newCstr->set_rhs(get_rhs());
@@ -308,17 +308,17 @@ boost::shared_ptr<ConstraintIF> ClassicConstraintIF::replaceBilinearTerm(map<pai
     }
 }
 
-boost::shared_ptr<ConstraintIF> ClassicConstraintIF::mapVars(const map<string,boost::shared_ptr<DecisionVariableIF> > &mapFromOldToNewVars) const
+ROCPPConstraint_Ptr ClassicConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
 {
-    boost::shared_ptr<ClassicConstraintIF> out;
+    ROCPPClassicConstraint_Ptr out;
     if (this->isEqConstraint())
-        out=boost::shared_ptr<ClassicConstraintIF>(new EqConstraint(this->definesUncertaintySet(),this->isNAC()));
+        out=ROCPPClassicConstraint_Ptr(new EqConstraint(this->definesUncertaintySet(),this->isNAC()));
     else
-        out=boost::shared_ptr<ClassicConstraintIF>(new IneqConstraint(this->definesUncertaintySet(),this->isNAC()));
+        out=ROCPPClassicConstraint_Ptr(new IneqConstraint(this->definesUncertaintySet(),this->isNAC()));
     
     // iterate through the lhs
     
-    boost::shared_ptr<LHSExpression> expOut =  m_pLHS->mapExprVars(mapFromOldToNewVars);
+    ROCPPExpr_Ptr expOut =  m_pLHS->mapExprVars(mapFromOldToNewVars);
     out->add_lhs( expOut );
     
     // set right hand side
@@ -326,17 +326,17 @@ boost::shared_ptr<ConstraintIF> ClassicConstraintIF::mapVars(const map<string,bo
     return out;
 }
 
-boost::shared_ptr<ConstraintIF> ClassicConstraintIF::mapUnc(const map<string,boost::shared_ptr<UncertaintyIF> > &mapFromOldToNewUnc) const
+ROCPPConstraint_Ptr ClassicConstraintIF::mapUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const
 {
-    boost::shared_ptr<ClassicConstraintIF> out;
+    ROCPPClassicConstraint_Ptr out;
     if (this->isEqConstraint())
-        out=boost::shared_ptr<ClassicConstraintIF>(new EqConstraint(this->definesUncertaintySet(),this->isNAC()));
+        out=ROCPPClassicConstraint_Ptr(new EqConstraint(this->definesUncertaintySet(),this->isNAC()));
     else
-        out=boost::shared_ptr<ClassicConstraintIF>(new IneqConstraint(this->definesUncertaintySet(),this->isNAC()));
+        out=ROCPPClassicConstraint_Ptr(new IneqConstraint(this->definesUncertaintySet(),this->isNAC()));
     
     // iterate through the lhs
     
-    boost::shared_ptr<LHSExpression> expOut =  m_pLHS->mapExprUnc(mapFromOldToNewUnc);
+    ROCPPExpr_Ptr expOut =  m_pLHS->mapExprUnc(mapFromOldToNewUnc);
     out->add_lhs( expOut );
     
     // set right hand side
@@ -359,22 +359,22 @@ void ClassicConstraintIF::add_int_vars(dvContainer &dvs) const
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-uint ClassicConstraintIF::getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const
+uint ClassicConstraintIF::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const
 {
     return (m_pLHS->getNumTimesTermAppears(term));
 }
 
-void ClassicConstraintIF::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, boost::shared_ptr<DecisionVariableIF> > > &termMap) const
+void ClassicConstraintIF::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const
 {
     m_pLHS->getAllProductsOf2Variables(freqMap,termMap);
 }
 
-boost::shared_ptr<const dvContainer> ClassicConstraintIF::getDVContainer() const
+ROCPPconstdvContainer_Ptr ClassicConstraintIF::getDVContainer() const
 {
     return getLHS()->getDVContainer();
 }
 
-boost::shared_ptr<const uncContainer> ClassicConstraintIF::getUncContainer() const
+ROCPPconstuncContainer_Ptr ClassicConstraintIF::getUncContainer() const
 {
     return getLHS()->getUncContainer();
 }
@@ -415,35 +415,35 @@ pair<double,bool> ClassicConstraintIF::get_rhs() const
     }
 }
 
-boost::shared_ptr<LHSExpression> ClassicConstraintIF::getLHS() const {return boost::shared_ptr<LHSExpression>( m_pLHS ) ;}
+ROCPPExpr_Ptr ClassicConstraintIF::getLHS() const {return ROCPPExpr_Ptr( m_pLHS ) ;}
 
-boost::shared_ptr<LHSExpression> ClassicConstraintIF::getLinearPart() const
+ROCPPExpr_Ptr ClassicConstraintIF::getLinearPart() const
 {
-    boost::shared_ptr<LHSExpression> out( new LHSExpression() );
+    ROCPPExpr_Ptr out( new LHSExpression() );
     (*out) += m_pLHS->getLinearPart();
     if(! get_rhs().second)
         (*out) += -1.*(get_rhs().first);
     return out;
 }
 
-boost::shared_ptr<NormTerm> ClassicConstraintIF::getNormTerm() const {return m_pLHS->getNormTerm();}
+ROCPPNormTerm_Ptr ClassicConstraintIF::getNormTerm() const {return m_pLHS->getNormTerm();}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<ConstraintIF> ClassicConstraintIF::Clone() const
+ROCPPConstraint_Ptr ClassicConstraintIF::Clone() const
 {
     
-    boost::shared_ptr<ClassicConstraintIF> out;
+    ROCPPClassicConstraint_Ptr out;
     if (this->isEqConstraint())
-        out=boost::shared_ptr<ClassicConstraintIF>(new EqConstraint(this->definesUncertaintySet(),this->isNAC()));
+        out=ROCPPClassicConstraint_Ptr(new EqConstraint(this->definesUncertaintySet(),this->isNAC()));
     else
-        out=boost::shared_ptr<ClassicConstraintIF>(new IneqConstraint(this->definesUncertaintySet(),this->isNAC()));
+        out=ROCPPClassicConstraint_Ptr(new IneqConstraint(this->definesUncertaintySet(),this->isNAC()));
     
     // iterate through the lhs
     
-    boost::shared_ptr<LHSExpression> expOut(m_pLHS->Clone());
+    ROCPPExpr_Ptr expOut(m_pLHS->Clone());
     out->add_lhs( expOut );
     
     // set right hand side
@@ -539,12 +539,12 @@ SOSConstraint::varsIterator SOSConstraint::varsEnd() const
 //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void SOSConstraint::add(boost::shared_ptr<DecisionVariableIF> dv, double weight)
+void SOSConstraint::add(ROCPPVarIF_Ptr dv, double weight)
 {
     if ( (dv->isAdaptive()) &&  (!dv->isBooleanVar()) && (!dv->isIntegerVar()) )
         throw MyException("cannot have adaptive real-valued variable in SOS set");
     
-    pair<map<string, pair<boost::shared_ptr<DecisionVariableIF>, double> >::iterator,bool> it( m_sosMap.insert(make_pair( dv->getName(), make_pair(dv,weight) ) ) );
+    pair<map<string, pair<ROCPPVarIF_Ptr, double> >::iterator,bool> it( m_sosMap.insert(make_pair( dv->getName(), make_pair(dv,weight) ) ) );
     
     if (!it.second)
         throw MyException("variable was already present in the set");
@@ -557,9 +557,9 @@ void SOSConstraint::add_int_vars(dvContainer &dvs) const
     m_pDVContainer->add_int_vars(dvs);
 }
 
-boost::shared_ptr<ConstraintIF> SOSConstraint::mapVars(const map<string, boost::shared_ptr<LHSExpression> > &mapFromVarToExpression) const
+ROCPPConstraint_Ptr SOSConstraint::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
 {
-    for (map<string, boost::shared_ptr<LHSExpression> >::const_iterator it = mapFromVarToExpression.begin(); it != mapFromVarToExpression.end(); it++)
+    for (map<string, ROCPPExpr_Ptr >::const_iterator it = mapFromVarToExpression.begin(); it != mapFromVarToExpression.end(); it++)
     {
         dvContainer::const_iterator vit ( m_pDVContainer->find( it->first ) );
         if (vit != m_pDVContainer->end())
@@ -569,7 +569,7 @@ boost::shared_ptr<ConstraintIF> SOSConstraint::mapVars(const map<string, boost::
     return this->Clone();
 }
 
-boost::shared_ptr<ConstraintIF> SOSConstraint::replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const
+ROCPPConstraint_Ptr SOSConstraint::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
 {
     if (term.size()>1)
         return this->Clone();
@@ -581,25 +581,25 @@ boost::shared_ptr<ConstraintIF> SOSConstraint::replaceTermWithVar(const multimap
     if ( (m_pDVContainer->find(term.begin()->first)) == m_pDVContainer->end() )
         return this->Clone();
     
-    map<string,boost::shared_ptr<DecisionVariableIF> > tmp;
+    map<string,ROCPPVarIF_Ptr > tmp;
     tmp.insert(make_pair(term.begin()->first, var) );
     
     return mapVars(tmp);
 }
 
-boost::shared_ptr<ConstraintIF> SOSConstraint::replaceBilinearTerm(map<pair<string,string>, boost::shared_ptr<DecisionVariableIF> > &allTerm, uint &count) const
+ROCPPConstraint_Ptr SOSConstraint::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const
 {
     return this->Clone();
 }
 
-boost::shared_ptr<ConstraintIF> SOSConstraint::mapVars(const map<string,boost::shared_ptr<DecisionVariableIF> > &mapFromOldToNewVars) const
+ROCPPConstraint_Ptr SOSConstraint::mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
 {
-    boost::shared_ptr<SOSConstraint> out ( new SOSConstraint(this->getSOSType()) );
+    ROCPPSOSConstraint_Ptr out ( new SOSConstraint(this->getSOSType()) );
     
     for (SOSMapType::const_iterator it = m_sosMap.begin(); it != m_sosMap.end(); it++)
     {
         // try to find the current variable in the map
-        map<string,boost::shared_ptr<DecisionVariableIF> >::const_iterator tsl_it ( mapFromOldToNewVars.find( it->second.first->getName() ) );
+        map<string,ROCPPVarIF_Ptr >::const_iterator tsl_it ( mapFromOldToNewVars.find( it->second.first->getName() ) );
         
         if (tsl_it == mapFromOldToNewVars.end())
         {
@@ -618,14 +618,14 @@ boost::shared_ptr<ConstraintIF> SOSConstraint::mapVars(const map<string,boost::s
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<const dvContainer> SOSConstraint::getDVContainer() const
+ROCPPconstdvContainer_Ptr SOSConstraint::getDVContainer() const
 {
     return m_pDVContainer;
 }
 
-boost::shared_ptr<const uncContainer> SOSConstraint::getUncContainer() const
+ROCPPconstuncContainer_Ptr SOSConstraint::getUncContainer() const
 {
-    return boost::shared_ptr<const uncContainer>(new uncContainer());
+    return ROCPPconstuncContainer_Ptr(new uncContainer());
 }
 
 bool SOSConstraint::hasNoDVs() const
@@ -698,7 +698,7 @@ bool SOSConstraint::AnyVarIsInvolved(dvContainer& dvs) const
     return m_pDVContainer->AnyVarIsInvolved(dvs);
 }
 
-uint SOSConstraint::getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const
+uint SOSConstraint::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const
 {
     if (term.size()>1)
         return 0;
@@ -719,9 +719,9 @@ uint SOSConstraint::getNumTimesTermAppears(const multimap<string, boost::shared_
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<ConstraintIF> SOSConstraint::Clone() const
+ROCPPConstraint_Ptr SOSConstraint::Clone() const
 {
-    boost::shared_ptr<SOSConstraint> pOut ( new SOSConstraint( getSOSType() ) );
+    ROCPPSOSConstraint_Ptr pOut ( new SOSConstraint( getSOSType() ) );
     
     for (SOSMapType::const_iterator it = m_sosMap.begin(); it != m_sosMap.end(); it++)
         pOut->add(it->second.first, it->second.second);
@@ -760,7 +760,7 @@ void SOSConstraint::WriteToStream(ofstream &ofs, uint cnt) const
 //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-IfThenConstraint::IfThenConstraint(boost::shared_ptr<ConstraintIF> lhs, boost::shared_ptr<ConstraintIF> rhs) : ConstraintIF(false, false), m_lhs(lhs), m_rhs(rhs), m_pDVContainer(new dvContainer()), m_pUncContainer(new uncContainer())
+IfThenConstraint::IfThenConstraint(ROCPPConstraint_Ptr lhs, ROCPPConstraint_Ptr rhs) : ConstraintIF(false, false), m_lhs(lhs), m_rhs(rhs), m_pDVContainer(new dvContainer()), m_pUncContainer(new uncContainer())
 {
     if ( (!lhs->isClassicConstraint()) || (!rhs->isClassicConstraint()) )
         throw MyException("can only have classic constraints in if then constraint arguments");
@@ -793,58 +793,58 @@ IfThenConstraint::const_iterator IfThenConstraint::end() const {return m_terms.e
 //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<ConstraintIF> IfThenConstraint::mapVars(const map<string, boost::shared_ptr<LHSExpression> > &mapFromVarToExpression) const
+ROCPPConstraint_Ptr IfThenConstraint::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
 {
-    boost::shared_ptr<ConstraintIF> mapped_lhs ( m_lhs->mapVars(mapFromVarToExpression) );
-    boost::shared_ptr<ConstraintIF> mapped_rhs ( m_rhs->mapVars(mapFromVarToExpression) );
+    ROCPPConstraint_Ptr mapped_lhs ( m_lhs->mapVars(mapFromVarToExpression) );
+    ROCPPConstraint_Ptr mapped_rhs ( m_rhs->mapVars(mapFromVarToExpression) );
     
-    boost::shared_ptr<ConstraintIF> pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
+    ROCPPConstraint_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
     
     return pOut;
 }
 
-boost::shared_ptr<ConstraintIF> IfThenConstraint::mapUncs(const map<string, boost::shared_ptr<LHSExpression> > &mapFromUncToExpression) const
+ROCPPConstraint_Ptr IfThenConstraint::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const
 {
-    boost::shared_ptr<ConstraintIF> mapped_lhs ( m_lhs->mapUncs(mapFromUncToExpression) );
-    boost::shared_ptr<ConstraintIF> mapped_rhs ( m_rhs->mapUncs(mapFromUncToExpression) );
+    ROCPPConstraint_Ptr mapped_lhs ( m_lhs->mapUncs(mapFromUncToExpression) );
+    ROCPPConstraint_Ptr mapped_rhs ( m_rhs->mapUncs(mapFromUncToExpression) );
     
-    boost::shared_ptr<ConstraintIF> pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
-    
-    return pOut;
-}
-
-boost::shared_ptr<ConstraintIF> IfThenConstraint::replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const
-{
-    boost::shared_ptr<ConstraintIF> mapped_lhs ( m_lhs->replaceTermWithVar(term,var) );
-    boost::shared_ptr<ConstraintIF> mapped_rhs ( m_rhs->replaceTermWithVar(term,var) );
-    boost::shared_ptr<ConstraintIF> pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
+    ROCPPConstraint_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
     
     return pOut;
 }
 
-boost::shared_ptr<ConstraintIF> IfThenConstraint::replaceBilinearTerm(map<pair<string,string>, boost::shared_ptr<DecisionVariableIF> > &allTerm, uint &count) const
+ROCPPConstraint_Ptr IfThenConstraint::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
 {
-    boost::shared_ptr<ConstraintIF> newCstr(new IfThenConstraint(m_lhs->replaceBilinearTerm(allTerm, count),m_rhs->replaceBilinearTerm(allTerm, count)));
+    ROCPPConstraint_Ptr mapped_lhs ( m_lhs->replaceTermWithVar(term,var) );
+    ROCPPConstraint_Ptr mapped_rhs ( m_rhs->replaceTermWithVar(term,var) );
+    ROCPPConstraint_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
+    
+    return pOut;
+}
+
+ROCPPConstraint_Ptr IfThenConstraint::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const
+{
+    ROCPPConstraint_Ptr newCstr(new IfThenConstraint(m_lhs->replaceBilinearTerm(allTerm, count),m_rhs->replaceBilinearTerm(allTerm, count)));
     
     return newCstr;
 }
 
-boost::shared_ptr<ConstraintIF> IfThenConstraint::mapVars(const map<string,boost::shared_ptr<DecisionVariableIF> > &mapFromOldToNewVars) const
+ROCPPConstraint_Ptr IfThenConstraint::mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
 {
-    boost::shared_ptr<ConstraintIF> mapped_lhs ( m_lhs->mapVars(mapFromOldToNewVars) );
-    boost::shared_ptr<ConstraintIF> mapped_rhs ( m_rhs->mapVars(mapFromOldToNewVars) );
+    ROCPPConstraint_Ptr mapped_lhs ( m_lhs->mapVars(mapFromOldToNewVars) );
+    ROCPPConstraint_Ptr mapped_rhs ( m_rhs->mapVars(mapFromOldToNewVars) );
     
-    boost::shared_ptr<ConstraintIF> pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
+    ROCPPConstraint_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
     
     return pOut;
 }
 
-boost::shared_ptr<ConstraintIF> IfThenConstraint::mapUnc(const map<string,boost::shared_ptr<UncertaintyIF> > &mapFromOldToNewUnc) const
+ROCPPConstraint_Ptr IfThenConstraint::mapUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const
 {
-    boost::shared_ptr<ConstraintIF> mapped_lhs ( m_lhs->mapUnc(mapFromOldToNewUnc) );
-    boost::shared_ptr<ConstraintIF> mapped_rhs ( m_rhs->mapUnc(mapFromOldToNewUnc) );
+    ROCPPConstraint_Ptr mapped_lhs ( m_lhs->mapUnc(mapFromOldToNewUnc) );
+    ROCPPConstraint_Ptr mapped_rhs ( m_rhs->mapUnc(mapFromOldToNewUnc) );
     
-    boost::shared_ptr<ConstraintIF> pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
+    ROCPPConstraint_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
     
     return pOut;
 }
@@ -853,10 +853,10 @@ boost::shared_ptr<ConstraintIF> IfThenConstraint::mapUnc(const map<string,boost:
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<const dvContainer> IfThenConstraint::getDVContainer() const {return
+ROCPPconstdvContainer_Ptr IfThenConstraint::getDVContainer() const {return
     m_pDVContainer;}
 
-boost::shared_ptr<const uncContainer> IfThenConstraint::getUncContainer() const {return m_pUncContainer;}
+ROCPPconstuncContainer_Ptr IfThenConstraint::getUncContainer() const {return m_pUncContainer;}
 
 uint IfThenConstraint::getNumContVars() const {return m_pDVContainer->getNumContVars();}
 uint IfThenConstraint::getNumIntVars() const {return m_pDVContainer->getNumIntVars();}
@@ -871,9 +871,9 @@ bool IfThenConstraint::hasNoDVs() const {return m_pDVContainer->getNumVars()==0;
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<ConstraintIF> IfThenConstraint::Clone() const
+ROCPPConstraint_Ptr IfThenConstraint::Clone() const
 {
-    boost::shared_ptr<ConstraintIF> pOut ( new IfThenConstraint(m_lhs->Clone(), m_rhs->Clone()) );
+    ROCPPConstraint_Ptr pOut ( new IfThenConstraint(m_lhs->Clone(), m_rhs->Clone()) );
     return pOut;
 }
 
@@ -916,19 +916,19 @@ bool DoublesAreEssentiallyEqual(double A, double B, double epsilon)
     return (diff < epsilon) && (-diff < epsilon);
 }
 
-boost::shared_ptr<ConstraintIF> createConstraint(boost::shared_ptr<LHSExpression> lhs, double rhs, bool isEqual, bool definesUncertaintySet, bool isNAC)
+ROCPPConstraint_Ptr createConstraint(ROCPPExpr_Ptr lhs, double rhs, bool isEqual, bool definesUncertaintySet, bool isNAC)
 {
     bool isZero = (DoublesAreEssentiallyEqual(rhs, 0., 10e-4));
     if(isEqual)
     {
-        boost::shared_ptr<ConstraintIF> newCstr(new EqConstraint(definesUncertaintySet, isNAC));
+        ROCPPConstraint_Ptr newCstr(new EqConstraint(definesUncertaintySet, isNAC));
         newCstr->add_lhs(lhs);
         newCstr->set_rhs(make_pair(rhs, isZero));
         return newCstr;
     }
     else
     {
-        boost::shared_ptr<ConstraintIF> newCstr(new IneqConstraint(definesUncertaintySet, isNAC));
+        ROCPPConstraint_Ptr newCstr(new IneqConstraint(definesUncertaintySet, isNAC));
         newCstr->add_lhs(lhs);
         newCstr->set_rhs(make_pair(rhs, isZero));
             //newCstr->set_rhs(make_pair(rhs, false));

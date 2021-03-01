@@ -30,28 +30,28 @@
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<OptimizationModelIF> VariableConverterIF::doMyThing(boost::shared_ptr<OptimizationModelIF> pIn, bool resetAndSave)
+ROCPPOptModelIF_Ptr VariableConverterIF::doMyThing(ROCPPOptModelIF_Ptr pIn, bool resetAndSave)
 {
-    boost::shared_ptr<OptimizationModelIF> pOut;
+    ROCPPOptModelIF_Ptr pOut;
     if (pIn->isUncertainOptimizationModel())
         pOut = InstanciateModel(pIn->getType(),pIn->getNumTimeStages(),pIn->getObjType());
     else
         pOut = InstanciateModel(pIn->getType(),pIn->getNumTimeStages(),robust);
     
-    vector<boost::shared_ptr<ConstraintIF> >::const_iterator first(pIn->constraintBegin());
-    vector<boost::shared_ptr<ConstraintIF> >::const_iterator last(pIn->constraintEnd());
-    boost::shared_ptr<ObjectiveFunctionIF> obj(pIn->getObj());
+    vector<ROCPPConstraint_Ptr >::const_iterator first(pIn->constraintBegin());
+    vector<ROCPPConstraint_Ptr >::const_iterator last(pIn->constraintEnd());
+    ROCPPObjectiveIF_Ptr obj(pIn->getObj());
     
-    vector<boost::shared_ptr<ConstraintIF> > toAdd;
-    boost::shared_ptr<ObjectiveFunctionIF> toSet;
-    boost::shared_ptr<const dvContainer> pOrigDVContainer(pIn->getDVContainer() );
+    vector<ROCPPConstraint_Ptr > toAdd;
+    ROCPPObjectiveIF_Ptr toSet;
+    ROCPPconstdvContainer_Ptr pOrigDVContainer(pIn->getDVContainer() );
     
     doMyThing(first,last,obj,*pOrigDVContainer,toAdd,toSet,resetAndSave);
     
     // out of the computed constraints, only add the ones that are useful!
     // a constraint is useless if it says "constant == constant"
     
-    for (vector<boost::shared_ptr<ConstraintIF> >::const_iterator c_it = toAdd.begin(); c_it != toAdd.end(); c_it++ )
+    for (vector<ROCPPConstraint_Ptr >::const_iterator c_it = toAdd.begin(); c_it != toAdd.end(); c_it++ )
         if ( (*c_it)->isUseful() )
             pOut->add_constraint( *c_it );
     
@@ -71,14 +71,14 @@ boost::shared_ptr<OptimizationModelIF> VariableConverterIF::doMyThing(boost::sha
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void OneToOneVariableConverterIF::doMyThing(vector<boost::shared_ptr<ConstraintIF> >::const_iterator first, vector<boost::shared_ptr<ConstraintIF> >::const_iterator last, boost::shared_ptr<ObjectiveFunctionIF> obj, const dvContainer& origDVContainer, vector<boost::shared_ptr<ConstraintIF> > &toAdd, boost::shared_ptr<ObjectiveFunctionIF> &toSet, bool resetAndSave)
+void OneToOneVariableConverterIF::doMyThing(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave)
 {
     toAdd.clear();
     
     dvContainer tmpContainer;
     findVarsToTranslate(first,last,obj,tmpContainer);
     
-    map<string,boost::shared_ptr<DecisionVariableIF> > translationMap;
+    map<string,ROCPPVarIF_Ptr > translationMap;
     
     createTranslationMap(tmpContainer,translationMap,toAdd);
     
@@ -89,7 +89,7 @@ void OneToOneVariableConverterIF::doMyThing(vector<boost::shared_ptr<ConstraintI
     }
     
     // now do actual conversion
-    vector<boost::shared_ptr<ConstraintIF> >::const_iterator c_it(first);
+    vector<ROCPPConstraint_Ptr >::const_iterator c_it(first);
     for (; c_it != last; c_it++)
         toAdd.push_back( (*c_it)->mapVars( translationMap ) );
     
@@ -102,7 +102,7 @@ void OneToOneVariableConverterIF::createInverseMap(const dvContainer &origDVCont
     for (const_iterator it = begin(); it != end(); it++)
     {
         // add them to the translation map - throw if they were already there
-        pair< map<string, boost::shared_ptr<DecisionVariableIF> >::iterator, bool> ret;
+        pair< map<string, ROCPPVarIF_Ptr >::iterator, bool> ret;
         
         dvContainer::const_iterator ov ( origDVContainer.findthrow( it->first ) );
         
@@ -143,14 +143,14 @@ double OneToOneVariableConverterIF::evaluateVariableValue( string nme, const map
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void OneToExprVariableConverterIF::doMyThing(vector<boost::shared_ptr<ConstraintIF> >::const_iterator first, vector<boost::shared_ptr<ConstraintIF> >::const_iterator last, boost::shared_ptr<ObjectiveFunctionIF> obj, const dvContainer& origDVContainer, vector<boost::shared_ptr<ConstraintIF> > &toAdd, boost::shared_ptr<ObjectiveFunctionIF> &toSet, bool resetAndSave)
+void OneToExprVariableConverterIF::doMyThing(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave)
 {
     toAdd.clear();
     
     dvContainer tmpContainer;
     findVarsToTranslate(first,last,obj,tmpContainer);
     
-    map<string,boost::shared_ptr<LHSExpression> > translationMap;
+    map<string,ROCPPExpr_Ptr > translationMap;
     
     createTranslationMap(tmpContainer,translationMap,toAdd);
     
@@ -161,7 +161,7 @@ void OneToExprVariableConverterIF::doMyThing(vector<boost::shared_ptr<Constraint
     }
     
     // now do actual conversion
-    vector<boost::shared_ptr<ConstraintIF> >::const_iterator c_it(first);
+    vector<ROCPPConstraint_Ptr >::const_iterator c_it(first);
     for (; c_it != last; c_it++)
         toAdd.push_back( (*c_it)->mapVars( translationMap ) );
     
@@ -178,7 +178,7 @@ void OneToExprVariableConverterIF::createInverseMap(const dvContainer &origDVCon
         for (LHSExpression::dvIterator vit = it->second->varsBegin(); vit != it->second->varsEnd(); vit++)
         {
             // add them to the translation map - throw if they were already there
-            pair< map<string, boost::shared_ptr<DecisionVariableIF> >::iterator, bool> ret;
+            pair< map<string, ROCPPVarIF_Ptr >::iterator, bool> ret;
             
             dvContainer::const_iterator ov ( origDVContainer.findthrow( it->first ) );
             
@@ -211,13 +211,13 @@ double OneToExprVariableConverterIF::evaluateVariableValue( string nme, const ma
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void Bilinear_MItoMB_Converter::findVarsToTranslate(vector<boost::shared_ptr<ConstraintIF> >::const_iterator first, vector<boost::shared_ptr<ConstraintIF> >::const_iterator last, boost::shared_ptr<ObjectiveFunctionIF> obj, dvContainer &container)
+void Bilinear_MItoMB_Converter::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
 {
     // identifies the integer, non-binary variables involved in bilinear terms in pIn
     dvContainer tmp;
     //obj->add_vars_involved_in_prod(tmp);
     
-    vector<boost::shared_ptr<ConstraintIF> >::const_iterator c_it(first);
+    vector<ROCPPConstraint_Ptr >::const_iterator c_it(first);
     // iterate through the constraints in pIN
     for (; c_it != last; c_it++)
     {
@@ -245,7 +245,7 @@ void Bilinear_MItoMB_Converter::findVarsToTranslate(vector<boost::shared_ptr<Con
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void UnaryConverter::createTranslationMap(const dvContainer &tmpContainer, map<string,boost::shared_ptr<LHSExpression> >  &translationMap, vector<boost::shared_ptr<ConstraintIF> > &toAdd)
+void UnaryConverter::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd)
 {
     translationMap.clear();
     
@@ -265,28 +265,28 @@ void UnaryConverter::createTranslationMap(const dvContainer &tmpContainer, map<s
             throw MyException("we should have lb.second>ub.second");
         
         
-        boost::shared_ptr<ClassicConstraintIF> pCstrl( new IneqConstraint() );
+        ROCPPClassicConstraint_Ptr pCstrl( new IneqConstraint() );
         
-        boost::shared_ptr<LHSExpression> cexpr ( new LHSExpression() );
+        ROCPPExpr_Ptr cexpr ( new LHSExpression() );
         (*cexpr) +=  lb ;
         
         for (int i=1; i<=(ub -lb); i++)
         {
             string nme;
             if (i<0)
-                nme = it->second->getName() + "_m" + boost::lexical_cast<string>(-1*i);
+                nme = it->second->getName() + "_m" + to_string(-1*i);
             else
-                nme = it->second->getName() + "_" + boost::lexical_cast<string>(i);
+                nme = it->second->getName() + "_" + to_string(i);
             
-            boost::shared_ptr<DecisionVariableIF> dv;
+            ROCPPVarIF_Ptr dv;
             
             if ( it->second->isAdaptive() )
-                dv = boost::shared_ptr<DecisionVariableIF>(new AdaptVarBool( nme, it->second->getTimeStage()) );
+                dv = ROCPPVarIF_Ptr(new AdaptVarBool( nme, it->second->getTimeStage()) );
             else
-                dv = boost::shared_ptr<DecisionVariableIF>( new VariableBool( nme ) );
+                dv = ROCPPVarIF_Ptr( new VariableBool( nme ) );
             
             
-            (*cexpr) += boost::shared_ptr<ConstraintTermIF> ( new ProductTerm(static_cast<double>(i), dv )  );
+            (*cexpr) += ROCPPCstrTerm_Ptr ( new ProductTerm(static_cast<double>(i), dv )  );
             pCstrl->add_lhs(1.,dv);
         }
         
@@ -302,7 +302,7 @@ void UnaryConverter::createTranslationMap(const dvContainer &tmpContainer, map<s
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void BinaryConverter::createTranslationMap(const dvContainer &tmpContainer, map<string,boost::shared_ptr<LHSExpression> >  &translationMap, vector<boost::shared_ptr<ConstraintIF> > &toAdd)
+void BinaryConverter::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd)
 {
     translationMap.clear();
     
@@ -322,9 +322,9 @@ void BinaryConverter::createTranslationMap(const dvContainer &tmpContainer, map<
             throw MyException("we should have lb.second>ub.second");
         
         
-        boost::shared_ptr<ClassicConstraintIF> pCstrl( new IneqConstraint() );
+        ROCPPClassicConstraint_Ptr pCstrl( new IneqConstraint() );
         
-        boost::shared_ptr<LHSExpression> cexpr ( new LHSExpression() );
+        ROCPPExpr_Ptr cexpr ( new LHSExpression() );
         (*cexpr) +=  lb;
         
         double tmp(floor ( log( static_cast<double>(ub - lb) ) / log(2.) ) );
@@ -333,18 +333,18 @@ void BinaryConverter::createTranslationMap(const dvContainer &tmpContainer, map<
         {
             string nme;
             if (i<0)
-                nme = it->second->getName() + "_m" + boost::lexical_cast<string>(-1*i);
+                nme = it->second->getName() + "_m" + to_string(-1*i);
             else
-                nme = it->second->getName() + "_" + boost::lexical_cast<string>(i);
+                nme = it->second->getName() + "_" + to_string(i);
             
-            boost::shared_ptr<DecisionVariableIF> dv;
+            ROCPPVarIF_Ptr dv;
             if ( it->second->isAdaptive() )
-                dv = boost::shared_ptr<DecisionVariableIF>(new AdaptVarBool( nme, it->second->getTimeStage() ) );
+                dv = ROCPPVarIF_Ptr(new AdaptVarBool( nme, it->second->getTimeStage() ) );
             else
-                dv = boost::shared_ptr<DecisionVariableIF>( new VariableBool( nme ) );
+                dv = ROCPPVarIF_Ptr( new VariableBool( nme ) );
             
             double tmp2(pow(2.,static_cast<double>(i)));
-            (*cexpr) += boost::shared_ptr<ConstraintTermIF> ( new ProductTerm( tmp2, dv )  );
+            (*cexpr) += ROCPPCstrTerm_Ptr ( new ProductTerm( tmp2, dv )  );
             pCstrl->add_lhs( tmp2,dv);
             
         }
@@ -371,10 +371,10 @@ void BinaryConverter::createTranslationMap(const dvContainer &tmpContainer, map<
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void RealVarBilinearPosReformulator::findVarsToTranslate(vector<boost::shared_ptr<ConstraintIF> >::const_iterator first, vector<boost::shared_ptr<ConstraintIF> >::const_iterator last, boost::shared_ptr<ObjectiveFunctionIF> obj, dvContainer &container)
+void RealVarBilinearPosReformulator::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
 {
     // identifies the real variables involved in bilinear terms that do not have a lower bound or that have a lower bound that is less than zero
-    vector<boost::shared_ptr<ConstraintIF> >::const_iterator c_it(first);
+    vector<ROCPPConstraint_Ptr >::const_iterator c_it(first);
     
     dvContainer tmp;
 
@@ -398,7 +398,7 @@ void RealVarBilinearPosReformulator::findVarsToTranslate(vector<boost::shared_pt
         throw MyException("should only have to convert real valued variables");
 }
 
-void RealVarBilinearPosReformulator::createTranslationMap(const dvContainer &tmpContainer, map<string,boost::shared_ptr<LHSExpression> >  &translationMap, vector<boost::shared_ptr<ConstraintIF> > &toAdd)
+void RealVarBilinearPosReformulator::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd)
 {
     translationMap.clear();
     
@@ -412,29 +412,29 @@ void RealVarBilinearPosReformulator::createTranslationMap(const dvContainer &tmp
         double lb(it->second->getLB());
         double ub(it->second->getUB());
         
-        boost::shared_ptr<LHSExpression> cexpr ( new LHSExpression() );
+        ROCPPExpr_Ptr cexpr ( new LHSExpression() );
         
-        boost::shared_ptr<DecisionVariableIF> dvp;
-        boost::shared_ptr<DecisionVariableIF> dvn;
+        ROCPPVarIF_Ptr dvp;
+        ROCPPVarIF_Ptr dvn;
         
         if (it->second->isAdaptive())
         {
             // positive part
-            dvp = boost::shared_ptr<DecisionVariableIF> ( new AdaptVarDouble( ( it->second->getName() + "_pos" ), it->second->getTimeStage(), 0.) );
+            dvp = ROCPPVarIF_Ptr ( new AdaptVarDouble( ( it->second->getName() + "_pos" ), it->second->getTimeStage(), 0.) );
 
             //negative part
-            dvn = boost::shared_ptr<DecisionVariableIF> ( new AdaptVarDouble( ( it->second->getName() + "_neg" ), it->second->getTimeStage(), 0.) );
+            dvn = ROCPPVarIF_Ptr ( new AdaptVarDouble( ( it->second->getName() + "_neg" ), it->second->getTimeStage(), 0.) );
         }
         else
         {
             // positive part
-            dvp = boost::shared_ptr<DecisionVariableIF> ( new VariableDouble( ( it->second->getName() + "_pos" ), 0.) );
+            dvp = ROCPPVarIF_Ptr ( new VariableDouble( ( it->second->getName() + "_pos" ), 0.) );
             //negative part
-            dvn = boost::shared_ptr<DecisionVariableIF> ( new VariableDouble( ( it->second->getName() + "_neg" ), 0.) );
+            dvn = ROCPPVarIF_Ptr ( new VariableDouble( ( it->second->getName() + "_neg" ), 0.) );
         }
         
         (*cexpr) += dvp;
-        boost::shared_ptr<ConstraintTermIF> tmp( new ProductTerm(-1., dvn) );
+        ROCPPCstrTerm_Ptr tmp( new ProductTerm(-1., dvn) );
         (*cexpr) += tmp;
         
         translationMap[it->second->getName()] = cexpr;
@@ -448,8 +448,8 @@ void RealVarBilinearPosReformulator::createTranslationMap(const dvContainer &tmp
         
         if ( (lb > -INFINITY) && (lb) )
         {
-            boost::shared_ptr<ClassicConstraintIF> cstr( new IneqConstraint() );
-            boost::shared_ptr<LHSExpression> cexprn ( cexpr->Clone() );
+            ROCPPClassicConstraint_Ptr cstr( new IneqConstraint() );
+            ROCPPExpr_Ptr cexprn ( cexpr->Clone() );
             (*cexprn) *= -1.;
             cstr->add_lhs( cexprn );
 
@@ -463,7 +463,7 @@ void RealVarBilinearPosReformulator::createTranslationMap(const dvContainer &tmp
         }
         if ( (ub < INFINITY) )
         {
-            boost::shared_ptr<ClassicConstraintIF> cstr( new IneqConstraint() );
+            ROCPPClassicConstraint_Ptr cstr( new IneqConstraint() );
             cstr->add_lhs( cexpr->Clone() );
             bool isZero = true;
             if ((ub<-10E-4) || (ub>10E-4) )
@@ -479,18 +479,18 @@ void RealVarBilinearPosReformulator::createTranslationMap(const dvContainer &tmp
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<DecisionVariableIF> RealVarBilinearPosReformulator::getPosPart(string origVarNme) const
+ROCPPVarIF_Ptr RealVarBilinearPosReformulator::getPosPart(string origVarNme) const
 {
-    map<string, boost::shared_ptr<DecisionVariableIF> >::const_iterator it (m_posPartMap.find(origVarNme) );
+    map<string, ROCPPVarIF_Ptr >::const_iterator it (m_posPartMap.find(origVarNme) );
     if (it==m_posPartMap.end())
         throw MyException("variable not found");
     
     return it->second;
 }
 
-boost::shared_ptr<DecisionVariableIF> RealVarBilinearPosReformulator::getNegPart(string origVarNme) const
+ROCPPVarIF_Ptr RealVarBilinearPosReformulator::getNegPart(string origVarNme) const
 {
-    map<string, boost::shared_ptr<DecisionVariableIF> >::const_iterator it (m_negPartMap.find(origVarNme) );
+    map<string, ROCPPVarIF_Ptr >::const_iterator it (m_negPartMap.find(origVarNme) );
     if (it==m_negPartMap.end())
         throw MyException("variable not found");
     
@@ -507,7 +507,7 @@ boost::shared_ptr<DecisionVariableIF> RealVarBilinearPosReformulator::getNegPart
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void RealVarDiscretizer::createTranslationMap(const dvContainer &tmpContainer, map<string,boost::shared_ptr<LHSExpression> >  &translationMap, vector<boost::shared_ptr<ConstraintIF> > &toAdd)
+void RealVarDiscretizer::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd)
 {
     
     translationMap.clear();
@@ -529,7 +529,7 @@ void RealVarDiscretizer::createTranslationMap(const dvContainer &tmpContainer, m
             throw MyException(it->second->getName() + " we should have lb>ub");
         
       
-        boost::shared_ptr<LHSExpression> cexpr ( new LHSExpression() );
+        ROCPPExpr_Ptr cexpr ( new LHSExpression() );
         (*cexpr) +=  lb ;
         
         double coeff( ub - lb );
@@ -537,18 +537,18 @@ void RealVarDiscretizer::createTranslationMap(const dvContainer &tmpContainer, m
         for (uint i=0; (i+1)<=m_numBitsPerVariable; i++)
         {
             string nme;
-            nme = it->second->getName() + "_" + boost::lexical_cast<string>(i);
+            nme = it->second->getName() + "_" + to_string(i);
             
-            boost::shared_ptr<DecisionVariableIF> dv;
+            ROCPPVarIF_Ptr dv;
             
             if (!it->second->isAdaptive())
             {
                 dv = createVariable(nme, boolDV, false);
             }
             else
-                dv = boost::shared_ptr<DecisionVariableIF>( new AdaptVarBool(nme,it->second->getTimeStage()) );
+                dv = ROCPPVarIF_Ptr( new AdaptVarBool(nme,it->second->getTimeStage()) );
             
-            (*cexpr) += boost::shared_ptr<ConstraintTermIF> ( new ProductTerm( coeff * pow( 2., -1.*static_cast<double>(i)) , dv )  );
+            (*cexpr) += ROCPPCstrTerm_Ptr ( new ProductTerm( coeff * pow( 2., -1.*static_cast<double>(i)) , dv )  );
             
         }
         translationMap[it->second->getName()] = cexpr;
@@ -558,7 +558,7 @@ void RealVarDiscretizer::createTranslationMap(const dvContainer &tmpContainer, m
         
         if (ub < INFINITY)
         {
-            boost::shared_ptr<ClassicConstraintIF> cstr ( new IneqConstraint() );
+            ROCPPClassicConstraint_Ptr cstr ( new IneqConstraint() );
             cstr->add_lhs(cexpr->Clone());
             
             bool isZero = (ub >= -10e-4)&&(ub <= 10e-4);
@@ -568,8 +568,8 @@ void RealVarDiscretizer::createTranslationMap(const dvContainer &tmpContainer, m
         }
         if (lb > -INFINITY)
         {
-            boost::shared_ptr<ClassicConstraintIF> cstr ( new IneqConstraint() );
-            boost::shared_ptr<LHSExpression> expr( cexpr->Clone() );
+            ROCPPClassicConstraint_Ptr cstr ( new IneqConstraint() );
+            ROCPPExpr_Ptr expr( cexpr->Clone() );
             (*expr) *= -1.;
             cstr->add_lhs(expr);
             
@@ -581,9 +581,9 @@ void RealVarDiscretizer::createTranslationMap(const dvContainer &tmpContainer, m
     }
 }
 
-void RealVarDiscretizer::findVarsToTranslate(vector<boost::shared_ptr<ConstraintIF> >::const_iterator first, vector<boost::shared_ptr<ConstraintIF> >::const_iterator last, boost::shared_ptr<ObjectiveFunctionIF> obj, dvContainer &container)
+void RealVarDiscretizer::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
 {
-    vector<boost::shared_ptr<ConstraintIF> >::const_iterator c_it(first);
+    vector<ROCPPConstraint_Ptr >::const_iterator c_it(first);
     
     dvContainer dvs;
     
@@ -606,9 +606,9 @@ void RealVarDiscretizer::findVarsToTranslate(vector<boost::shared_ptr<Constraint
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void UncertaintySetRealVarApproximator::findVarsToTranslate(vector<boost::shared_ptr<ConstraintIF> >::const_iterator first, vector<boost::shared_ptr<ConstraintIF> >::const_iterator last, boost::shared_ptr<ObjectiveFunctionIF> obj, dvContainer &container)
+void UncertaintySetRealVarApproximator::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
 {
-    vector<boost::shared_ptr<ConstraintIF> >::const_iterator c_it(first);
+    vector<ROCPPConstraint_Ptr >::const_iterator c_it(first);
     // iterate through the constraints in pIN
     for (; c_it != last; c_it++)
     {
@@ -636,16 +636,16 @@ void UncertaintySetRealVarApproximator::findVarsToTranslate(vector<boost::shared
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<ConstraintIF> PredefO2OVariableConverter::doMyThing(boost::shared_ptr<ConstraintIF> pCstr) const
+ROCPPConstraint_Ptr PredefO2OVariableConverter::doMyThing(ROCPPConstraint_Ptr pCstr) const
 {
     return pCstr->mapVars( m_translationMap );
 }
 
-void PredefO2OVariableConverter::findVarsToTranslate(vector<boost::shared_ptr<ConstraintIF> >::const_iterator first, vector<boost::shared_ptr<ConstraintIF> >::const_iterator last, boost::shared_ptr<ObjectiveFunctionIF> obj, dvContainer &container)
+void PredefO2OVariableConverter::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
 {
 }
 
-void PredefO2OVariableConverter::createTranslationMap(const dvContainer &tmpContainer, map<string,boost::shared_ptr<DecisionVariableIF> >  &translationMap, vector<boost::shared_ptr<ConstraintIF> > &toAdd)
+void PredefO2OVariableConverter::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd)
 {
     translationMap = m_translationMap;
 }
@@ -660,16 +660,16 @@ void PredefO2OVariableConverter::createTranslationMap(const dvContainer &tmpCont
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<ConstraintIF> PredefO2EVariableConverter::doMyThing(boost::shared_ptr<ConstraintIF> pCstr) const
+ROCPPConstraint_Ptr PredefO2EVariableConverter::doMyThing(ROCPPConstraint_Ptr pCstr) const
 {
     return pCstr->mapVars( m_translationMap );
 }
 
-void PredefO2EVariableConverter::createTranslationMap(const dvContainer &tmpContainer, map<string,boost::shared_ptr<LHSExpression> >  &translationMap, vector<boost::shared_ptr<ConstraintIF> > &toAdd)
+void PredefO2EVariableConverter::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd)
 {
     translationMap = m_translationMap;
 }
 
-void PredefO2EVariableConverter::findVarsToTranslate(vector<boost::shared_ptr<ConstraintIF> >::const_iterator first, vector<boost::shared_ptr<ConstraintIF> >::const_iterator last, boost::shared_ptr<ObjectiveFunctionIF> obj, dvContainer &container)
+void PredefO2EVariableConverter::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
 {
 }

@@ -13,20 +13,6 @@
 #include <vector>
 #include "HeaderIncludeFiles.hpp"
 
-class DecisionVariableIF;
-class dvContainer;
-class UncertaintyIF;
-class uncContainer;
-class ConstraintIF;
-class LHSExpression;
-class ObjectiveFunctionIF;
-class OptimizationModelIF;
-class VariableConverterIF;
-class OneToOneVariableConverterIF;
-class OneToExprVariableConverterIF;
-class BilinearTermReformulatorIF;
-class Bilinear_MItoMB_Converter;
-class UncertaintySetRealVarApproximator;
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -88,7 +74,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Find all adaptive continuous variable in the given constraints and objective
-    void findVarsToTranslate(vector<boost::shared_ptr<ConstraintIF> >::const_iterator first, vector<boost::shared_ptr<ConstraintIF> >::const_iterator last, boost::shared_ptr<ObjectiveFunctionIF> obj, dvContainer &container);
+    void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -111,7 +97,7 @@ public:
     
     /// Constructor of the LinearDecisionRule class
     /// @param UC Container that contains all uncertainty being used to approximate the decision variable in this problem
-    LinearDecisionRule(boost::shared_ptr<uncContainer> UC, uint memory=1000) : ContinuousVarsDRIF(memory), m_UC(UC), m_uncContSet(true) {}
+    LinearDecisionRule(ROCPPuncContainer_Ptr UC, uint memory=1000) : ContinuousVarsDRIF(memory), m_UC(UC), m_uncContSet(true) {}
     
     /// Constructor of the LinearDecisionRule class
     LinearDecisionRule(uint memory=1000) : ContinuousVarsDRIF(memory), m_uncContSet(false) {}
@@ -127,34 +113,34 @@ public:
     /// First set the uncertainty container and then do the approximation
     /// @param pIn Model to be approximated
     /// @param resetAndSave Indicates whether to reset the translation map in class OneToExprVariableConverterIF
-    /// @see VariableConverterIF::doMyThing(boost::shared_ptr<OptimizationModelIF>, bool)
-    boost::shared_ptr<OptimizationModelIF> doMyThing(boost::shared_ptr<OptimizationModelIF> pIn, bool resetAndSave=false);
+    /// @see VariableConverterIF::doMyThing(ROCPPOptModelIF_Ptr, bool)
+    ROCPPOptModelIF_Ptr doMyThing(ROCPPOptModelIF_Ptr pIn, bool resetAndSave=false);
     
     /// Create the map from the original decision variable to decisions that are affine in the history of observations
-    void createTranslationMap(const dvContainer &tmpContainer, map<string,boost::shared_ptr<LHSExpression> >  &translationMap, vector<boost::shared_ptr<ConstraintIF> > &toAdd);
+    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd);
     
     /// Set the uncertainty container of this class
-    void setUncContainer(boost::shared_ptr<uncContainer> UC){m_UC=UC; m_uncContSet=true;}
+    void setUncContainer(ROCPPuncContainer_Ptr UC){m_UC=UC; m_uncContSet=true;}
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Get the coefficient decision variable associated with the given uncertain parameter in the approximation for the given decision variable
-    boost::shared_ptr<DecisionVariableIF> getCoeffDV(string dvName, string uncName) const;
+    ROCPPVarIF_Ptr getCoeffDV(string dvName, string uncName) const;
     
     /// Return map m_mapOrigDVUncPairToCoeffDV
-    map< pair<string,string>, boost::shared_ptr<DecisionVariableIF> > getLDRCoeff() const{return m_mapOrigDVUncPairToCoeffDV;}
+    map< pair<string,string>, ROCPPVarIF_Ptr > getLDRCoeff() const{return m_mapOrigDVUncPairToCoeffDV;}
     
     /// Return map m_mapOrigDVToUncAndCoeffDV
-    multimap<string, pair<string, boost::shared_ptr<DecisionVariableIF> > > getLDRExpr() const{return m_mapOrigDVToUncAndCoeffDV;}
+    multimap<string, pair<string, ROCPPVarIF_Ptr > > getLDRExpr() const{return m_mapOrigDVToUncAndCoeffDV;}
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Print the solution (in the form of an expression) for the given variable
-    void printOut(const boost::shared_ptr<OptimizationModelIF> pIn, const map<string, double> &variableValue, boost::shared_ptr<DecisionVariableIF> dv);
+    void printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &variableValue, ROCPPVarIF_Ptr dv);
     
 private:
     
@@ -163,15 +149,15 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Uncertain parameter container of this approximator
-    boost::shared_ptr<uncContainer> m_UC;
+    ROCPPuncContainer_Ptr m_UC;
     
     bool m_uncContSet;
     
     /// Map of pair of original variable name and uncertainty name to the coefficient variable
-    map< pair<string,string>, boost::shared_ptr<DecisionVariableIF> > m_mapOrigDVUncPairToCoeffDV;
+    map< pair<string,string>, ROCPPVarIF_Ptr > m_mapOrigDVUncPairToCoeffDV;
     
     /// Map of original variable name to the pair of uncertainty name and the coefficient variable
-    multimap<string, pair<string, boost::shared_ptr<DecisionVariableIF> > > m_mapOrigDVToUncAndCoeffDV;
+    multimap<string, pair<string, ROCPPVarIF_Ptr > > m_mapOrigDVToUncAndCoeffDV;
     
     /// Map of original variable name to the name of decision variable representing the constant term in the linear decision rule
     map<string, string> m_cst;
@@ -204,7 +190,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Find all adaptive binary and integer variable in the given constraints and objective
-    void findVarsToTranslate(vector<boost::shared_ptr<ConstraintIF> >::const_iterator first, vector<boost::shared_ptr<ConstraintIF> >::const_iterator last, boost::shared_ptr<ObjectiveFunctionIF> obj, dvContainer &container);
+    void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -235,9 +221,9 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    void createTranslationMap(const dvContainer &tmpContainer, map<string,boost::shared_ptr<DecisionVariableIF> >  &translationMap, vector<boost::shared_ptr<ConstraintIF> > &toAdd);
+    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd);
     
-    void printOut(const boost::shared_ptr<OptimizationModelIF> pIn, const map<string, double> &variableValue, boost::shared_ptr<DecisionVariableIF> dv);
+    void printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &variableValue, ROCPPVarIF_Ptr dv);
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -273,14 +259,14 @@ public:
     string convertPartitionToString(uint partition) const;
     
     /// Convert the partition of the uncertainty in the input map to a string based on the order of each uncertainty in the uncertainty container in the input model
-    string convertPartitionToString(const map<string,uint> &partitionIn, boost::shared_ptr<OptimizationModelIF> pModel) const;
+    string convertPartitionToString(const map<string,uint> &partitionIn, ROCPPOptModelIF_Ptr pModel) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Get the basic partition to reduce the amount of euqal constraints
-    string getBasicPartition(const map<string,uint> &partitionIn, uint t, boost::shared_ptr<OptimizationModelIF> pModel, uint memory) const;
+    string getBasicPartition(const map<string,uint> &partitionIn, uint t, ROCPPOptModelIF_Ptr pModel, uint memory) const;
     
     uint getNumEls() const {return m_numEls;}
     
@@ -326,7 +312,7 @@ public:
     const_iterator end() const {return m_partitionsMap.end();}
     
     /// Constant iterator of the vector of uncertainty set constraints
-    typedef vector< boost::shared_ptr<ConstraintIF> >::const_iterator usconstraints_iterator;
+    typedef vector< ROCPPConstraint_Ptr >::const_iterator usconstraints_iterator;
     
     /// Return a constant iterator pointing to the beginning of constraints defining the uncertainty set on the given partition
     usconstraints_iterator USCbegin(string partition) const;
@@ -335,7 +321,7 @@ public:
     usconstraints_iterator USCend(string partition) const;
     
     /// Constant iterator of the vector of additional constraints
-    typedef vector< boost::shared_ptr<ConstraintIF> >::const_iterator addconstraints_iterator;
+    typedef vector< ROCPPConstraint_Ptr >::const_iterator addconstraints_iterator;
     
     /// Return a constant iterator pointing to the beginning of m_additionalConstraints
     addconstraints_iterator ACbegin() const {return m_additionalConstraints.begin();}
@@ -348,7 +334,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Calculate the upper and lower bounds for each uncertainty
-    void getReady(boost::shared_ptr<OptimizationModelIF> pIn, boost::shared_ptr<PartitionConverter> pPartConverter, boost::shared_ptr<Bilinear_MItoMB_Converter> pMIMBConverter, map<string, pair<double,double> > &margSupp, const map<string,pair<double,double> >& OAmargSupp, string solver = "gurobi"); // i.e. build all maps
+    void getReady(ROCPPOptModelIF_Ptr pIn, ROCPPParConverter_Ptr pPartConverter, ROCPPMItoMB_Ptr pMIMBConverter, map<string, pair<double,double> > &margSupp, const map<string,pair<double,double> >& OAmargSupp, string solver = "gurobi"); // i.e. build all maps
     
     /// Reset all maps in this container
     void Reset() {m_numPartitionsMap.clear(); m_partitionsMap.clear(); m_partitionUSconstraints.clear(); m_uncToBreakpointMap.clear();}
@@ -360,7 +346,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    boost::shared_ptr<const dvContainer> getBPDVContainer() const {return m_bpdvs; }
+    ROCPPconstdvContainer_Ptr getBPDVContainer() const {return m_bpdvs; }
     
     /// Get the total number of subsets
     size_t getNumSubsets() const {return m_partitionsMap.size();}
@@ -372,13 +358,13 @@ public:
     
     bool hasPartition(string uncNme) const;
     
-    boost::shared_ptr<LHSExpression> getBp(pair<string, uint> uncOnPartition) const;
+    ROCPPExpr_Ptr getBp(pair<string, uint> uncOnPartition) const;
     
     map<string,uint> getNumPartitionsMap() const {return m_numPartitionsMap;}
     
 protected:
     
-    void constructPartitionsMap(boost::shared_ptr<OptimizationModelIF> pIn, boost::shared_ptr<PartitionConverter> pPartConverter);
+    void constructPartitionsMap(ROCPPOptModelIF_Ptr pIn, ROCPPParConverter_Ptr pPartConverter);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Protected Members %%%%%%%%%%%%%%%%%%%%%
@@ -391,16 +377,16 @@ protected:
     map<string, map<string,uint> > m_partitionsMap; // map from partition_name to map from unc name to element of parition associated with this uncertainty
     
     /// Map from partition name to the vector of constraints specific to this partition
-    map< string, vector< boost::shared_ptr<ConstraintIF> > > m_partitionUSconstraints; // uncertainty set on this partition: constraints specific to this partition
+    map< string, vector< ROCPPConstraint_Ptr > > m_partitionUSconstraints; // uncertainty set on this partition: constraints specific to this partition
     
     /// Map from pair<unc name,breakpoint number> to dv modeling the breakpoint
-    map< pair<string,uint>, boost::shared_ptr<LHSExpression> > m_uncToBreakpointMap; // map from pair<unc name,breakpoint number> to dv modeling the breakpoint
+    map< pair<string,uint>, ROCPPExpr_Ptr > m_uncToBreakpointMap; // map from pair<unc name,breakpoint number> to dv modeling the breakpoint
     
     /// Vector of additional constraints
-    vector<boost::shared_ptr<ConstraintIF> > m_additionalConstraints;
+    vector<ROCPPConstraint_Ptr > m_additionalConstraints;
     
     /// Container of breakpoint variables
-    boost::shared_ptr<dvContainer> m_bpdvs;
+    ROCPPdvContainer_Ptr m_bpdvs;
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -474,18 +460,6 @@ double product(InputIterator first, InputIterator last);
 
 double product(vector<double>::const_iterator first, vector<double>::const_iterator last);
 
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%% DECISION RULE TYPE DEFS %%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-typedef LinearDecisionRule ROCPPLinearDR;
-typedef boost::shared_ptr<ROCPPLinearDR> ROCPPLinearDR_Ptr;
-
-typedef LinearDecisionRule ROCPPConstantDR;
-typedef boost::shared_ptr<ROCPPConstantDR> ROCPPConstantDR_Ptr;
 
 
 #endif /* DecisionRule_hpp */

@@ -12,10 +12,6 @@
 #include "HeaderIncludeFiles.hpp"
 #include <map>
 
-class uncContainer;
-class LHSExpression;
-class ConstraintIF;
-class OptimizationModelIF;
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,7 +35,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    typedef map<string,boost::shared_ptr<LHSExpression> >::const_iterator const_iterator;
+    typedef map<string,ROCPPExpr_Ptr >::const_iterator const_iterator;
     
     const_iterator find(string varName) const {return m_translationMap.find(varName);}
     
@@ -51,15 +47,15 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    boost::shared_ptr<OptimizationModelIF> doMyThing(boost::shared_ptr<OptimizationModelIF> pIn, bool resetAndSave=false);
+    ROCPPOptModelIF_Ptr doMyThing(ROCPPOptModelIF_Ptr pIn, bool resetAndSave=false);
     
-    virtual void findUncsToTranslate(boost::shared_ptr<OptimizationModelIF> pIn, uncContainer &container) = 0;
+    virtual void findUncsToTranslate(ROCPPOptModelIF_Ptr pIn, uncContainer &container) = 0;
     
-    virtual void createTranslationMap(boost::shared_ptr<OptimizationModelIF> pIn, boost::shared_ptr<OptimizationModelIF> pOut, const uncContainer &tmpContainer, map<string,boost::shared_ptr<LHSExpression> > &translationMap) const = 0; // translationMap: map from dv name in original problem to pair of coeff , int var so that dv = sum coeff * int var; //tmpMap: identifies the integer, non-binary variables involved in bilinear terms in pMI_BLP
+    virtual void createTranslationMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pOut, const uncContainer &tmpContainer, map<string,ROCPPExpr_Ptr > &translationMap) const = 0; // translationMap: map from dv name in original problem to pair of coeff , int var so that dv = sum coeff * int var; //tmpMap: identifies the integer, non-binary variables involved in bilinear terms in pMI_BLP
     
 protected:
     
-    map<string, boost::shared_ptr<LHSExpression> > m_translationMap;
+    map<string, ROCPPExpr_Ptr > m_translationMap;
 };
 
 
@@ -77,7 +73,7 @@ public:
     //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    UncToVariableConverter(const map<string,boost::shared_ptr<DecisionVariableIF> >  &translationMap);
+    UncToVariableConverter(const map<string,ROCPPVarIF_Ptr >  &translationMap);
     
     ~UncToVariableConverter(){}
     
@@ -85,11 +81,11 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    boost::shared_ptr<ConstraintIF> doMyThing(boost::shared_ptr<ConstraintIF> pCstr) const;
+    ROCPPConstraint_Ptr doMyThing(ROCPPConstraint_Ptr pCstr) const;
     
-    void findUncsToTranslate(boost::shared_ptr<OptimizationModelIF> pIn, uncContainer &container);
+    void findUncsToTranslate(ROCPPOptModelIF_Ptr pIn, uncContainer &container);
     
-    void createTranslationMap(boost::shared_ptr<OptimizationModelIF> pIn, boost::shared_ptr<OptimizationModelIF> pOut, const uncContainer &tmpContainer, map<string,boost::shared_ptr<LHSExpression> > &translationMap) const;
+    void createTranslationMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pOut, const uncContainer &tmpContainer, map<string,ROCPPExpr_Ptr > &translationMap) const;
 };
 
 

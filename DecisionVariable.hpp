@@ -28,7 +28,6 @@ enum decVariableType {
     boolDV
 };
 
-
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%% DECISION VARIABLE INTERFACE %%%%%%%%%%%%%%%%%%%%%%
@@ -111,7 +110,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Return a copy of the decision variable
-    virtual boost::shared_ptr<DecisionVariableIF> Clone() = 0;
+    virtual ROCPPVarIF_Ptr Clone() = 0;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -225,7 +224,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    boost::shared_ptr<DecisionVariableIF> Clone();
+    ROCPPVarIF_Ptr Clone();
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -261,7 +260,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Return a copy of the decision variable
-    boost::shared_ptr<DecisionVariableIF> Clone();
+    ROCPPVarIF_Ptr Clone();
 };
 
 
@@ -294,7 +293,7 @@ public:
     bool isRealVar() const {return true;}
 
     /// Return a copy of the decision variable
-    boost::shared_ptr<DecisionVariableIF> Clone();
+    ROCPPVarIF_Ptr Clone();
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -324,7 +323,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Return a copy of this variable
-    virtual boost::shared_ptr<DecisionVariableIF> Clone() = 0;
+    virtual ROCPPVarIF_Ptr Clone() = 0;
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -369,7 +368,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Return a copy of this variable
-    boost::shared_ptr<DecisionVariableIF> Clone();
+    ROCPPVarIF_Ptr Clone();
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -405,7 +404,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Return a copy of this variable
-    boost::shared_ptr<DecisionVariableIF> Clone();
+    ROCPPVarIF_Ptr Clone();
 };
 
 
@@ -442,7 +441,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Return a copy of this variable
-    boost::shared_ptr<DecisionVariableIF> Clone();
+    ROCPPVarIF_Ptr Clone();
 };
 
 
@@ -489,7 +488,7 @@ public:
     /// Add another decision variable to this container
     /// If the variable already exist, it will be ignored
     /// @note Adding different variables with same name is not allowed
-    void operator+=(const boost::shared_ptr<DecisionVariableIF>& dv);
+    void operator+=(const ROCPPVarIF_Ptr& dv);
     
     /// Add integer type variables from this container into the dvs object
     void add_int_vars(dvContainer &dvs) const;
@@ -544,7 +543,7 @@ public:
     /// Find if the decision variable dv exists in this object
     ///
     /// Returns true if a variable with the same name exists in this container
-    bool varIsInvolved(boost::shared_ptr<DecisionVariableIF> dv) const;
+    bool varIsInvolved(ROCPPVarIF_Ptr dv) const;
     
 private:
     
@@ -589,39 +588,8 @@ private:
 /// @param isAdaptive equals true if and only if the decision variable can adapt to the history of observations
 /// @param timeStage time-stage when the decision is made
 /// @note The time-stage of an adaptive variable must greater than 1 (strictly).
-boost::shared_ptr<DecisionVariableIF> createVariable(string name, decVariableType type, bool isAdaptive = false, uint timeStage = 1, double lb = -INFINITY, double ub = INFINITY);
+ROCPPVarIF_Ptr createVariable(string name, decVariableType type, bool isAdaptive = false, uint timeStage = 1, double lb = -INFINITY, double ub = INFINITY);
 
-
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%% DECISION VARIABLE TYPE DEFS %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-typedef DecisionVariableIF ROCPPVarIF;
-typedef boost::shared_ptr<ROCPPVarIF> ROCPPVarIF_Ptr;
-
-typedef VariableIF ROCPPStaticVarIF;
-typedef boost::shared_ptr<ROCPPStaticVarIF> ROCPPStaticVarIF_Ptr;
-
-typedef VariableBool ROCPPStaticVarBool;
-typedef boost::shared_ptr<ROCPPStaticVarBool> ROCPPStaticVarBool_Ptr;
-
-typedef VariableDouble ROCPPStaticVarReal;
-typedef boost::shared_ptr<ROCPPStaticVarReal> ROCPPStaticVarReal_Ptr;
-
-typedef VariableInt ROCPPStaticVarInt;
-typedef boost::shared_ptr<ROCPPStaticVarInt> ROCPPStaticVarInt_Ptr;
-
-typedef AdaptVarBool ROCPPAdaptVarBool;
-typedef boost::shared_ptr<ROCPPAdaptVarBool> ROCPPAdaptVarBool_Ptr;
-
-typedef AdaptVarDouble ROCPPAdaptVarReal;
-typedef boost::shared_ptr<ROCPPAdaptVarReal> ROCPPAdaptVarReal_Ptr;
-
-typedef AdaptVarInt ROCPPAdaptVarInt;
-typedef boost::shared_ptr<ROCPPAdaptVarInt> ROCPPAdaptVarInt_Ptr;
 
 #endif /* DecisionVariable_hpp */
 

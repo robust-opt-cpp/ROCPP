@@ -11,10 +11,6 @@
 
 #include "HeaderIncludeFiles.hpp"
 
-class MISOCP;
-class DDUOptimizationModel;
-class PiecewiseApproximator;
-
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -41,7 +37,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Return model after approximation
-    virtual boost::shared_ptr<MISOCP> DoMyThing(boost::shared_ptr<OptimizationModelIF> pIn) = 0;
+    virtual ROCPPMISOCP_Ptr DoMyThing(ROCPPOptModelIF_Ptr pIn) = 0;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -61,24 +57,12 @@ public:
     virtual void printParametersToScreen() const = 0;
     
     /// Print out the solution for the given variable
-    virtual void printOut(const boost::shared_ptr<OptimizationModelIF> pIn, const map<string, double> &resultIn, boost::shared_ptr<DecisionVariableIF> dv) = 0;
+    virtual void printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv) = 0;
     
     /// Print out whether we observe or not the given uncertain parameter
-    virtual void printOut(const boost::shared_ptr<OptimizationModelIF> pIn, const map<string, double> &resultIn, boost::shared_ptr<UncertaintyIF> unc) = 0;
+    virtual void printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc) = 0;
     
 };
-
-
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%% DDU TYPE DEFS %%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-typedef DDUApproximatorIF ROCPPApproximator;
-typedef boost::shared_ptr<ROCPPApproximator> ROCPPApproximator_Ptr;
-
 
 
 #endif /* DDUApproximator_hpp */

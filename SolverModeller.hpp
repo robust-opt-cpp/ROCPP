@@ -9,8 +9,6 @@
 #ifndef SolverModeller_hpp
 #define SolverModeller_hpp
 
-class OptimizationModelIF;
-
 
 #include "HeaderIncludeFiles.hpp"
 
@@ -155,7 +153,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%% Solver Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    virtual void solve(boost::shared_ptr<OptimizationModelIF> pModelIn, bool writeSlnToFile = false, string fileName = "", bool writeSlnToConsole = true, const map<string, double>& WSvars = (map<string,double>()), const map<string,int>& priorities = (map<string,int>()), bool deleteModel=false) = 0;
+    virtual void solve(ROCPPOptModelIF_Ptr pModelIn, bool writeSlnToFile = false, string fileName = "", bool writeSlnToConsole = true, const map<string, double>& WSvars = (map<string,double>()), const map<string,int>& priorities = (map<string,int>()), bool deleteModel=false) = 0;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -175,6 +173,13 @@ public:
     virtual double getOptValue() const = 0;
     virtual double getMIPGap() const = 0;
     double getSolvingTime() const;
+
+private:
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    virtual void setPriorities(const map<string,int>& priorities) = 0;
     
 protected:
     
@@ -191,16 +196,5 @@ protected:
 };
 
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%% SOLVER MODELLER TYPE DEFS %%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-typedef SolverModellerIF ROCPPSolver;
-typedef boost::shared_ptr<SolverModellerIF> ROCPPSolver_Ptr;
-
-typedef SolverParams ROCPPSolverParams;
-typedef boost::shared_ptr<ROCPPSolverParams> ROCPPSolverParams_Ptr;
 
 #endif /* SolverModeller_hpp */
