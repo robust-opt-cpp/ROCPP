@@ -26,7 +26,7 @@
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPOptModelIF_Ptr UncertaintyConverterIF::doMyThing(ROCPPOptModelIF_Ptr pIn, bool resetAndSave)
+ROCPPOptModelIF_Ptr UncertaintyConverterIF::uncToVar(ROCPPOptModelIF_Ptr pIn, bool resetAndSave)
 {
     ROCPPOptModelIF_Ptr pOut = InstanciateModel(pIn->getType(),pIn->getNumTimeStages(),pIn->getObjType());
     
@@ -74,7 +74,7 @@ UncToVariableConverter::UncToVariableConverter(const map<string,ROCPPVarIF_Ptr >
     }
 }
 
-ROCPPConstraint_Ptr UncToVariableConverter::doMyThing(ROCPPConstraint_Ptr pCstr) const
+ROCPPConstraint_Ptr UncToVariableConverter::uncToVar(ROCPPConstraint_Ptr pCstr) const
 {
     return pCstr->mapUncs( m_translationMap );
 }

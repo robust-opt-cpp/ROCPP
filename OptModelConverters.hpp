@@ -31,9 +31,9 @@ public:
     
     void setAuxVarSffx(string aux_var_sffx) {m_aux_var_sffx=aux_var_sffx;}
     
-    ROCPPOptModelIF_Ptr doMyThing(ROCPPOptModelIF_Ptr pIn, const map<string,pair<double,double> >& variableBounds = (map<string,pair<double,double> >()));
+    ROCPPOptModelIF_Ptr linearize(ROCPPOptModelIF_Ptr pIn, const map<string,pair<double,double> >& variableBounds = (map<string,pair<double,double> >()));
     
-    virtual void linearize(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr newdv,  vector<ROCPPConstraint_Ptr > &cstrvec, map<string,pair<double,double> > &variableBounds) = 0;
+    virtual void getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr newdv,  vector<ROCPPConstraint_Ptr > &cstrvec, map<string,pair<double,double> > &variableBounds) = 0;
     
     uint getAuxVarCnt() const {return m_auxVarCnt;}
     
@@ -58,7 +58,7 @@ public:
     BTR_bigM(string aux_var_nme = "bl", string aux_var_sffx = "", uint auxVarCnt=0, double M = 1.e2) : BilinearTermReformulatorIF(aux_var_nme,aux_var_sffx,auxVarCnt), m_M(M) {}
     ~BTR_bigM(){}
     
-    void linearize(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr newdv, vector<ROCPPConstraint_Ptr > &cstrvec, map<string,pair<double,double> > &variableBounds);
+    void getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr newdv, vector<ROCPPConstraint_Ptr > &cstrvec, map<string,pair<double,double> > &variableBounds);
     
 private:
     

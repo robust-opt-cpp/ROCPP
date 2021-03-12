@@ -16,6 +16,8 @@
 
 
 int main()
+{ return 0;}
+/*
 {
     // Create an empty robust model with T + 1 periods for the RSFC problem
     ROCPPOptModelIF_Ptr RSFCModel(new ROCPPDetOptModel());
@@ -59,7 +61,7 @@ int main()
     return 0;
     
 }
-
+*/
 /*
 int main(int argc, const char * argv[]) {
  
@@ -207,7 +209,7 @@ int main(int argc, const char * argv[]) {
      // Construct the linear/constant decision rule approximator
      ROCPPApproximator_Ptr pLDRApprox(new ROCPPLCDRApprox(RSFCModel));
      // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
-     ROCPPMISOCP_Ptr RSFCModelLDR(pLDRApprox->DoMyThing(RSFCModel));
+     ROCPPMISOCP_Ptr RSFCModelLDR(pLDRApprox->approx(RSFCModel));
 #ifdef USE_SCIP
     // Construct the solver; in this case, use the gurobi solver as a deterministic solver
     ROCPPSolver_Ptr pSolver(new ROCPPSCIP(SolverParams()));
@@ -347,7 +349,7 @@ int main(int argc, const char * argv[])
     // Construct the PWC decision rule approximator
     ROCPPApproximator_Ptr pPWCApprox(new ROCPPPiecewiseApprox(BBModel,BPconfig));
     // Approximate the decisions using PWC decision rules and robustify
-    ROCPPMISOCP_Ptr BBModelPWC(pPWCApprox->DoMyThing(BBModel));
+    ROCPPMISOCP_Ptr BBModelPWC(pPWCApprox->approx(BBModel));
 #ifdef USE_SCIP
     // Construct the solver; in this case, use the gurobi solver as a deterministic solver
     ROCPPSolver_Ptr pSolver(new ROCPPSCIP(SolverParams()));

@@ -113,8 +113,8 @@ public:
     /// First set the uncertainty container and then do the approximation
     /// @param pIn Model to be approximated
     /// @param resetAndSave Indicates whether to reset the translation map in class OneToExprVariableConverterIF
-    /// @see VariableConverterIF::doMyThing(ROCPPOptModelIF_Ptr, bool)
-    ROCPPOptModelIF_Ptr doMyThing(ROCPPOptModelIF_Ptr pIn, bool resetAndSave=false);
+    /// @see VariableConverterIF::convertVar(ROCPPOptModelIF_Ptr, bool)
+    ROCPPOptModelIF_Ptr convertVar(ROCPPOptModelIF_Ptr pIn, bool resetAndSave=false);
     
     /// Create the map from the original decision variable to decisions that are affine in the history of observations
     void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd);

@@ -47,7 +47,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    ROCPPOptModelIF_Ptr doMyThing(ROCPPOptModelIF_Ptr pIn, bool resetAndSave=false);
+    ROCPPOptModelIF_Ptr uncToVar(ROCPPOptModelIF_Ptr pIn, bool resetAndSave=false);
     
     virtual void findUncsToTranslate(ROCPPOptModelIF_Ptr pIn, uncContainer &container) = 0;
     
@@ -81,7 +81,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    ROCPPConstraint_Ptr doMyThing(ROCPPConstraint_Ptr pCstr) const;
+    ROCPPConstraint_Ptr uncToVar(ROCPPConstraint_Ptr pCstr) const;
     
     void findUncsToTranslate(ROCPPOptModelIF_Ptr pIn, uncContainer &container);
     

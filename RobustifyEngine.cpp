@@ -17,7 +17,7 @@
 #include "DecisionRule.hpp"
 #include "RobustifyEngine.hpp"
 
-ROCPPBilinMISOCP_Ptr RobustifyEngine::doMyThing(ROCPPUncSSOptModel_Ptr pIn, bool feasible)
+ROCPPBilinMISOCP_Ptr RobustifyEngine::robustify(ROCPPUncSSOptModel_Ptr pIn, bool feasible)
 {
     ROCPPBilinMISOCP_Ptr pOut( new Bilinear_MISOCP() );
     calculateUncertaintySetMatrices(pIn);

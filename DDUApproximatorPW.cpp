@@ -260,7 +260,7 @@ void PiecewiseApproximator::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptM
     }
 }
 
-ROCPPMISOCP_Ptr PiecewiseApproximator::DoMyThing(ROCPPOptModelIF_Ptr pIn)
+ROCPPMISOCP_Ptr PiecewiseApproximator::approx(ROCPPOptModelIF_Ptr pIn)
 {
     
     cout << "=========================================================================== " << endl;
@@ -298,7 +298,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::DoMyThing(ROCPPOptModelIF_Ptr pIn)
     
     ROCPPOptModelIF_Ptr pOutTmp( new Bilinear_MISOCP() );
     
-    ROCPPOptModelIF_Ptr pInNew( m_pUSRVA->doMyThing(pModel,true) );
+    ROCPPOptModelIF_Ptr pInNew( m_pUSRVA->convertVar(pModel,true) );
     
     
     ROCPPOptModelIF_Ptr pBTRModel;
@@ -316,10 +316,10 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::DoMyThing(ROCPPOptModelIF_Ptr pIn)
     pBTRModel->set_ddu(pInNew);
     
     // do linear decision rule
-    ROCPPOptModelIF_Ptr pLDRModel( m_pCVA->doMyThing(pBTRModel, true) );
+    ROCPPOptModelIF_Ptr pLDRModel( m_pCVA->convertVar(pBTRModel, true) );
     
     // do constant decision rule
-    ROCPPOptModelIF_Ptr pMiddle( m_pDVA->doMyThing(pLDRModel, true) );
+    ROCPPOptModelIF_Ptr pMiddle( m_pDVA->convertVar(pLDRModel, true) );
     
     // check that the problem does not have any more adaptive variables
     if ( pMiddle->getNumAdaptiveVars() != 0 )
@@ -396,7 +396,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::DoMyThing(ROCPPOptModelIF_Ptr pIn)
         
         // add to the problem the constraints specific to this partition (mapping the breakpoint variables)
         for (PartitionConstructorIF::usconstraints_iterator cit = m_pPartConstructor->USCbegin( (*pit).first ); cit != m_pPartConstructor->USCend( (*pit).first ); cit++)
-            pTmp->add_constraint( pO2OBPDVS->doMyThing(*cit) );
+            pTmp->add_constraint( pO2OBPDVS->convertVar(*cit) );
         
         pTmp->set_objective(pMiddle->getObj() );
         pTmp->set_ddu(pMiddle);
@@ -404,12 +404,12 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::DoMyThing(ROCPPOptModelIF_Ptr pIn)
         // map the variables to variables over this partition
         // Y_(ij) -> Y_(ij)^s
         ROCPPO2OVarConverter_Ptr pO2OVC( new PredefO2OVariableConverter( m_VariableMap[ (*pit).first ] ) );
-        ROCPPOptModelIF_Ptr pTmp2( pO2OVC->doMyThing(pTmp,true) );
+        ROCPPOptModelIF_Ptr pTmp2( pO2OVC->convertVar(pTmp,true) );
         
         inverseVarMapAll.insert(pO2OVC->beginInv(), pO2OVC->endInv() );
         
         // approximate real-valued variables affecting the uncertainty set
-        ROCPPOptModelIF_Ptr pTmp3( m_pUSRVA->doMyThing(pTmp2) );
+        ROCPPOptModelIF_Ptr pTmp3( m_pUSRVA->convertVar(pTmp2) );
         
         // convert problem to uncertain single-stage problem (no bilinearities)
         ROCPPUncSSOptModel_Ptr pTmp4( convertToUSSOM(pTmp3) );
@@ -424,7 +424,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::DoMyThing(ROCPPOptModelIF_Ptr pIn)
         // robustify pTmp4
         // generate the constraint with cone. robust MBLP->standard MBLP
         ROCPPRobustifyEngine_Ptr m_pRE (new RobustifyEngine(dualvarscnt,pit->first));
-        ROCPPBilinMISOCP_Ptr pRobustTmp( m_pRE->doMyThing(pTmp4)  );
+        ROCPPBilinMISOCP_Ptr pRobustTmp( m_pRE->robustify(pTmp4)  );
         
         for (OptimizationModelIF::constraintIterator cit = pRobustTmp->constraintBegin(); cit != pRobustTmp->constraintEnd(); cit++)
             pOutTmp->add_constraint( *cit );
@@ -454,10 +454,10 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::DoMyThing(ROCPPOptModelIF_Ptr pIn)
     pOutTmp->set_ddu(pMiddle);
     
     // Eliminate integer terms appearing in bilinearities
-    ROCPPOptModelIF_Ptr pOutTmp2( m_pMItoMB_Bilinear->doMyThing( ROCPPOptModelIF_Ptr(pOutTmp) ) );
+    ROCPPOptModelIF_Ptr pOutTmp2( m_pMItoMB_Bilinear->convertVar( ROCPPOptModelIF_Ptr(pOutTmp) ) );
     
     // then, eliminate bilinearities between binary and other terms
-    ROCPPOptModelIF_Ptr pOutTmp3( m_pBTR->doMyThing(pOutTmp2) );
+    ROCPPOptModelIF_Ptr pOutTmp3( m_pBTR->linearize(pOutTmp2) );
     
     // convert resulting problem to MISOCP
     ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp3) );

@@ -43,7 +43,7 @@ typename T::iterator map_max_element(T &A)
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPOptModelIF_Ptr BilinearTermReformulatorIF::doMyThing(ROCPPOptModelIF_Ptr pIn, const map<string,pair<double,double> >& variableBounds)
+ROCPPOptModelIF_Ptr BilinearTermReformulatorIF::linearize(ROCPPOptModelIF_Ptr pIn, const map<string,pair<double,double> >& variableBounds)
 {
     ROCPPOptModelIF_Ptr pOut;
     
@@ -74,7 +74,7 @@ ROCPPOptModelIF_Ptr BilinearTermReformulatorIF::doMyThing(ROCPPOptModelIF_Ptr pI
         ROCPPVarIF_Ptr bindv = pIn->getVar(term->first.first);
         ROCPPVarIF_Ptr otherdv = pIn->getVar(term->first.second);
         ROCPPVarIF_Ptr newdv = term->second;
-        linearize(bindv, otherdv, newdv, cstrsToAdd, variableBoundsCopy);
+        getlinearCstr(bindv, otherdv, newdv, cstrsToAdd, variableBoundsCopy);
     }
     
     for (vector<ROCPPConstraint_Ptr >::const_iterator it = cstrsToAdd.begin(); it != cstrsToAdd.end(); it++)
@@ -93,7 +93,7 @@ ROCPPOptModelIF_Ptr BilinearTermReformulatorIF::doMyThing(ROCPPOptModelIF_Ptr pI
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void BTR_bigM::linearize(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr  newdv, vector<ROCPPConstraint_Ptr >& cstrvec, map<string,pair<double,double> >& variableBounds)
+void BTR_bigM::getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr  newdv, vector<ROCPPConstraint_Ptr >& cstrvec, map<string,pair<double,double> >& variableBounds)
 {
     
     double M_ub(m_M);

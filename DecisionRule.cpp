@@ -61,12 +61,12 @@ void ContinuousVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPOptModelIF_Ptr LinearDecisionRule::doMyThing(ROCPPOptModelIF_Ptr pIn, bool resetAndSave)
+ROCPPOptModelIF_Ptr LinearDecisionRule::convertVar(ROCPPOptModelIF_Ptr pIn, bool resetAndSave)
 {
     ROCPPUncOptModel_Ptr pInUnc = static_pointer_cast<UncertainOptimizationModel>(pIn);
     setUncContainer(pInUnc->getUncContainer());
     
-    return VariableConverterIF::doMyThing(pIn,resetAndSave);
+    return VariableConverterIF::convertVar(pIn,resetAndSave);
 }
 
 void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd)

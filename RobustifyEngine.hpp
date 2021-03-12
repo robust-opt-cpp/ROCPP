@@ -26,7 +26,7 @@ public:
     /// @see CalculateUncertaintySetMatrices, robustifyConstraint
     /// @param pIn Model to be robusified
     /// @param feasible Indicate whether the given constraint is feasible or not, only set to false when we dualize an infeasible problem
-    ROCPPBilinMISOCP_Ptr doMyThing(ROCPPUncSSOptModel_Ptr pIn, bool feasible = true);
+    ROCPPBilinMISOCP_Ptr robustify(ROCPPUncSSOptModel_Ptr pIn, bool feasible = true);
     
     /// Calculate the coefficient map for uncertainties and the coefficient map for deterministic part
     /// @note Store the coefficent of each uncertainty  in each linear expression(out of and in the norm term)  of each constraint defining uncertainty set in m_EMvec

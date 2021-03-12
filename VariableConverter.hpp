@@ -56,7 +56,7 @@ public:
     /// Get the objective and constraints in the input model and then convert the variables
     /// @param pIn Model to be approximated
     /// @param resetAndSave Whether to set the translation map in class OneToExprVariableConverterIF
-    virtual ROCPPOptModelIF_Ptr doMyThing(ROCPPOptModelIF_Ptr pIn, bool resetAndSave=false);
+    virtual ROCPPOptModelIF_Ptr convertVar(ROCPPOptModelIF_Ptr pIn, bool resetAndSave=false);
     
     /// Approximate each variable in the given objective and contraints
     /// @param first Constant iterator pointing to the beginning of the vector of constraints to be mapped
@@ -65,7 +65,7 @@ public:
     /// @param origDVContainer Container of decision variables to be approximated
     /// @param toAdd Constraints after mapping
     /// @param toSet Objective after mapping
-    virtual void doMyThing(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet,bool resetAndSave = false) = 0;
+    virtual void convertVar(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet,bool resetAndSave = false) = 0;
     
     /// Find the variable in the given ocnstraints and objective to be mapped and store them in the container
     virtual void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container) = 0;
@@ -138,11 +138,11 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    using VariableConverterIF::doMyThing;
+    using VariableConverterIF::convertVar;
     
     /// Approximate the original variable with a new variable or a constant for all variables in the input model
     /// @param resetAndSave Indicates whether to reset the translation map
-    void doMyThing(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave = false);
+    void convertVar(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave = false);
     
     /// Create translation map for the variables in the given container
     /// @param tmpContainer Container contains variables to be mapped
@@ -209,10 +209,10 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    using VariableConverterIF::doMyThing;
+    using VariableConverterIF::convertVar;
     
     /// Map the original variable to an expression for all variables in the input model
-    void doMyThing(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave = false);
+    void convertVar(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave = false);
     
     /// Create m_translationMap for the variables in the given container
     /// @param tmpContainer Container contains the variables to be approximated
@@ -442,9 +442,9 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    using VariableConverterIF::doMyThing;
+    using VariableConverterIF::convertVar;
     
-    ROCPPConstraint_Ptr doMyThing(ROCPPConstraint_Ptr pCstr) const;
+    ROCPPConstraint_Ptr convertVar(ROCPPConstraint_Ptr pCstr) const;
     
     void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
     
@@ -488,9 +488,9 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    using VariableConverterIF::doMyThing;
+    using VariableConverterIF::convertVar;
     
-    ROCPPConstraint_Ptr doMyThing(ROCPPConstraint_Ptr pCstr) const;
+    ROCPPConstraint_Ptr convertVar(ROCPPConstraint_Ptr pCstr) const;
     
     void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
     

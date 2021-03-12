@@ -37,7 +37,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Return model after approximation
-    virtual ROCPPMISOCP_Ptr DoMyThing(ROCPPOptModelIF_Ptr pIn) = 0;
+    virtual ROCPPMISOCP_Ptr approx(ROCPPOptModelIF_Ptr pIn) = 0;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%

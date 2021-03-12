@@ -45,11 +45,11 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
     
     ROCPPOptModelIF_Ptr pSuppProblem( new DeterministicOptimizationModel() );
     
-    ROCPPOptModelIF_Ptr pModelTmp ( pMIMBConverter->doMyThing(pInUnc) );
+    ROCPPOptModelIF_Ptr pModelTmp ( pMIMBConverter->convertVar(pInUnc) );
 
     ROCPPBTR_bigM_Ptr pBTR1( new BTR_bigM( "bl", "", 0 ) );
     
-    ROCPPOptModelIF_Ptr pModel ( pBTR1->doMyThing(pModelTmp, outerApproxMargSupp) );
+    ROCPPOptModelIF_Ptr pModel ( pBTR1->linearize(pModelTmp, outerApproxMargSupp) );
     
     // -----------------------------------------------------------------------------------------------------------------------------
     // build translation map for uncertainty converter
@@ -113,7 +113,7 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
         if ( (!(*cit)->definesUncertaintySet()) && ( (*cit)->isDeterministic() ) )
         {
             if ( (*cit)->AnyVarIsInvolved(dvsToAdd) )
-                pSuppProblem->add_constraint( V2Vconverter.doMyThing(*cit) );
+                pSuppProblem->add_constraint( V2Vconverter.convertVar(*cit) );
         }
     }
     
@@ -126,8 +126,8 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
                 throw MyException("uncertainty set should only contain classic constraints");
             
             
-            ROCPPConstraint_Ptr pTmpCstr ( U2Vconverter.doMyThing( *c_it ) );
-            ROCPPConstraint_Ptr pTmpCstr2 ( V2Vconverter.doMyThing(pTmpCstr) );
+            ROCPPConstraint_Ptr pTmpCstr ( U2Vconverter.uncToVar( *c_it ) );
+            ROCPPConstraint_Ptr pTmpCstr2 ( V2Vconverter.convertVar(pTmpCstr) );
             
             
             if (!pTmpCstr2->isClassicConstraint())
@@ -177,10 +177,10 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
     }
     
     // convert mixed-integer bilinear problem to mixed-binary bilinear
-    ROCPPOptModelIF_Ptr pSuppProblem2 = pMIMBConverter->doMyThing(pSuppProblem);
+    ROCPPOptModelIF_Ptr pSuppProblem2 = pMIMBConverter->convertVar(pSuppProblem);
     
     ROCPPBTR_bigM_Ptr pBTR2( new BTR_bigM( "bl", "", pBTR1->getAuxVarCnt() ) );
-    ROCPPOptModelIF_Ptr pSuppProblem3( pBTR2->doMyThing(pSuppProblem2,outerApproxMargSupp) );
+    ROCPPOptModelIF_Ptr pSuppProblem3( pBTR2->linearize(pSuppProblem2,outerApproxMargSupp) );
     
     // covert to MISOCP and subsequently to CPLEXMISOCP
     ROCPPMISOCP_Ptr pSuppProblem4 ( convertToMISOCP( pSuppProblem3 ) );

@@ -454,7 +454,7 @@ void KadaptabilityApproximatorMS::createVariableAndUncMap(dvContainer::const_ite
     }
 }
 
-ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::DoMyThing(ROCPPOptModelIF_Ptr pIn)
+ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approx(ROCPPOptModelIF_Ptr pIn)
 {
     cout << endl;
     cout << "=========================================================================== " << endl;
@@ -492,9 +492,9 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::DoMyThing(ROCPPOptModelIF_Ptr pIn)
     
     ROCPPMISOCP_Ptr pOut;
     if(isUnc)
-        pOut = doMyThingCstrUnc(pIn);
+        pOut = approxCstrUnc(pIn);
     else
-        pOut = doMyThingObjUnc(pIn);
+        pOut = approxObjUnc(pIn);
     
     auto stop = chrono::high_resolution_clock::now();
     
@@ -509,7 +509,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::DoMyThing(ROCPPOptModelIF_Ptr pIn)
     return pOut;
 }
 
-ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::doMyThingObjUnc(ROCPPOptModelIF_Ptr pIn)
+ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pIn)
 {
     checkCompatability(pIn);
     
@@ -776,11 +776,11 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::doMyThingObjUnc(ROCPPOptModelIF_Ptr
 
         ROCPPRobustifyEngine_Ptr m_pRE (new RobustifyEngine(dualvarscnt,elstring));
 
-        ROCPPBilinMISOCP_Ptr pBilinearMISOCP( m_pRE->doMyThing(pRobust2)  );
+        ROCPPBilinMISOCP_Ptr pBilinearMISOCP( m_pRE->robustify(pRobust2)  );
 
         // **** linearize the bilinear terms ****
 
-        ROCPPOptModelIF_Ptr pMISOCP( m_pBTR->doMyThing(pBilinearMISOCP) );
+        ROCPPOptModelIF_Ptr pMISOCP( m_pBTR->linearize(pBilinearMISOCP) );
 
         // *** add the robustified constraints to the output problem
 
@@ -790,7 +790,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::doMyThingObjUnc(ROCPPOptModelIF_Ptr
     
     // **** linearize the bilinear terms ****
 
-    ROCPPOptModelIF_Ptr pOutTmp( m_pBTR->doMyThing(pBilinearMISOCPout) );
+    ROCPPOptModelIF_Ptr pOutTmp( m_pBTR->linearize(pBilinearMISOCPout) );
 
     ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp) );
     
@@ -799,7 +799,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::doMyThingObjUnc(ROCPPOptModelIF_Ptr
     return pOut;
 }
 
-ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::doMyThingCstrUnc(ROCPPOptModelIF_Ptr pIn)
+ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr pIn)
 {
     
     // **** initialize the problem ****
@@ -1020,14 +1020,14 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::doMyThingCstrUnc(ROCPPOptModelIF_Pt
             pRobust->add_constraint(lcstr);
             
             //convert to bilinear term and discrete it
-            ROCPPOptModelIF_Ptr pMISOCP( m_pBTR->doMyThing(pRobust) );
+            ROCPPOptModelIF_Ptr pMISOCP( m_pBTR->linearize(pRobust) );
             
             pRobust = convertToUSSOM(pMISOCP);
             
             //robustify the problem
             ROCPPRobustifyEngine_Ptr m_pRE (new RobustifyEngine(dualvarscnt,elstring) );
             
-            ROCPPBilinMISOCP_Ptr pBilinearMISOCP( m_pRE->doMyThing(pRobust) );
+            ROCPPBilinMISOCP_Ptr pBilinearMISOCP( m_pRE->robustify(pRobust) );
             
             // *** add the robustified constraints to the output problem
             
@@ -1142,7 +1142,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::doMyThingCstrUnc(ROCPPOptModelIF_Pt
             
             ROCPPRobustifyEngine_Ptr m_pRE (new RobustifyEngine(dualvarscnt,elstring));
             
-            ROCPPBilinMISOCP_Ptr pBilinearMISOCP( m_pRE->doMyThing(pRobust2, false)  );
+            ROCPPBilinMISOCP_Ptr pBilinearMISOCP( m_pRE->robustify(pRobust2, false)  );
             
             // *** add the robustified constraints to the output problem
             
@@ -1153,7 +1153,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::doMyThingCstrUnc(ROCPPOptModelIF_Pt
     
     // **** linearize the bilinear terms ****
     
-    ROCPPOptModelIF_Ptr pOutTmp( m_pBTR->doMyThing(pBilinearMISOCPout) );
+    ROCPPOptModelIF_Ptr pOutTmp( m_pBTR->linearize(pBilinearMISOCPout) );
     
     ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp) );
     
@@ -1299,7 +1299,7 @@ ROCPPOptModelIF_Ptr KadaptabilityApproximatorMS::fixBinaryVariableValues(ROCPPOp
     // let the variable converter do its magic
 
     ROCPPOptModelIF_Ptr pOut;
-    pOut = varConverter->doMyThing(pKadaptModel);
+    pOut = varConverter->convertVar(pKadaptModel);
     
     return pOut;
 }
@@ -1607,7 +1607,7 @@ m_bigM(bigM), m_numBits(numBits), m_folder(folder)
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPMISOCP_Ptr LDRCDRApproximator::DoMyThing(ROCPPOptModelIF_Ptr pIn)
+ROCPPMISOCP_Ptr LDRCDRApproximator::approx(ROCPPOptModelIF_Ptr pIn)
 {
     cout << endl;
     cout << "=========================================================================== " << endl;
@@ -1639,7 +1639,7 @@ ROCPPMISOCP_Ptr LDRCDRApproximator::DoMyThing(ROCPPOptModelIF_Ptr pIn)
         }
     }
     
-    ROCPPOptModelIF_Ptr pInNew( m_pUSRVA->doMyThing(pModel,true) );
+    ROCPPOptModelIF_Ptr pInNew( m_pUSRVA->convertVar(pModel,true) );
     
     ROCPPOptModelIF_Ptr pBTRModel;
     if (pModel->isUncertainOptimizationModel())
@@ -1656,10 +1656,10 @@ ROCPPMISOCP_Ptr LDRCDRApproximator::DoMyThing(ROCPPOptModelIF_Ptr pIn)
     pBTRModel->set_ddu(pInNew);
     
     // do linear decision rule
-    ROCPPOptModelIF_Ptr pLDRModel( m_pCVA->doMyThing(pBTRModel, true) );
+    ROCPPOptModelIF_Ptr pLDRModel( m_pCVA->convertVar(pBTRModel, true) );
     
     // do constant decision rule
-    ROCPPOptModelIF_Ptr pMiddle( m_pDVA->doMyThing(pLDRModel, true) );
+    ROCPPOptModelIF_Ptr pMiddle( m_pDVA->convertVar(pLDRModel, true) );
     
     if ( pMiddle->getNumAdaptiveVars() != 0 )
         throw MyException("Adaptive variables should have been eliminated by now");
@@ -1672,13 +1672,13 @@ ROCPPMISOCP_Ptr LDRCDRApproximator::DoMyThing(ROCPPOptModelIF_Ptr pIn)
     // robustify pRob
     // generate the constraint with cone. robust MBLP->standard MBLP
     ROCPPRobustifyEngine_Ptr m_pRE (new RobustifyEngine());
-    ROCPPBilinMISOCP_Ptr pRobustTmp( m_pRE->doMyThing(pRob)  );
+    ROCPPBilinMISOCP_Ptr pRobustTmp( m_pRE->robustify(pRob)  );
     
     // Eliminate integer terms appearing in bilinearities
-    ROCPPOptModelIF_Ptr pOutTmp2( m_pMItoMB_Bilinear->doMyThing( ROCPPOptModelIF_Ptr(pRobustTmp) ) );
+    ROCPPOptModelIF_Ptr pOutTmp2( m_pMItoMB_Bilinear->convertVar( ROCPPOptModelIF_Ptr(pRobustTmp) ) );
     
     // then, eliminate bilinearities between binary and other terms
-    ROCPPOptModelIF_Ptr pOutTmp3( m_pBTR->doMyThing(pOutTmp2) );
+    ROCPPOptModelIF_Ptr pOutTmp3( m_pBTR->linearize(pOutTmp2) );
     
     // convert resulting problem to MISOCP
     ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp3) );

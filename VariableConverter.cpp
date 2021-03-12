@@ -30,7 +30,7 @@
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPOptModelIF_Ptr VariableConverterIF::doMyThing(ROCPPOptModelIF_Ptr pIn, bool resetAndSave)
+ROCPPOptModelIF_Ptr VariableConverterIF::convertVar(ROCPPOptModelIF_Ptr pIn, bool resetAndSave)
 {
     ROCPPOptModelIF_Ptr pOut;
     if (pIn->isUncertainOptimizationModel())
@@ -46,7 +46,7 @@ ROCPPOptModelIF_Ptr VariableConverterIF::doMyThing(ROCPPOptModelIF_Ptr pIn, bool
     ROCPPObjectiveIF_Ptr toSet;
     ROCPPconstdvContainer_Ptr pOrigDVContainer(pIn->getDVContainer() );
     
-    doMyThing(first,last,obj,*pOrigDVContainer,toAdd,toSet,resetAndSave);
+    convertVar(first,last,obj,*pOrigDVContainer,toAdd,toSet,resetAndSave);
     
     // out of the computed constraints, only add the ones that are useful!
     // a constraint is useless if it says "constant == constant"
@@ -71,7 +71,7 @@ ROCPPOptModelIF_Ptr VariableConverterIF::doMyThing(ROCPPOptModelIF_Ptr pIn, bool
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void OneToOneVariableConverterIF::doMyThing(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave)
+void OneToOneVariableConverterIF::convertVar(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave)
 {
     toAdd.clear();
     
@@ -143,7 +143,7 @@ double OneToOneVariableConverterIF::evaluateVariableValue( string nme, const map
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void OneToExprVariableConverterIF::doMyThing(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave)
+void OneToExprVariableConverterIF::convertVar(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave)
 {
     toAdd.clear();
     
@@ -636,7 +636,7 @@ void UncertaintySetRealVarApproximator::findVarsToTranslate(vector<ROCPPConstrai
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPConstraint_Ptr PredefO2OVariableConverter::doMyThing(ROCPPConstraint_Ptr pCstr) const
+ROCPPConstraint_Ptr PredefO2OVariableConverter::convertVar(ROCPPConstraint_Ptr pCstr) const
 {
     return pCstr->mapVars( m_translationMap );
 }
@@ -660,7 +660,7 @@ void PredefO2OVariableConverter::createTranslationMap(const dvContainer &tmpCont
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPConstraint_Ptr PredefO2EVariableConverter::doMyThing(ROCPPConstraint_Ptr pCstr) const
+ROCPPConstraint_Ptr PredefO2EVariableConverter::convertVar(ROCPPConstraint_Ptr pCstr) const
 {
     return pCstr->mapVars( m_translationMap );
 }
