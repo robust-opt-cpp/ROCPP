@@ -244,7 +244,7 @@ ROCPPConstraint_Ptr operator==(double real, ROCPPCstrTerm_Ptr term);
 // EXPR + ...
 // expr <= var
 ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var);
-// expr >= car
+// expr >= var
 ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var);
 // expr == var
 ROCPPConstraint_Ptr operator==(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var);

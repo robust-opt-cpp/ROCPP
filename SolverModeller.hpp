@@ -173,13 +173,6 @@ public:
     virtual double getOptValue() const = 0;
     virtual double getMIPGap() const = 0;
     double getSolvingTime() const;
-
-private:
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    virtual void setPriorities(const map<string,int>& priorities) = 0;
     
 protected:
     

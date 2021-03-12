@@ -123,7 +123,7 @@ void GurobiModeller::solve(ROCPPOptModelIF_Ptr pModelIn, bool writeSlnToFile,  s
             addGUROBIwarmstart(WSvars);
         
         // set priorities
-        setPriorities(m_pGurobiVC.m_allVarsMap, priorities);
+        setPriorities(priorities);
         
         // set parameters
         setParameters(model);

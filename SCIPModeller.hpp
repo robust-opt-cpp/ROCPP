@@ -89,16 +89,16 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    bool setParameters(SCIP* scip) const;
-    void setPriorities(const map<string,int>& priorities);
+    SCIP_RETCODE setParameters(SCIP* scip) const;
+    SCIP_RETCODE setPriorities(SCIP* scip, const map<string,int>& priorities);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%% Creater Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    bool solveSCIPModel(ROCPPCPLEXMISOCP_Ptr pModelIn, bool writeSlnToConsle);
-    bool createSCIPmodel(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip);
-    bool addSCIPdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip);
-    bool addConstraint(SCIP* scip, ROCPPConstraint_Ptr pCstrIn, uint num);
+    SCIP_RETCODE solveSCIPModel(ROCPPCPLEXMISOCP_Ptr pModelIn, bool writeSlnToConsle, const map<string, double>& WSvars, const map<string,int>& priorities);
+    SCIP_RETCODE createSCIPmodel(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip);
+    SCIP_RETCODE addSCIPdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip);
+    SCIP_RETCODE addConstraint(SCIP* scip, ROCPPConstraint_Ptr pCstrIn, uint num);
 };
 
 #endif /* SCIPModeller_hpp */

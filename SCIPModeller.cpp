@@ -91,7 +91,7 @@ void SCIPModeller::solve(ROCPPOptModelIF_Ptr pModelIn, bool writeSlnToFile, stri
         
     }
     
-    solveSCIPModel(pCplex, writeSlnToConsle);
+    solveSCIPModel(pCplex, writeSlnToConsle, WSvars, priorities);
     
     // other stuff
     if (deleteModel)
@@ -105,7 +105,7 @@ void SCIPModeller::solve(ROCPPOptModelIF_Ptr pModelIn, bool writeSlnToFile, stri
 //%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-bool SCIPModeller::setParameters(SCIP* scip) const
+SCIP_RETCODE SCIPModeller::setParameters(SCIP* scip) const
 {
     if (getEpAGapLimit().first)
         SCIP_CALL( SCIPsetRealParam(scip, "limits/absgap", getEpAGapLimit().second) );
@@ -125,15 +125,24 @@ bool SCIPModeller::setParameters(SCIP* scip) const
     if (getEpRHSLimit().first)
         SCIP_CALL( SCIPsetRealParam(scip, "numerics/feastol", getEpRHSLimit().second) );
     
-    return true;
+    return SCIP_OKAY;
 }
 
-void SCIPModeller::setPriorities(const map<string,int>& priorities)
+SCIP_RETCODE SCIPModeller::setPriorities(SCIP* scip, const map<string,int>& priorities)
 {
+    for (map<string,int>::const_iterator pit = priorities.begin(); pit != priorities.end(); pit++)
+    {
+        map<string,SCIP_Var*>::iterator vit = m_pSCIPVC.m_allVarsMap.find(pit->first);
+        
+        if (vit == m_pSCIPVC.m_allVarsMap.end() )
+            throw MyException("SCIPVar not found in map");
+        SCIP_CALL( SCIPchgVarBranchPriority(scip, vit->second, pit->second) );
+    }
     
+    return SCIP_OKAY;
 }
 
-bool SCIPModeller::solveSCIPModel(ROCPPCPLEXMISOCP_Ptr pCplex, bool writeSlnToConsle)
+SCIP_RETCODE SCIPModeller::solveSCIPModel(ROCPPCPLEXMISOCP_Ptr pCplex, bool writeSlnToConsle, const map<string, double>& WSvars, const map<string,int>& priorities)
 {
     //Setting up the SCIP environment
     SCIP* scip = nullptr; /* Declaring the scip environment*/
@@ -145,6 +154,12 @@ bool SCIPModeller::solveSCIPModel(ROCPPCPLEXMISOCP_Ptr pCplex, bool writeSlnToCo
 
     cout << "Creating model" << endl;
     createSCIPmodel(pCplex, scip);
+    
+    if(WSvars.size())
+        cout << "Warning: No warm starts in SCIP.";
+    
+    // set priorities
+    setPriorities(scip, priorities);
     
     // set parameter
     setParameters(scip);
@@ -211,14 +226,14 @@ bool SCIPModeller::solveSCIPModel(ROCPPCPLEXMISOCP_Ptr pCplex, bool writeSlnToCo
     
     SCIP_CALL( SCIPfree(&scip) );
     
-    return true;
+    return SCIP_OKAY;
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%% Creater Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-bool SCIPModeller::createSCIPmodel(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip)
+SCIP_RETCODE SCIPModeller::createSCIPmodel(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip)
 {
     // ================================================================================
     // =========== CREATE VARIABLES ===================================================
@@ -239,10 +254,10 @@ bool SCIPModeller::createSCIPmodel(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip)
         
         addConstraint( scip, *c_it, cnt);
     }
-    return true;
+    return SCIP_OKAY;
 }
 
-bool SCIPModeller::addSCIPdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip)
+SCIP_RETCODE SCIPModeller::addSCIPdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip)
 {
     // SCIP can only solve MILP problem with linear objective function
     ROCPPExpr_Ptr obj(pModel->getObj()->getObj(1));
@@ -307,10 +322,11 @@ bool SCIPModeller::addSCIPdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip)
     
     if(objOffSet != 0.0)
         cout << "The offset of the objective function is not counted" << endl;
-    return true;
+    
+    return SCIP_OKAY;
 }
 
-bool SCIPModeller::addConstraint(SCIP* scip, ROCPPConstraint_Ptr pCstrIn, uint num)
+SCIP_RETCODE SCIPModeller::addConstraint(SCIP* scip, ROCPPConstraint_Ptr pCstrIn, uint num)
 {
     if ( pCstrIn->isClassicConstraint() )
     {
@@ -431,7 +447,7 @@ bool SCIPModeller::addConstraint(SCIP* scip, ROCPPConstraint_Ptr pCstrIn, uint n
     }
     else throw MyException("unknown constraint type");
     
-    return true;
+    return SCIP_OKAY;
 }
 
 #endif
