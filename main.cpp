@@ -14,8 +14,10 @@
 #include <iomanip>
 
 
-/*
+
 int main()
+{ return 0;}
+/*
 {
     // Create an empty robust model with T + 1 periods for the RSFC problem
     ROCPPOptModelIF_Ptr RSFCModel(new ROCPPDetOptModel());
@@ -34,15 +36,21 @@ int main()
     EllipsoidElements.push_back(1.0*x1);
     EllipsoidElements.push_back(1.0*x2);
     // Create the norm term
-    boost::shared_ptr<ConstraintTermIF> EllipsoidalConstraintTerm(new NormTerm(EllipsoidElements));
+    shared_ptr<ConstraintTermIF> EllipsoidalConstraintTerm(new NormTerm(EllipsoidElements));
     // Create the ellipsoidal uncertainty constraint
     RSFCModel->add_constraint(EllipsoidalConstraintTerm <= 3.0);
     
     RSFCModel->set_objective(-1.0*x1 - x2); // Add the objective to the problem
     
     // Construct the solver; in this case, use the gurobi solver as a deterministic solver
-    ROCPPSolver_Ptr pSolver(new ROCPPSCIP(SolverParams(false, true, make_pair(false,0.), make_pair(true,100.), make_pair(true,1.e-5), make_pair(true,1.e-6), make_pair(true,1.e-7), make_pair(true,1.e-8) ) ) ) ;
-    
+    SolverParams sparams = SolverParams();
+#ifdef USE_GUROBI
+    ROCPPSolver_Ptr pSolver(new GurobiModeller(sparams, false) );
+#elif defined(USE_SCIP)
+    ROCPPSolver_Ptr pSolver(new SCIPModeller(sparams, false) );
+#else
+                throw MyException("Can not find your solver.");
+#endif
     ROCPPMISOCP_Ptr m(convertToMISOCP(RSFCModel));
     // Solve the problem
     pSolver->solve(m);
@@ -50,14 +58,11 @@ int main()
     // Retrieve the optimal solution from the solver
     map<string,double> optimalSln(pSolver->getSolution());
     
-    // Get the optimal objective value
-    double optVal(pSolver->getOptValue());
-
     return 0;
     
 }
 */
-
+/*
 int main(int argc, const char * argv[]) {
  
      uint T(12);
@@ -187,7 +192,7 @@ int main(int argc, const char * argv[]) {
          for (uint t=1; t<=T; t++)
              EllipsoidElements.push_back(Demand[t] - NomDemand);
          // Create the norm term
-         boost::shared_ptr<ConstraintTermIF> EllipsoidalConstraintTerm(new NormTerm(EllipsoidElements));
+         shared_ptr<ConstraintTermIF> EllipsoidalConstraintTerm(new NormTerm(EllipsoidElements));
          // Create the ellipsoidal uncertainty constraint
          RSFCModel->add_constraint_uncset(EllipsoidalConstraintTerm <= Omega);
          
@@ -204,7 +209,7 @@ int main(int argc, const char * argv[]) {
      // Construct the linear/constant decision rule approximator
      ROCPPApproximator_Ptr pLDRApprox(new ROCPPLCDRApprox(RSFCModel));
      // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
-     ROCPPMISOCP_Ptr RSFCModelLDR(pLDRApprox->DoMyThing(RSFCModel));
+     ROCPPMISOCP_Ptr RSFCModelLDR(pLDRApprox->approx(RSFCModel));
 #ifdef USE_SCIP
     // Construct the solver; in this case, use the gurobi solver as a deterministic solver
     ROCPPSolver_Ptr pSolver(new ROCPPSCIP(SolverParams()));
@@ -227,7 +232,7 @@ int main(int argc, const char * argv[]) {
 
      return 0;
 }
-
+*/
  
 /*
 int main(int argc, const char * argv[])
@@ -344,7 +349,7 @@ int main(int argc, const char * argv[])
     // Construct the PWC decision rule approximator
     ROCPPApproximator_Ptr pPWCApprox(new ROCPPPiecewiseApprox(BBModel,BPconfig));
     // Approximate the decisions using PWC decision rules and robustify
-    ROCPPMISOCP_Ptr BBModelPWC(pPWCApprox->DoMyThing(BBModel));
+    ROCPPMISOCP_Ptr BBModelPWC(pPWCApprox->approx(BBModel));
 #ifdef USE_SCIP
     // Construct the solver; in this case, use the gurobi solver as a deterministic solver
     ROCPPSolver_Ptr pSolver(new ROCPPSCIP(SolverParams()));

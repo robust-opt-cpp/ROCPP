@@ -24,7 +24,7 @@
 #include "SCIPModeller.hpp"
 #endif
 
-void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pModelIn, map<string,pair<double,double> > &margSupp, boost::shared_ptr<Bilinear_MItoMB_Converter> pMIMBConverter, const map<string,uint> &numPartitionsMap, string solver,bool onlyObsUnc, bool onlyUncInMap, const map<string,pair<double,double> >&outerApproxMargSupp)
+void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,pair<double,double> > &margSupp, ROCPPMItoMB_Ptr pMIMBConverter, const map<string,uint> &numPartitionsMap, string solver,bool onlyObsUnc, bool onlyUncInMap, const map<string,pair<double,double> >&outerApproxMargSupp)
 {
     
     
@@ -41,45 +41,45 @@ void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pM
     if (!pModelIn->isUncertainOptimizationModel())
         throw MyException("findMarginalSupportUncertaintySet would not work");
     
-    boost::shared_ptr<UncertainOptimizationModel> pInUnc = boost::static_pointer_cast<UncertainOptimizationModel>(pModelIn);
+    ROCPPUncOptModel_Ptr pInUnc = static_pointer_cast<UncertainOptimizationModel>(pModelIn);
     
-    boost::shared_ptr<OptimizationModelIF> pSuppProblem( new DeterministicOptimizationModel() );
+    ROCPPOptModelIF_Ptr pSuppProblem( new DeterministicOptimizationModel() );
     
-    boost::shared_ptr<OptimizationModelIF> pModelTmp ( pMIMBConverter->doMyThing(pInUnc) );
+    ROCPPOptModelIF_Ptr pModelTmp ( pMIMBConverter->convertVar(pInUnc) );
 
-    boost::shared_ptr<BTR_bigM> pBTR1( new BTR_bigM( "bl", "", 0 ) );
+    ROCPPBTR_bigM_Ptr pBTR1( new BTR_bigM( "bl", "", 0 ) );
     
-    boost::shared_ptr<OptimizationModelIF> pModel ( pBTR1->doMyThing(pModelTmp, outerApproxMargSupp) );
+    ROCPPOptModelIF_Ptr pModel ( pBTR1->linearize(pModelTmp, outerApproxMargSupp) );
     
     // -----------------------------------------------------------------------------------------------------------------------------
     // build translation map for uncertainty converter
-    map<string,boost::shared_ptr<DecisionVariableIF> >  translationMapUnc;
+    map<string,ROCPPVarIF_Ptr >  translationMapUnc;
     
     // create a decision variable named after each of the uncertain parameters and add it to translation map
     for (UncertainOptimizationModel::uncertaintiesIterator u_it=pInUnc->uncertaintiesBegin(); u_it!=pInUnc->uncertaintiesEnd();u_it++)
     {
-        boost::shared_ptr<DecisionVariableIF> uvar(new VariableDouble( (*u_it).second->getName() ) );
+        ROCPPVarIF_Ptr uvar(new VariableDouble( (*u_it).second->getName() ) );
         translationMapUnc[u_it->second->getName()] = uvar;
     }
     
-    map<string,boost::shared_ptr<DecisionVariableIF> >  translationMapVar;
+    map<string,ROCPPVarIF_Ptr >  translationMapVar;
     
     // create a non-adaptive variable of the same type as the variable in the original problem
     for (OptimizationModelIF::varsIterator v_it=pModel->varsBegin(); v_it!=pModel->varsEnd();v_it++)
     {
         if (v_it->second->isBooleanVar())
         {
-            boost::shared_ptr<DecisionVariableIF> var(new VariableBool( (*v_it).second->getName(), v_it->second->getLB(), v_it->second->getUB() ));
+            ROCPPVarIF_Ptr var(new VariableBool( (*v_it).second->getName(), v_it->second->getLB(), v_it->second->getUB() ));
             translationMapVar[v_it->second->getName()] = var;
         }
         else if (v_it->second->isIntegerVar())
         {
-            boost::shared_ptr<DecisionVariableIF> var(new VariableInt( (*v_it).second->getName(),  v_it->second->getLB(), v_it->second->getUB() ));
+            ROCPPVarIF_Ptr var(new VariableInt( (*v_it).second->getName(),  v_it->second->getLB(), v_it->second->getUB() ));
             translationMapVar[v_it->second->getName()] = var;
         }
         else if (v_it->second->isRealVar())
         {
-            boost::shared_ptr<DecisionVariableIF> var(new VariableDouble( (*v_it).second->getName(),  v_it->second->getLB(), v_it->second->getUB() ));
+            ROCPPVarIF_Ptr var(new VariableDouble( (*v_it).second->getName(),  v_it->second->getLB(), v_it->second->getUB() ));
             translationMapVar[v_it->second->getName()] = var;
         }
         else
@@ -113,7 +113,7 @@ void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pM
         if ( (!(*cit)->definesUncertaintySet()) && ( (*cit)->isDeterministic() ) )
         {
             if ( (*cit)->AnyVarIsInvolved(dvsToAdd) )
-                pSuppProblem->add_constraint( V2Vconverter.doMyThing(*cit) );
+                pSuppProblem->add_constraint( V2Vconverter.convertVar(*cit) );
         }
     }
     
@@ -126,21 +126,21 @@ void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pM
                 throw MyException("uncertainty set should only contain classic constraints");
             
             
-            boost::shared_ptr<ConstraintIF> pTmpCstr ( U2Vconverter.doMyThing( *c_it ) );
-            boost::shared_ptr<ConstraintIF> pTmpCstr2 ( V2Vconverter.doMyThing(pTmpCstr) );
+            ROCPPConstraint_Ptr pTmpCstr ( U2Vconverter.uncToVar( *c_it ) );
+            ROCPPConstraint_Ptr pTmpCstr2 ( V2Vconverter.convertVar(pTmpCstr) );
             
             
             if (!pTmpCstr2->isClassicConstraint())
                 throw MyException("this should not have happened");
             
             
-            boost::shared_ptr<ClassicConstraintIF> pClassic ( boost::static_pointer_cast<ClassicConstraintIF>(pTmpCstr2) );
+            ROCPPClassicConstraint_Ptr pClassic ( static_pointer_cast<ClassicConstraintIF>(pTmpCstr2) );
             
-            boost::shared_ptr<ClassicConstraintIF> pToAdd;
+            ROCPPClassicConstraint_Ptr pToAdd;
             if (pClassic->isEqConstraint())
-                pToAdd = boost::shared_ptr<ClassicConstraintIF>( new EqConstraint() );
+                pToAdd = ROCPPClassicConstraint_Ptr( new EqConstraint() );
             else
-                pToAdd = boost::shared_ptr<ClassicConstraintIF>( new IneqConstraint(false) );
+                pToAdd = ROCPPClassicConstraint_Ptr( new IneqConstraint(false) );
             
             pToAdd->set_rhs( pClassic->get_rhs() );
             pToAdd->add_lhs( pClassic->getLHS() );
@@ -157,11 +157,11 @@ void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pM
         // if is was found
         if (uit != U2Vconverter.end())
         {
-            boost::shared_ptr<ClassicConstraintIF> pCstrl(new IneqConstraint());
-            boost::shared_ptr<ClassicConstraintIF> pCstrg(new IneqConstraint());
+            ROCPPClassicConstraint_Ptr pCstrl(new IneqConstraint());
+            ROCPPClassicConstraint_Ptr pCstrg(new IneqConstraint());
             
-            boost::shared_ptr<LHSExpression> pMapped( uit->second );
-            boost::shared_ptr<LHSExpression> pMappedNeg( pMapped->Clone() );
+            ROCPPExpr_Ptr pMapped( uit->second );
+            ROCPPExpr_Ptr pMappedNeg( pMapped->Clone() );
             *pMappedNeg *= -1.;
             
             pCstrl->add_lhs( pMapped );
@@ -177,15 +177,15 @@ void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pM
     }
     
     // convert mixed-integer bilinear problem to mixed-binary bilinear
-    boost::shared_ptr<OptimizationModelIF> pSuppProblem2 = pMIMBConverter->doMyThing(pSuppProblem);
+    ROCPPOptModelIF_Ptr pSuppProblem2 = pMIMBConverter->convertVar(pSuppProblem);
     
-    boost::shared_ptr<BTR_bigM> pBTR2( new BTR_bigM( "bl", "", pBTR1->getAuxVarCnt() ) );
-    boost::shared_ptr<OptimizationModelIF> pSuppProblem3( pBTR2->doMyThing(pSuppProblem2,outerApproxMargSupp) );
+    ROCPPBTR_bigM_Ptr pBTR2( new BTR_bigM( "bl", "", pBTR1->getAuxVarCnt() ) );
+    ROCPPOptModelIF_Ptr pSuppProblem3( pBTR2->linearize(pSuppProblem2,outerApproxMargSupp) );
     
     // covert to MISOCP and subsequently to CPLEXMISOCP
-    boost::shared_ptr<MISOCP> pSuppProblem4 ( convertToMISOCP( pSuppProblem3 ) );
+    ROCPPMISOCP_Ptr pSuppProblem4 ( convertToMISOCP( pSuppProblem3 ) );
     
-    boost::shared_ptr<CPLEXMISOCP> pSuppProblem5 ( new CPLEXMISOCP( pSuppProblem4 ) );
+    ROCPPCPLEXMISOCP_Ptr pSuppProblem5 ( new CPLEXMISOCP( pSuppProblem4 ) );
     
     // iterate one by one through the decision variables of the new problem (uncertain parameters of old problem)
     for (UncertainOptimizationModel::uncertaintiesIterator u_it=pInUnc->uncertaintiesBegin(); u_it!=pInUnc->uncertaintiesEnd();u_it++)
@@ -216,17 +216,17 @@ void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pM
                 
                 
                 SolverParams sparams = SolverParams();
-                boost::shared_ptr<SolverModellerIF> pModeller;
+                ROCPPSolver_Ptr pModeller;
 //                if (solver == "gurobi")
-//                    pModeller =  boost::shared_ptr<SolverModellerIF>(new GurobiModeller(sparams, false) );
+//                    pModeller =  ROCPPSolver_Ptr(new GurobiModeller(sparams, false) );
 //                else if (solver == "SCIP")
-//                    pModeller =  boost::shared_ptr<SolverModellerIF>(new SCIPModeller(sparams, false) );
+//                    pModeller =  ROCPPSolver_Ptr(new SCIPModeller(sparams, false) );
 //                else
 //                    throw MyException("Can not find your solver.");
 #ifdef USE_GUROBI
-                pModeller =  boost::shared_ptr<SolverModellerIF>(new GurobiModeller(sparams, false) );
+                pModeller =  ROCPPSolver_Ptr(new GurobiModeller(sparams, false) );
 #elif defined(USE_SCIP)
-                pModeller =  boost::shared_ptr<SolverModellerIF>(new SCIPModeller(sparams, false) );
+                pModeller =  ROCPPSolver_Ptr(new SCIPModeller(sparams, false) );
 #else
                 throw MyException("Can not find your solver.");
 #endif
@@ -239,15 +239,15 @@ void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pM
                 // check if the variable is defined in pSuppProblem5
                 if (pSuppProblem5->varIsDefined(u_it->second->getName()))
                 {
-                    boost::shared_ptr<DecisionVariableIF> cvarunc = pSuppProblem5->getVar(u_it->second->getName());
+                    ROCPPVarIF_Ptr cvarunc = pSuppProblem5->getVar(u_it->second->getName());
                     
                     
 //                    cout << "Calculating marginal support for " << u_it->second->getName() << ": lower bound" << endl;
 //                    cout << "-------------------------------------------------------------------" << endl;
                     
-                    boost::shared_ptr<LHSExpression> uncObjPos(new LHSExpression() );
+                    ROCPPExpr_Ptr uncObjPos(new LHSExpression() );
                     uncObjPos->add(1.0, cvarunc);
-                    boost::shared_ptr<ObjectiveFunctionIF> ObjPos(new SimpleObjective(uncObjPos) );
+                    ROCPPObjectiveIF_Ptr ObjPos(new SimpleObjective(uncObjPos) );
                     pSuppProblem5->set_objective(ObjPos);
                     
                     pModeller->solve(pSuppProblem5,false,"",false);
@@ -257,9 +257,9 @@ void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pM
 //                    cout << "Calculating marginal support for " << u_it->second->getName() << ": upper bound" << endl;
 //                    cout << "-------------------------------------------------------------------" << endl;
                     
-                    boost::shared_ptr<LHSExpression> uncObjNeg(new LHSExpression() );
+                    ROCPPExpr_Ptr uncObjNeg(new LHSExpression() );
                     uncObjNeg->add(-1.0, cvarunc);
-                    boost::shared_ptr<ObjectiveFunctionIF> ObjNeg(new SimpleObjective(uncObjNeg) );
+                    ROCPPObjectiveIF_Ptr ObjNeg(new SimpleObjective(uncObjNeg) );
                     pSuppProblem5->set_objective(ObjNeg);
                     
                     pModeller->solve(pSuppProblem5,false,"",false);
@@ -303,9 +303,9 @@ void findMarginalSupportUncertaintySet(boost::shared_ptr<OptimizationModelIF> pM
 }
 
 
-void findWholeMarginalSupport(boost::shared_ptr<OptimizationModelIF> pModelIn, const map<string,uint> &numPartitionsMap, map<string,pair<double,double> > &margSupp)
+void findWholeMarginalSupport(ROCPPOptModelIF_Ptr pModelIn, const map<string,uint> &numPartitionsMap, map<string,pair<double,double> > &margSupp)
 {
-    boost::shared_ptr<Bilinear_MItoMB_Converter> pMIMBConverter( new BinaryConverter() );
+    ROCPPMItoMB_Ptr pMIMBConverter( new BinaryConverter() );
     
     map<string,uint> numPartitionsMap2;
     

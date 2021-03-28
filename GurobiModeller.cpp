@@ -70,21 +70,21 @@ double GurobiModeller::getOptValue() const
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void GurobiModeller::solve(boost::shared_ptr<OptimizationModelIF> pModelIn, bool writeSlnToFile,  string fileName,  bool writeSlnToConsole, const map<string, double>& WSvars, const map<string,int>& priorities, bool deleteModel)
+void GurobiModeller::solve(ROCPPOptModelIF_Ptr pModelIn, bool writeSlnToFile,  string fileName,  bool writeSlnToConsole, const map<string, double>& WSvars, const map<string,int>& priorities, bool deleteModel)
 {
     Reset();
     
-    boost::shared_ptr<CPLEXMISOCP> pCplex;
+    ROCPPCPLEXMISOCP_Ptr pCplex;
     
     if(pModelIn->getType() == cplexmisocpType)
-        pCplex = boost::dynamic_pointer_cast<CPLEXMISOCP>(pModelIn);
+        pCplex = dynamic_pointer_cast<CPLEXMISOCP>(pModelIn);
     
     else{
-        boost::shared_ptr<MISOCP> pInNew(new MISOCP());
+        ROCPPMISOCP_Ptr pInNew(new MISOCP());
         
         if(pModelIn->getType() == misocpType){
-            pInNew = boost::dynamic_pointer_cast<MISOCP>(pModelIn);
-            pCplex = boost::shared_ptr<CPLEXMISOCP>( new CPLEXMISOCP(pInNew) );
+            pInNew = dynamic_pointer_cast<MISOCP>(pModelIn);
+            pCplex = ROCPPCPLEXMISOCP_Ptr( new CPLEXMISOCP(pInNew) );
         }
         
         else{
@@ -123,7 +123,7 @@ void GurobiModeller::solve(boost::shared_ptr<OptimizationModelIF> pModelIn, bool
             addGUROBIwarmstart(WSvars);
         
         // set priorities
-        setPriorities(m_pGurobiVC.m_allVarsMap, priorities);
+        setPriorities(priorities);
         
         // set parameters
         setParameters(model);
@@ -185,18 +185,14 @@ void GurobiModeller::solve(boost::shared_ptr<OptimizationModelIF> pModelIn, bool
         }
     }
     catch(GRBException e){
-        std::string err("Gurobi MyException caught: ");
-        err += boost::lexical_cast<string>( e.getMessage() );
         cin.clear();
-        cout << "Error (GurobiException): " << err << endl << "Press enter to exit" << endl;
+        cout << "Error (GurobiException): Gurobi MyException caught:" << e.getMessage() << endl << "Press enter to exit" << endl;
         cin.ignore(1,0);
         exit( EXIT_FAILURE );
     }
     catch(MyException& e){
-        std::string err("MyException caught: ");
-        err+= boost::lexical_cast<string>( e.what() );
         cin.clear();
-        cout<<"Error (std): " << err << endl << "Press enter to exit" << endl;
+        cout<<"Error (std): MyException caught: " << e.what() << endl << "Press enter to exit" << endl;
         cin.ignore(1,0);
         exit( EXIT_FAILURE );
     }
@@ -210,7 +206,8 @@ void GurobiModeller::setParameters(GRBModel &Model) const
     
     Model.getEnv().set(GRB_IntParam_Threads, getThreadsToRun());
     
-    Model.getEnv().set(GRB_IntParam_OutputFlag,boost::lexical_cast<int>(m_pSParams.getVerbose()));
+    //MARK:change here bool to int
+    Model.getEnv().set(GRB_IntParam_OutputFlag,(int)(m_pSParams.getVerbose()));
     
     if (getEpAGapLimit().first)
         Model.getEnv().set(GRB_DoubleParam_MIPGapAbs,getEpAGapLimit().second);
@@ -231,13 +228,13 @@ void GurobiModeller::setParameters(GRBModel &Model) const
         Model.getEnv().set(GRB_DoubleParam_MIPGap,getEpGapLimit().second);
 }
 
-void GurobiModeller::setPriorities(map<string,GRBVar>& VarMap, const map<string,int>& priorities)
+void GurobiModeller::setPriorities(const map<string,int>& priorities)
 {
     for (map<string,int>::const_iterator pit = priorities.begin(); pit != priorities.end(); pit++)
     {
-        map<string,GRBVar>::iterator vit = VarMap.find(pit->first);
+        map<string,GRBVar>::iterator vit = m_pGurobiVC.m_allVarsMap.find(pit->first);
         
-        if (vit == VarMap.end() )
+        if (vit == m_pGurobiVC.m_allVarsMap.end() )
             throw MyException("GRBVar not found in map");
         
         vit->second.set(GRB_IntAttr_BranchPriority,pit->second);
@@ -259,7 +256,7 @@ void GurobiModeller::saveResults(GRBModel& model, pair<bool,string> writeSlnToFi
 //%%%%%%%%%%%%%%%%%%%%%% Creater Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void GurobiModeller::createGUROBImodel(boost::shared_ptr<CPLEXMISOCP> pModel,GRBEnv &env,GRBModel &Model)
+void GurobiModeller::createGUROBImodel(ROCPPCPLEXMISOCP_Ptr pModel,GRBEnv &env,GRBModel &Model)
 {
     // ================================================================================
     // =========== CREATE CONSTRAINTS =================================================
@@ -286,7 +283,7 @@ void GurobiModeller::createGUROBImodel(boost::shared_ptr<CPLEXMISOCP> pModel,GRB
     
 }
 
-void GurobiModeller::addGUROBIdecisionVars(boost::shared_ptr<CPLEXMISOCP> pModel, GRBEnv &env, GRBModel &Model)
+void GurobiModeller::addGUROBIdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, GRBEnv &env, GRBModel &Model)
 {
     // ------- create variables --------------------------
     
@@ -348,11 +345,11 @@ void GurobiModeller::addGUROBIdecisionVars(boost::shared_ptr<CPLEXMISOCP> pModel
     
 }
 
-void GurobiModeller::addConstraint(GRBEnv &env, GRBModel& Model,boost::shared_ptr<ConstraintIF> pCstrIn) const
+void GurobiModeller::addConstraint(GRBEnv &env, GRBModel& Model,ROCPPConstraint_Ptr pCstrIn) const
 {
     if ( pCstrIn->isClassicConstraint() )
     {
-        boost::shared_ptr<ClassicConstraintIF> pClassic ( boost::static_pointer_cast<ClassicConstraintIF> (pCstrIn) );
+        ROCPPClassicConstraint_Ptr pClassic ( static_pointer_cast<ClassicConstraintIF> (pCstrIn) );
         
         if (pClassic->isLinear())
         {
@@ -369,7 +366,7 @@ void GurobiModeller::addConstraint(GRBEnv &env, GRBModel& Model,boost::shared_pt
                 if (!(*tit)->isProductTerm() )
                     throw MyException("cplexmisocp cannot have non-prod terms");
                 
-                boost::shared_ptr<ProductTerm> pPT = boost::static_pointer_cast<ProductTerm>(*tit);
+                ROCPPProdTerm_Ptr pPT = static_pointer_cast<ProductTerm>(*tit);
                 if (pPT->getNumUncertainties() != 0)
                     throw MyException("cplexmisocp should not involve uncertainties");
                 
@@ -412,7 +409,7 @@ void GurobiModeller::addConstraint(GRBEnv &env, GRBModel& Model,boost::shared_pt
                 if (!(*tit)->isProductTerm() )
                     throw MyException("cplexmisocp cannot have non-prod terms");
                 
-                boost::shared_ptr<ProductTerm> pPT = boost::static_pointer_cast<ProductTerm>(*tit);
+                ROCPPProdTerm_Ptr pPT = static_pointer_cast<ProductTerm>(*tit);
                 if (pPT->getNumUncertainties() != 0)
                     throw MyException("cplexmisocp should not involve uncertainties");
                 
@@ -474,14 +471,14 @@ void GurobiModeller::addConstraint(GRBEnv &env, GRBModel& Model,boost::shared_pt
     
 }
 
-void GurobiModeller::addObjective(GRBEnv &env, GRBModel& Model, boost::shared_ptr<ObjectiveFunctionIF> pObjIn) const
+void GurobiModeller::addObjective(GRBEnv &env, GRBModel& Model, ROCPPObjectiveIF_Ptr pObjIn) const
 {
     
     if (pObjIn->getObjType()!=simpleObj)
         throw MyException("Gurobi Modeller requires a linear objective function");
 
     
-    boost::shared_ptr<LHSExpression> pObj( pObjIn->getObj(1) );
+    ROCPPExpr_Ptr pObj( pObjIn->getObj(1) );
     
     GRBLinExpr obj = 0.;
     
@@ -493,7 +490,7 @@ void GurobiModeller::addObjective(GRBEnv &env, GRBModel& Model, boost::shared_pt
         if( (*tit)->hasNonlinearities() )
             throw MyException("Objective should be linear");
         
-        boost::shared_ptr<ProductTerm> pPT = boost::static_pointer_cast<ProductTerm>(*tit);
+        ROCPPProdTerm_Ptr pPT = static_pointer_cast<ProductTerm>(*tit);
         if (pPT->getNumUncertainties() != 0)
             throw MyException("cplexmisocp should not involve uncertainties");
         

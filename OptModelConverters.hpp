@@ -11,12 +11,6 @@
 
 #include "HeaderIncludeFiles.hpp"
 
-class ConstraintIF;
-class OptimizationModelIF;
-class MItoMB_terms;
-class LHSExpression;
-class UncertainSingleStageOptimizationModel;
-class MISOCP;
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -37,9 +31,9 @@ public:
     
     void setAuxVarSffx(string aux_var_sffx) {m_aux_var_sffx=aux_var_sffx;}
     
-    boost::shared_ptr<OptimizationModelIF> doMyThing(boost::shared_ptr<OptimizationModelIF> pIn, const map<string,pair<double,double> >& variableBounds = (map<string,pair<double,double> >()));
+    ROCPPOptModelIF_Ptr linearize(ROCPPOptModelIF_Ptr pIn, const map<string,pair<double,double> >& variableBounds = (map<string,pair<double,double> >()));
     
-    virtual void linearize(boost::shared_ptr<DecisionVariableIF> bindv, boost::shared_ptr<DecisionVariableIF> otherdv, boost::shared_ptr<DecisionVariableIF> newdv,  vector<boost::shared_ptr<ConstraintIF> > &cstrvec, map<string,pair<double,double> > &variableBounds) = 0;
+    virtual void getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr newdv,  vector<ROCPPConstraint_Ptr > &cstrvec, map<string,pair<double,double> > &variableBounds) = 0;
     
     uint getAuxVarCnt() const {return m_auxVarCnt;}
     
@@ -64,7 +58,7 @@ public:
     BTR_bigM(string aux_var_nme = "bl", string aux_var_sffx = "", uint auxVarCnt=0, double M = 1.e2) : BilinearTermReformulatorIF(aux_var_nme,aux_var_sffx,auxVarCnt), m_M(M) {}
     ~BTR_bigM(){}
     
-    void linearize(boost::shared_ptr<DecisionVariableIF> bindv, boost::shared_ptr<DecisionVariableIF> otherdv, boost::shared_ptr<DecisionVariableIF> newdv, vector<boost::shared_ptr<ConstraintIF> > &cstrvec, map<string,pair<double,double> > &variableBounds);
+    void getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr newdv, vector<ROCPPConstraint_Ptr > &cstrvec, map<string,pair<double,double> > &variableBounds);
     
 private:
     
@@ -77,7 +71,7 @@ private:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<UncertainSingleStageOptimizationModel> convertToUSSOM(boost::shared_ptr<OptimizationModelIF> pIn);
-boost::shared_ptr<MISOCP> convertToMISOCP(boost::shared_ptr<OptimizationModelIF> pIn);
+ROCPPUncSSOptModel_Ptr convertToUSSOM(ROCPPOptModelIF_Ptr pIn);
+ROCPPMISOCP_Ptr convertToMISOCP(ROCPPOptModelIF_Ptr pIn);
 
 #endif /* OptModelConverters_hpp */

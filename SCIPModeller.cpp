@@ -68,21 +68,21 @@ double SCIPModeller::getOptValue() const
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void SCIPModeller::solve(boost::shared_ptr<OptimizationModelIF> pModelIn, bool writeSlnToFile, string fileName, bool writeSlnToConsle, const map<string, double>& WSvars, const map<string,int>& priorities, bool deleteModel)
+void SCIPModeller::solve(ROCPPOptModelIF_Ptr pModelIn, bool writeSlnToFile, string fileName, bool writeSlnToConsle, const map<string, double>& WSvars, const map<string,int>& priorities, bool deleteModel)
 {
     Reset();
     
-    boost::shared_ptr<CPLEXMISOCP> pCplex;
+    ROCPPCPLEXMISOCP_Ptr pCplex;
     
     if(pModelIn->getType() == cplexmisocpType)
-        pCplex = boost::dynamic_pointer_cast<CPLEXMISOCP>(pModelIn);
+        pCplex = dynamic_pointer_cast<CPLEXMISOCP>(pModelIn);
     
     else{
-        boost::shared_ptr<MISOCP> pInNew(new MISOCP());
+        ROCPPMISOCP_Ptr pInNew(new MISOCP());
         
         if(pModelIn->getType() == misocpType){
-            pInNew = boost::dynamic_pointer_cast<MISOCP>(pModelIn);
-            pCplex = boost::shared_ptr<CPLEXMISOCP>( new CPLEXMISOCP(pInNew) );
+            pInNew = dynamic_pointer_cast<MISOCP>(pModelIn);
+            pCplex = ROCPPCPLEXMISOCP_Ptr( new CPLEXMISOCP(pInNew) );
         }
         
         else{
@@ -91,7 +91,7 @@ void SCIPModeller::solve(boost::shared_ptr<OptimizationModelIF> pModelIn, bool w
         
     }
     
-    solveSCIPModel(pCplex, writeSlnToConsle);
+    solveSCIPModel(pCplex, writeSlnToConsle, WSvars, priorities);
     
     // other stuff
     if (deleteModel)
@@ -105,7 +105,7 @@ void SCIPModeller::solve(boost::shared_ptr<OptimizationModelIF> pModelIn, bool w
 //%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-bool SCIPModeller::setParameters(SCIP* scip) const
+SCIP_RETCODE SCIPModeller::setParameters(SCIP* scip) const
 {
     if (getEpAGapLimit().first)
         SCIP_CALL( SCIPsetRealParam(scip, "limits/absgap", getEpAGapLimit().second) );
@@ -125,10 +125,24 @@ bool SCIPModeller::setParameters(SCIP* scip) const
     if (getEpRHSLimit().first)
         SCIP_CALL( SCIPsetRealParam(scip, "numerics/feastol", getEpRHSLimit().second) );
     
-    return true;
+    return SCIP_OKAY;
 }
 
-bool SCIPModeller::solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pCplex, bool writeSlnToConsle)
+SCIP_RETCODE SCIPModeller::setPriorities(SCIP* scip, const map<string,int>& priorities)
+{
+    for (map<string,int>::const_iterator pit = priorities.begin(); pit != priorities.end(); pit++)
+    {
+        map<string,SCIP_Var*>::iterator vit = m_pSCIPVC.m_allVarsMap.find(pit->first);
+        
+        if (vit == m_pSCIPVC.m_allVarsMap.end() )
+            throw MyException("SCIPVar not found in map");
+        SCIP_CALL( SCIPchgVarBranchPriority(scip, vit->second, pit->second) );
+    }
+    
+    return SCIP_OKAY;
+}
+
+SCIP_RETCODE SCIPModeller::solveSCIPModel(ROCPPCPLEXMISOCP_Ptr pCplex, bool writeSlnToConsle, const map<string, double>& WSvars, const map<string,int>& priorities)
 {
     //Setting up the SCIP environment
     SCIP* scip = nullptr; /* Declaring the scip environment*/
@@ -140,6 +154,12 @@ bool SCIPModeller::solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pCplex, bool wr
 
     cout << "Creating model" << endl;
     createSCIPmodel(pCplex, scip);
+    
+    if(WSvars.size())
+        cout << "Warning: No warm starts in SCIP.";
+    
+    // set priorities
+    setPriorities(scip, priorities);
     
     // set parameter
     setParameters(scip);
@@ -206,14 +226,14 @@ bool SCIPModeller::solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pCplex, bool wr
     
     SCIP_CALL( SCIPfree(&scip) );
     
-    return true;
+    return SCIP_OKAY;
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%% Creater Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-bool SCIPModeller::createSCIPmodel(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* scip)
+SCIP_RETCODE SCIPModeller::createSCIPmodel(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip)
 {
     // ================================================================================
     // =========== CREATE VARIABLES ===================================================
@@ -234,13 +254,13 @@ bool SCIPModeller::createSCIPmodel(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* 
         
         addConstraint( scip, *c_it, cnt);
     }
-    return true;
+    return SCIP_OKAY;
 }
 
-bool SCIPModeller::addSCIPdecisionVars(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* scip)
+SCIP_RETCODE SCIPModeller::addSCIPdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip)
 {
     // SCIP can only solve MILP problem with linear objective function
-    boost::shared_ptr<LHSExpression> obj(pModel->getObj()->getObj(1));
+    ROCPPExpr_Ptr obj(pModel->getObj()->getObj(1));
     
     if(!obj->isLinear())
         throw MyException("SCIP can only solve MILP problem with linear objective function");
@@ -302,14 +322,15 @@ bool SCIPModeller::addSCIPdecisionVars(boost::shared_ptr<CPLEXMISOCP> pModel, SC
     
     if(objOffSet != 0.0)
         cout << "The offset of the objective function is not counted" << endl;
-    return true;
+    
+    return SCIP_OKAY;
 }
 
-bool SCIPModeller::addConstraint(SCIP* scip, boost::shared_ptr<ConstraintIF> pCstrIn, uint num)
+SCIP_RETCODE SCIPModeller::addConstraint(SCIP* scip, ROCPPConstraint_Ptr pCstrIn, uint num)
 {
     if ( pCstrIn->isClassicConstraint() )
     {
-        boost::shared_ptr<ClassicConstraintIF> pClassic ( boost::static_pointer_cast<ClassicConstraintIF> (pCstrIn) );
+        ROCPPClassicConstraint_Ptr pClassic ( static_pointer_cast<ClassicConstraintIF> (pCstrIn) );
         
         SCIP_CONS* cons = nullptr;
         
@@ -332,7 +353,7 @@ bool SCIPModeller::addConstraint(SCIP* scip, boost::shared_ptr<ConstraintIF> pCs
                 if (!(*tit)->isProductTerm() )
                     throw MyException("cplexmisocp cannot have non-prod terms");
                 
-                boost::shared_ptr<ProductTerm> pPT = boost::static_pointer_cast<ProductTerm>(*tit);
+                ROCPPProdTerm_Ptr pPT = static_pointer_cast<ProductTerm>(*tit);
                 if (pPT->getNumUncertainties() != 0)
                     throw MyException("cplexmisocp should not involve uncertainties");
 
@@ -381,7 +402,7 @@ bool SCIPModeller::addConstraint(SCIP* scip, boost::shared_ptr<ConstraintIF> pCs
                 if (!(*tit)->isProductTerm() )
                     throw MyException("cplexmisocp cannot have non-prod terms");
                 
-                boost::shared_ptr<ProductTerm> pPT = boost::static_pointer_cast<ProductTerm>(*tit);
+                ROCPPProdTerm_Ptr pPT = static_pointer_cast<ProductTerm>(*tit);
                 if (pPT->getNumUncertainties() != 0)
                     throw MyException("cplexmisocp should not involve uncertainties");
 
@@ -426,7 +447,7 @@ bool SCIPModeller::addConstraint(SCIP* scip, boost::shared_ptr<ConstraintIF> pCs
     }
     else throw MyException("unknown constraint type");
     
-    return true;
+    return SCIP_OKAY;
 }
 
 #endif

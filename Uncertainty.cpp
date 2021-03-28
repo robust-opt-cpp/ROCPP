@@ -33,9 +33,9 @@ m_isObservable(isObservable)
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<UncertaintyIF> UncertaintyIF::Clone()
+ROCPPUnc_Ptr UncertaintyIF::Clone()
 {
-    boost::shared_ptr<UncertaintyIF> out( new UncertaintyIF( this->getName(), this->getTimeStage(), this->isObservable()) );
+    ROCPPUnc_Ptr out( new UncertaintyIF( this->getName(), this->getTimeStage(), this->isObservable()) );
     return out;
 }
 
@@ -49,7 +49,7 @@ boost::shared_ptr<UncertaintyIF> UncertaintyIF::Clone()
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void uncContainer::operator+=(const boost::shared_ptr<UncertaintyIF>& pUncertainty)
+void uncContainer::operator+=(const ROCPPUnc_Ptr& pUncertainty)
 {
     // check for uncertain parameter
     string uncName(pUncertainty->getName());
@@ -150,9 +150,9 @@ bool uncContainer::isObservable(string uncName) const
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<UncertaintyIF> createUncertainty(string uncName, uint timeStage, bool isObservable)
+ROCPPUnc_Ptr createUncertainty(string uncName, uint timeStage, bool isObservable)
 {
-    boost::shared_ptr<UncertaintyIF> newUnc(new UncertaintyIF(uncName, timeStage, isObservable));
+    ROCPPUnc_Ptr newUnc(new UncertaintyIF(uncName, timeStage, isObservable));
     
     return newUnc;
 }

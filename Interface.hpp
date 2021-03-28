@@ -9,361 +9,356 @@
 #ifndef Interface_hpp
 #define Interface_hpp
 #include "HeaderIncludeFiles.hpp"
-class DecisionVariableIF;
-class UncertaintyIF;
-class ConstraintTermIF;
-class LHSExpression;
-class ConstraintIF;
 
 
 // REAL + ...
 // real + var
-boost::shared_ptr<LHSExpression> operator+(double real, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPExpr_Ptr operator+(double real, ROCPPVarIF_Ptr var);
 // real - var
-boost::shared_ptr<LHSExpression> operator-(double real, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPExpr_Ptr operator-(double real, ROCPPVarIF_Ptr var);
 
 // real + unc
-boost::shared_ptr<LHSExpression> operator+(double real, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPExpr_Ptr operator+(double real, ROCPPUnc_Ptr unc);
 // real - unc
-boost::shared_ptr<LHSExpression> operator-(double real, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPExpr_Ptr operator-(double real, ROCPPUnc_Ptr unc);
 
 // real + expr
-boost::shared_ptr<LHSExpression> operator+(double real, boost::shared_ptr<const LHSExpression> expr);
+ROCPPExpr_Ptr operator+(double real, ROCPPconstExpr_Ptr expr);
 // real - expr
-boost::shared_ptr<LHSExpression> operator-(double real, boost::shared_ptr<const LHSExpression> expr);
+ROCPPExpr_Ptr operator-(double real, ROCPPconstExpr_Ptr expr);
 
 // real + term
-boost::shared_ptr<LHSExpression> operator+(double real, boost::shared_ptr<const ConstraintTermIF> term);
+ROCPPExpr_Ptr operator+(double real, ROCPPconstCstrTerm_Ptr term);
 // real - term
-boost::shared_ptr<LHSExpression> operator-(double real, boost::shared_ptr<const ConstraintTermIF> term);
+ROCPPExpr_Ptr operator-(double real, ROCPPconstCstrTerm_Ptr term);
 
 
 // VAR + ...
 // var1 + var2
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<DecisionVariableIF> var1, boost::shared_ptr<DecisionVariableIF> var2);
+ROCPPExpr_Ptr operator+(ROCPPVarIF_Ptr var1, ROCPPVarIF_Ptr var2);
 // var1 - var2
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<DecisionVariableIF> var1, boost::shared_ptr<DecisionVariableIF> var2);
+ROCPPExpr_Ptr operator-(ROCPPVarIF_Ptr var1, ROCPPVarIF_Ptr var2);
 
 // var + real
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<DecisionVariableIF> var, double real);
+ROCPPExpr_Ptr operator+(ROCPPVarIF_Ptr var, double real);
 // var - real
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<DecisionVariableIF> var, double real);
+ROCPPExpr_Ptr operator-(ROCPPVarIF_Ptr var, double real);
 
 // var + unc
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPExpr_Ptr operator+(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc);
 // var - unc
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPExpr_Ptr operator-(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc);
 
 // var + expr
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<const LHSExpression> expr);
+ROCPPExpr_Ptr operator+(ROCPPVarIF_Ptr var, ROCPPconstExpr_Ptr expr);
 // var - expr
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<const LHSExpression> expr);
+ROCPPExpr_Ptr operator-(ROCPPVarIF_Ptr var, ROCPPconstExpr_Ptr expr);
 
 // var + term
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<const ConstraintTermIF> term);
+ROCPPExpr_Ptr operator+(ROCPPVarIF_Ptr var, ROCPPconstCstrTerm_Ptr term);
 // var - term
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<const ConstraintTermIF> term);
+ROCPPExpr_Ptr operator-(ROCPPVarIF_Ptr var, ROCPPconstCstrTerm_Ptr term);
 
 
 // UNC + ...
 // unc + var
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPExpr_Ptr operator+(ROCPPUnc_Ptr unc, ROCPPVarIF_Ptr var);
 // unc - var
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPExpr_Ptr operator-(ROCPPUnc_Ptr unc, ROCPPVarIF_Ptr var);
 
 // unc + real
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<UncertaintyIF> unc, double real);
+ROCPPExpr_Ptr operator+(ROCPPUnc_Ptr unc, double real);
 // unc - real
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<UncertaintyIF> unc, double real);
+ROCPPExpr_Ptr operator-(ROCPPUnc_Ptr unc, double real);
 
 // unc + unc
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<UncertaintyIF> unc1);
+ROCPPExpr_Ptr operator+(ROCPPUnc_Ptr unc, ROCPPUnc_Ptr unc1);
 // unc - unc
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<UncertaintyIF> unc1);
+ROCPPExpr_Ptr operator-(ROCPPUnc_Ptr unc, ROCPPUnc_Ptr unc1);
 
 // unc + expr
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<const LHSExpression> expr);
+ROCPPExpr_Ptr operator+(ROCPPUnc_Ptr unc, ROCPPconstExpr_Ptr expr);
 // unc - expr
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<const LHSExpression> expr);
+ROCPPExpr_Ptr operator-(ROCPPUnc_Ptr unc, ROCPPconstExpr_Ptr expr);
 
 // unc + term
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<const ConstraintTermIF> term);
+ROCPPExpr_Ptr operator+(ROCPPUnc_Ptr unc, ROCPPconstCstrTerm_Ptr term);
 // unc - term
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<const ConstraintTermIF> term);
+ROCPPExpr_Ptr operator-(ROCPPUnc_Ptr unc, ROCPPconstCstrTerm_Ptr term);
 
 
 // EXPR + ...
 // expr + var
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<const LHSExpression> expr, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPExpr_Ptr operator+(ROCPPconstExpr_Ptr expr, ROCPPVarIF_Ptr var);
 // expr - var
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<const LHSExpression> expr, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPExpr_Ptr operator-(ROCPPconstExpr_Ptr expr, ROCPPVarIF_Ptr var);
 
 // expr + real
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<const LHSExpression> expr, double real);
+ROCPPExpr_Ptr operator+(ROCPPconstExpr_Ptr expr, double real);
 // expr - real
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<const LHSExpression> expr, double real);
+ROCPPExpr_Ptr operator-(ROCPPconstExpr_Ptr expr, double real);
 
 // expr + unc
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<const LHSExpression> expr, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPExpr_Ptr operator+(ROCPPconstExpr_Ptr expr, ROCPPUnc_Ptr unc);
 // expr - unc
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<const LHSExpression> expr, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPExpr_Ptr operator-(ROCPPconstExpr_Ptr expr, ROCPPUnc_Ptr unc);
 
 // expr + expr
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<const LHSExpression> expr1, boost::shared_ptr<const LHSExpression> expr2);
+ROCPPExpr_Ptr operator+(ROCPPconstExpr_Ptr expr1, ROCPPconstExpr_Ptr expr2);
 // expr - expr
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<const LHSExpression> expr1, boost::shared_ptr<const LHSExpression> expr2);
+ROCPPExpr_Ptr operator-(ROCPPconstExpr_Ptr expr1, ROCPPconstExpr_Ptr expr2);
 
 // expr + term
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<const LHSExpression> expr, boost::shared_ptr<const ConstraintTermIF> term);
+ROCPPExpr_Ptr operator+(ROCPPconstExpr_Ptr expr, ROCPPconstCstrTerm_Ptr term);
 // expr - term
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<const LHSExpression> expr, boost::shared_ptr<const ConstraintTermIF> term);
+ROCPPExpr_Ptr operator-(ROCPPconstExpr_Ptr expr, ROCPPconstCstrTerm_Ptr term);
 
 
 
 // TERM + ...
 // term + var
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<const ConstraintTermIF> term, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPExpr_Ptr operator+(ROCPPconstCstrTerm_Ptr term, ROCPPVarIF_Ptr var);
 // term - var
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<const ConstraintTermIF> term, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPExpr_Ptr operator-(ROCPPconstCstrTerm_Ptr term, ROCPPVarIF_Ptr var);
 
 // term + real
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<const ConstraintTermIF> term, double real);
+ROCPPExpr_Ptr operator+(ROCPPconstCstrTerm_Ptr term, double real);
 // term - real
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<const ConstraintTermIF> term, double real);
+ROCPPExpr_Ptr operator-(ROCPPconstCstrTerm_Ptr term, double real);
 
 // term + unc
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<const ConstraintTermIF> term, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPExpr_Ptr operator+(ROCPPconstCstrTerm_Ptr term, ROCPPUnc_Ptr unc);
 // term - unc
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<const ConstraintTermIF> term, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPExpr_Ptr operator-(ROCPPconstCstrTerm_Ptr term, ROCPPUnc_Ptr unc);
 
 // term + expr
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<const ConstraintTermIF> term, boost::shared_ptr<const LHSExpression> expr);
+ROCPPExpr_Ptr operator+(ROCPPconstCstrTerm_Ptr term, ROCPPconstExpr_Ptr expr);
 // term - expr
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<const ConstraintTermIF> term, boost::shared_ptr<const LHSExpression> expr);
+ROCPPExpr_Ptr operator-(ROCPPconstCstrTerm_Ptr term, ROCPPconstExpr_Ptr expr);
 
 // term + term
-boost::shared_ptr<LHSExpression> operator+(boost::shared_ptr<const ConstraintTermIF> term1, boost::shared_ptr<const ConstraintTermIF> term2);
+ROCPPExpr_Ptr operator+(ROCPPconstCstrTerm_Ptr term1, ROCPPconstCstrTerm_Ptr term2);
 // term - term
-boost::shared_ptr<LHSExpression> operator-(boost::shared_ptr<const ConstraintTermIF> term1, boost::shared_ptr<const ConstraintTermIF> term2);
+ROCPPExpr_Ptr operator-(ROCPPconstCstrTerm_Ptr term1, ROCPPconstCstrTerm_Ptr term2);
 
 
 // real * var
-boost::shared_ptr<LHSExpression> operator*(double real, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPExpr_Ptr operator*(double real, ROCPPVarIF_Ptr var);
 
 // real * unc
-boost::shared_ptr<LHSExpression> operator*(double real, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPExpr_Ptr operator*(double real, ROCPPUnc_Ptr unc);
 
 // real * expr
-boost::shared_ptr<LHSExpression> operator*(double real, boost::shared_ptr<const LHSExpression> expr);
+ROCPPExpr_Ptr operator*(double real, ROCPPconstExpr_Ptr expr);
 
 // var1 * var2
-boost::shared_ptr<LHSExpression> operator*(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<DecisionVariableIF> var2);
+ROCPPExpr_Ptr operator*(ROCPPVarIF_Ptr var, ROCPPVarIF_Ptr var2);
 
 // var * unc
-boost::shared_ptr<LHSExpression> operator*(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPExpr_Ptr operator*(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc);
 
 // var * expr
-boost::shared_ptr<LHSExpression> operator*(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<LHSExpression> expr);
+ROCPPExpr_Ptr operator*(ROCPPVarIF_Ptr var, ROCPPExpr_Ptr expr);
 
 // unc * expr
-boost::shared_ptr<LHSExpression> operator*(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<LHSExpression> expr);
+ROCPPExpr_Ptr operator*(ROCPPUnc_Ptr unc, ROCPPExpr_Ptr expr);
 
 // unc * var
-boost::shared_ptr<LHSExpression> operator*(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPExpr_Ptr operator*(ROCPPUnc_Ptr unc, ROCPPVarIF_Ptr var);
 
 // expr * unc
-boost::shared_ptr<LHSExpression> operator*(boost::shared_ptr<LHSExpression> expr, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPExpr_Ptr operator*(ROCPPExpr_Ptr expr, ROCPPUnc_Ptr unc);
 
 // expr * var
-boost::shared_ptr<LHSExpression> operator*(boost::shared_ptr<LHSExpression> expr, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPExpr_Ptr operator*(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var);
 
 // expr * real
-boost::shared_ptr<LHSExpression> operator*(boost::shared_ptr<const LHSExpression> expr, double real);
+ROCPPExpr_Ptr operator*(ROCPPconstExpr_Ptr expr, double real);
 
 // real * term
-boost::shared_ptr<LHSExpression> operator*(double real, boost::shared_ptr<const ConstraintTermIF> term);
+ROCPPExpr_Ptr operator*(double real, ROCPPconstCstrTerm_Ptr term);
 
 
 // REAL + ...
 // expr <= real
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<LHSExpression> expr, double real);
+ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr, double real);
 // expr >= real
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<LHSExpression> expr, double real);
+ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr, double real);
 // expr == real
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<LHSExpression> expr, double real);
+ROCPPConstraint_Ptr operator==(ROCPPExpr_Ptr expr, double real);
 
 // real <= expr
-boost::shared_ptr<ConstraintIF> operator<=(double real, boost::shared_ptr<LHSExpression> expr);
+ROCPPConstraint_Ptr operator<=(double real, ROCPPExpr_Ptr expr);
 // real >= expr
-boost::shared_ptr<ConstraintIF> operator>=(double real, boost::shared_ptr<LHSExpression> expr);
+ROCPPConstraint_Ptr operator>=(double real, ROCPPExpr_Ptr expr);
 // real == expr
-boost::shared_ptr<ConstraintIF> operator==(double real, boost::shared_ptr<LHSExpression> expr);
+ROCPPConstraint_Ptr operator==(double real, ROCPPExpr_Ptr expr);
 
 
 // var <= real
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<DecisionVariableIF> var, double real);
+ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var, double real);
 // var >= real
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<DecisionVariableIF> var, double real);
+ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var, double real);
 // var == real
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<DecisionVariableIF> var, double real);
+ROCPPConstraint_Ptr operator==(ROCPPVarIF_Ptr var, double real);
 
 // real <= var
-boost::shared_ptr<ConstraintIF> operator<=(double real, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPConstraint_Ptr operator<=(double real, ROCPPVarIF_Ptr var);
 // real >= var
-boost::shared_ptr<ConstraintIF> operator>=(double real, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPConstraint_Ptr operator>=(double real, ROCPPVarIF_Ptr var);
 // real == var
-boost::shared_ptr<ConstraintIF> operator==(double real, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPConstraint_Ptr operator==(double real, ROCPPVarIF_Ptr var);
 
 
 // unc <= real
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<UncertaintyIF> unc, double real);
+ROCPPConstraint_Ptr operator<=(ROCPPUnc_Ptr unc, double real);
 // unc >= real
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<UncertaintyIF> unc, double real);
+ROCPPConstraint_Ptr operator>=(ROCPPUnc_Ptr unc, double real);
 // unc == real
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<UncertaintyIF> unc, double real);
+ROCPPConstraint_Ptr operator==(ROCPPUnc_Ptr unc, double real);
 
 // real <= unc
-boost::shared_ptr<ConstraintIF> operator<=(double real, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPConstraint_Ptr operator<=(double real, ROCPPUnc_Ptr unc);
 // real >= unc
-boost::shared_ptr<ConstraintIF> operator>=(double real, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPConstraint_Ptr operator>=(double real, ROCPPUnc_Ptr unc);
 // real == unc
-boost::shared_ptr<ConstraintIF> operator==(double real, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPConstraint_Ptr operator==(double real, ROCPPUnc_Ptr unc);
 
 
 // term <= real
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<ConstraintTermIF> term, double real);
+ROCPPConstraint_Ptr operator<=(ROCPPCstrTerm_Ptr term, double real);
 // term >= real
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<ConstraintTermIF> term, double real);
+ROCPPConstraint_Ptr operator>=(ROCPPCstrTerm_Ptr term, double real);
 // term == real
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<ConstraintTermIF> term, double real);
+ROCPPConstraint_Ptr operator==(ROCPPCstrTerm_Ptr term, double real);
 
 // real <= term
-boost::shared_ptr<ConstraintIF> operator<=(double real, boost::shared_ptr<ConstraintTermIF> term);
+ROCPPConstraint_Ptr operator<=(double real, ROCPPCstrTerm_Ptr term);
 // real >= term
-boost::shared_ptr<ConstraintIF> operator>=(double real, boost::shared_ptr<ConstraintTermIF> term);
+ROCPPConstraint_Ptr operator>=(double real, ROCPPCstrTerm_Ptr term);
 // real == term
-boost::shared_ptr<ConstraintIF> operator==(double real, boost::shared_ptr<ConstraintTermIF> term);
+ROCPPConstraint_Ptr operator==(double real, ROCPPCstrTerm_Ptr term);
 
 
 
 // EXPR + ...
 // expr <= var
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<LHSExpression> expr, boost::shared_ptr<DecisionVariableIF> var);
-// expr >= car
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<LHSExpression> expr, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var);
+// expr >= var
+ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var);
 // expr == var
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<LHSExpression> expr, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPConstraint_Ptr operator==(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var);
 
 // var <= expr
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<LHSExpression> expr);
+ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var, ROCPPExpr_Ptr expr);
 // var >= expr
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<LHSExpression> expr);
+ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var, ROCPPExpr_Ptr expr);
 // var == expr
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<LHSExpression> expr);
+ROCPPConstraint_Ptr operator==(ROCPPVarIF_Ptr var, ROCPPExpr_Ptr expr);
 
 
 // expr <= unc
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<LHSExpression> expr, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr, ROCPPUnc_Ptr unc);
 // expr >= unc
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<LHSExpression> expr, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr, ROCPPUnc_Ptr unc);
 // expr == unc
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<LHSExpression> expr, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPConstraint_Ptr operator==(ROCPPExpr_Ptr expr, ROCPPUnc_Ptr unc);
 
 // unc <= expr
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<LHSExpression> expr);
+ROCPPConstraint_Ptr operator<=(ROCPPUnc_Ptr unc, ROCPPExpr_Ptr expr);
 // unc >= expr
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<LHSExpression> expr);
+ROCPPConstraint_Ptr operator>=(ROCPPUnc_Ptr unc, ROCPPExpr_Ptr expr);
 // unc == expr
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<LHSExpression> expr);
+ROCPPConstraint_Ptr operator==(ROCPPUnc_Ptr unc, ROCPPExpr_Ptr expr);
 
 
 // expr <= expr
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<LHSExpression> expr1, boost::shared_ptr<LHSExpression> expr2);
+ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr1, ROCPPExpr_Ptr expr2);
 // expr >= expr
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<LHSExpression> expr1, boost::shared_ptr<LHSExpression> expr2);
+ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr1, ROCPPExpr_Ptr expr2);
 // expr == expr
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<LHSExpression> expr1, boost::shared_ptr<LHSExpression> expr2);
+ROCPPConstraint_Ptr operator==(ROCPPExpr_Ptr expr1, ROCPPExpr_Ptr expr2);
 
 
 // term <= expr
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<ConstraintTermIF> term, boost::shared_ptr<LHSExpression> expr);
+ROCPPConstraint_Ptr operator<=(ROCPPCstrTerm_Ptr term, ROCPPExpr_Ptr expr);
 // term >= expr
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<ConstraintTermIF> term, boost::shared_ptr<LHSExpression> expr);
+ROCPPConstraint_Ptr operator>=(ROCPPCstrTerm_Ptr term, ROCPPExpr_Ptr expr);
 // term == expr
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<ConstraintTermIF> term, boost::shared_ptr<LHSExpression> expr);
+ROCPPConstraint_Ptr operator==(ROCPPCstrTerm_Ptr term, ROCPPExpr_Ptr expr);
 
 // expr <= term
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<LHSExpression> expr, boost::shared_ptr<ConstraintTermIF> term);
+ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr, ROCPPCstrTerm_Ptr term);
 // expr >= term
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<LHSExpression> expr, boost::shared_ptr<ConstraintTermIF> term);
+ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr, ROCPPCstrTerm_Ptr term);
 // expr == term
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<LHSExpression> expr, boost::shared_ptr<ConstraintTermIF> term);
+ROCPPConstraint_Ptr operator==(ROCPPExpr_Ptr expr, ROCPPCstrTerm_Ptr term);
 
 
 
 // VAR + ...
 // var <= var
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<DecisionVariableIF> var1, boost::shared_ptr<DecisionVariableIF> var2);
+ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var1, ROCPPVarIF_Ptr var2);
 // var >= var
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<DecisionVariableIF> var1, boost::shared_ptr<DecisionVariableIF> var2);
+ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var1, ROCPPVarIF_Ptr var2);
 // var == var
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<DecisionVariableIF> var1, boost::shared_ptr<DecisionVariableIF> var2);
+ROCPPConstraint_Ptr operator==(ROCPPVarIF_Ptr var1, ROCPPVarIF_Ptr var2);
 
 
 // var <= unc
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc);
 // var >= unc
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc);
 // var == unc
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPConstraint_Ptr operator==(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc);
 
 // unc <= var
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPConstraint_Ptr operator<=(ROCPPUnc_Ptr unc, ROCPPVarIF_Ptr var);
 // unc >= var
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPConstraint_Ptr operator>=(ROCPPUnc_Ptr unc, ROCPPVarIF_Ptr var);
 // unc == var
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPConstraint_Ptr operator==(ROCPPUnc_Ptr unc, ROCPPVarIF_Ptr var);
 
 
 // term <= var
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<ConstraintTermIF> term, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPConstraint_Ptr operator<=(ROCPPCstrTerm_Ptr term, ROCPPVarIF_Ptr var);
 // term >= var
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<ConstraintTermIF> term, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPConstraint_Ptr operator>=(ROCPPCstrTerm_Ptr term, ROCPPVarIF_Ptr var);
 // term == var
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<ConstraintTermIF> term, boost::shared_ptr<DecisionVariableIF> var);
+ROCPPConstraint_Ptr operator==(ROCPPCstrTerm_Ptr term, ROCPPVarIF_Ptr var);
 
 // var <= term
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<ConstraintTermIF> term);
+ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var, ROCPPCstrTerm_Ptr term);
 // var >= term
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<ConstraintTermIF> term);
+ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var, ROCPPCstrTerm_Ptr term);
 // var == term
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<DecisionVariableIF> var, boost::shared_ptr<ConstraintTermIF> term);
+ROCPPConstraint_Ptr operator==(ROCPPVarIF_Ptr var, ROCPPCstrTerm_Ptr term);
 
 
 
 // UNC + ...
 
 // unc <= unc
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<UncertaintyIF> unc1, boost::shared_ptr<UncertaintyIF> unc2);
+ROCPPConstraint_Ptr operator<=(ROCPPUnc_Ptr unc1, ROCPPUnc_Ptr unc2);
 // unc >= unc
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<UncertaintyIF> unc1, boost::shared_ptr<UncertaintyIF> unc2);
+ROCPPConstraint_Ptr operator>=(ROCPPUnc_Ptr unc1, ROCPPUnc_Ptr unc2);
 // unc == unc
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<UncertaintyIF> unc1, boost::shared_ptr<UncertaintyIF> unc2);
+ROCPPConstraint_Ptr operator==(ROCPPUnc_Ptr unc1, ROCPPUnc_Ptr unc2);
 
 
 // term <= unc
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<ConstraintTermIF> term, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPConstraint_Ptr operator<=(ROCPPCstrTerm_Ptr term, ROCPPUnc_Ptr unc);
 // term >= unc
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<ConstraintTermIF> term, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPConstraint_Ptr operator>=(ROCPPCstrTerm_Ptr term, ROCPPUnc_Ptr unc);
 // term == unc
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<ConstraintTermIF> term, boost::shared_ptr<UncertaintyIF> unc);
+ROCPPConstraint_Ptr operator==(ROCPPCstrTerm_Ptr term, ROCPPUnc_Ptr unc);
 
 // unc <= term
-boost::shared_ptr<ConstraintIF> operator<=(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<ConstraintTermIF> term);
+ROCPPConstraint_Ptr operator<=(ROCPPUnc_Ptr unc, ROCPPCstrTerm_Ptr term);
 // unc >= term
-boost::shared_ptr<ConstraintIF> operator>=(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<ConstraintTermIF> term);
+ROCPPConstraint_Ptr operator>=(ROCPPUnc_Ptr unc, ROCPPCstrTerm_Ptr term);
 // unc == term
-boost::shared_ptr<ConstraintIF> operator==(boost::shared_ptr<UncertaintyIF> unc, boost::shared_ptr<ConstraintTermIF> term);
+ROCPPConstraint_Ptr operator==(ROCPPUnc_Ptr unc, ROCPPCstrTerm_Ptr term);
 
 
 

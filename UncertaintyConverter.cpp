@@ -26,14 +26,14 @@
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<OptimizationModelIF> UncertaintyConverterIF::doMyThing(boost::shared_ptr<OptimizationModelIF> pIn, bool resetAndSave)
+ROCPPOptModelIF_Ptr UncertaintyConverterIF::uncToVar(ROCPPOptModelIF_Ptr pIn, bool resetAndSave)
 {
-    boost::shared_ptr<OptimizationModelIF> pOut = InstanciateModel(pIn->getType(),pIn->getNumTimeStages(),pIn->getObjType());
+    ROCPPOptModelIF_Ptr pOut = InstanciateModel(pIn->getType(),pIn->getNumTimeStages(),pIn->getObjType());
     
     uncContainer tmpContainer;
     findUncsToTranslate(pIn, tmpContainer);
     
-    map<string,boost::shared_ptr<LHSExpression> > translationMap;
+    map<string,ROCPPExpr_Ptr > translationMap;
     
     createTranslationMap(pIn,pOut,tmpContainer,translationMap);
     
@@ -62,36 +62,36 @@ boost::shared_ptr<OptimizationModelIF> UncertaintyConverterIF::doMyThing(boost::
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-UncToVariableConverter::UncToVariableConverter(const map<string,boost::shared_ptr<DecisionVariableIF> >  &translationMap)
+UncToVariableConverter::UncToVariableConverter(const map<string,ROCPPVarIF_Ptr >  &translationMap)
 {
     // must convert decision variable to expression
-    for (map<string,boost::shared_ptr<DecisionVariableIF> >::const_iterator it = translationMap.begin(); it != translationMap.end(); it++)
+    for (map<string,ROCPPVarIF_Ptr >::const_iterator it = translationMap.begin(); it != translationMap.end(); it++)
     {
-        boost::shared_ptr<LHSExpression> expr ( new LHSExpression() );
+        ROCPPExpr_Ptr expr ( new LHSExpression() );
         (*expr) += it->second;
         
         m_translationMap[it->first] = expr;
     }
 }
 
-boost::shared_ptr<ConstraintIF> UncToVariableConverter::doMyThing(boost::shared_ptr<ConstraintIF> pCstr) const
+ROCPPConstraint_Ptr UncToVariableConverter::uncToVar(ROCPPConstraint_Ptr pCstr) const
 {
     return pCstr->mapUncs( m_translationMap );
 }
 
-void UncToVariableConverter::findUncsToTranslate(boost::shared_ptr<OptimizationModelIF> pIn, uncContainer &container)
+void UncToVariableConverter::findUncsToTranslate(ROCPPOptModelIF_Ptr pIn, uncContainer &container)
 {
     if (!pIn->isUncertainOptimizationModel())
         throw MyException("would not work");
     
-    boost::shared_ptr<UncertainOptimizationModel> pInUnc = boost::static_pointer_cast<UncertainOptimizationModel>(pIn);
+    ROCPPUncOptModel_Ptr pInUnc = static_pointer_cast<UncertainOptimizationModel>(pIn);
     
     
-    for (map<string, boost::shared_ptr<LHSExpression> >::const_iterator it = m_translationMap.begin(); it != m_translationMap.end(); it++)
+    for (map<string, ROCPPExpr_Ptr >::const_iterator it = m_translationMap.begin(); it != m_translationMap.end(); it++)
         container += pInUnc->getUnc( it->first );
 }
 
-void UncToVariableConverter::createTranslationMap(boost::shared_ptr<OptimizationModelIF> pIn, boost::shared_ptr<OptimizationModelIF> pOut, const uncContainer &tmpContainer, map<string,boost::shared_ptr<LHSExpression> > &translationMap) const
+void UncToVariableConverter::createTranslationMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pOut, const uncContainer &tmpContainer, map<string,ROCPPExpr_Ptr > &translationMap) const
 {
     translationMap = m_translationMap;
 }

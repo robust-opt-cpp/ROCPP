@@ -10,6 +10,8 @@
 #include "FileRelations.hpp"
 #include <fstream>
 #include <sys/stat.h>
+#include <sstream>
+#include <vector>
 #include "IncludeFiles.hpp"
 
 template int writeCSV(string folderName, string fileName, const map<string,pair<double,double> > &out, string delimitter, string extension);
@@ -89,7 +91,6 @@ int writeCSV(string folderName, string fileName, const map<T1,pair<T2,T3> > &out
 }
 
 
-
 template<class T1,class T2>
 int readCSV(string folderName, string fileName, map<T1,vector<T2> > &out, char delimiter, string extension, bool skipHash)
 {
@@ -123,6 +124,7 @@ int readCSV(string folderName, string fileName, map<T1,vector<T2> > &out, char d
     
     
     // read every line from the stream
+    istringstream strT;
     while(getline(ifs, csvLine))
     {
         istringstream csvStream(csvLine);
@@ -148,11 +150,20 @@ int readCSV(string folderName, string fileName, map<T1,vector<T2> > &out, char d
                 if (loc!=std::string::npos)
                     csvElement = csvElement.erase(loc);
                 
-                T2 csvT2element = boost::lexical_cast<T2>(csvElement);
+                //MARK:convert string to type name
+                T2 csvT2element;
+                strT.str(csvElement);
+                strT >> csvT2element;
+                strT.clear();
+                //= boost::lexical_cast<T2>(csvElement);
                 csvRow.push_back(csvT2element);
             }
             //double tmp = boost::lexical_cast<double>(rowIdxStr);
-            T1 rowIdx = boost::lexical_cast<T1>(rowIdxStr);
+            T1 rowIdx;
+            strT.str(rowIdxStr);
+            strT >> rowIdx;
+            strT.clear();
+            //= boost::lexical_cast<T1>();
             //T1 rowIdx = boost::lexical_cast<T1>(rowIdxStr);
             out.insert(out.end(),make_pair(rowIdx,csvRow));//.push_back(csvRow);
         }

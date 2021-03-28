@@ -37,8 +37,8 @@
 //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-//PiecewiseApproximator::PiecewiseApproximator(boost::shared_ptr<OptimizationModelIF> pIn, string numPartitionsStr, string wsPartitionsStr, uint numBits, double bigM, bool useExplicitNACs, string folder) : m_bigM(bigM), m_useExplicitNACs(useExplicitNACs), m_folder(folder)
-PiecewiseApproximator::PiecewiseApproximator(boost::shared_ptr<OptimizationModelIF> pIn, string numPartitionsStr, uint numBits, double bigM, bool useExplicitNACs, string folder) : m_bigM(bigM), m_useExplicitNACs(useExplicitNACs), m_folder(folder)
+//PiecewiseApproximator::PiecewiseApproximator(ROCPPOptModelIF_Ptr pIn, string numPartitionsStr, string wsPartitionsStr, uint numBits, double bigM, bool useExplicitNACs, string folder) : m_bigM(bigM), m_useExplicitNACs(useExplicitNACs), m_folder(folder)
+PiecewiseApproximator::PiecewiseApproximator(ROCPPOptModelIF_Ptr pIn, string numPartitionsStr, uint numBits, double bigM, bool useExplicitNACs, string folder) : m_bigM(bigM), m_useExplicitNACs(useExplicitNACs), m_folder(folder)
 {
     
     // ==============================================================================================
@@ -52,7 +52,7 @@ PiecewiseApproximator::PiecewiseApproximator(boost::shared_ptr<OptimizationModel
     
     if (pIn->isUncertainOptimizationModel())
     {
-        boost::shared_ptr<UncertainOptimizationModel> pModelUnc = boost::static_pointer_cast<UncertainOptimizationModel>(pIn);
+        ROCPPUncOptModel_Ptr pModelUnc = static_pointer_cast<UncertainOptimizationModel>(pIn);
         
         u_long remainderNumPartitionStr = numPartitionsStr.size() % pIn->getUncContainer()->getNumObsUncertainties();
 
@@ -61,7 +61,7 @@ PiecewiseApproximator::PiecewiseApproximator(boost::shared_ptr<OptimizationModel
         
         u_long numElsNumPartitionStr = numPartitionsStr.size() / pIn->getUncContainer()->getNumObsUncertainties();
 
-        boost::shared_ptr<PartitionConverter> pPartConverter (new PartitionConverter(boost::numeric_cast<uint>(numElsNumPartitionStr) ));
+        ROCPPParConverter_Ptr pPartConverter (new PartitionConverter((uint)(numElsNumPartitionStr) ));
         
         
         // original parameters
@@ -70,7 +70,7 @@ PiecewiseApproximator::PiecewiseApproximator(boost::shared_ptr<OptimizationModel
             if ( u_it->second->isObservable() )
             {
                 string str1(numPartitionsStr.substr(ccnt*pPartConverter->getNumEls(),pPartConverter->getNumEls()));
-                numPartitionsMap.insert(pair<string,uint>(u_it->first,boost::lexical_cast<uint>(str1)));
+                numPartitionsMap.insert(pair<string,uint>(u_it->first,stoi(str1)));
 
                 ccnt++;
                 dummyPartition+=pPartConverter->convertPartitionToString(1);
@@ -89,7 +89,7 @@ PiecewiseApproximator::PiecewiseApproximator(boost::shared_ptr<OptimizationModel
 }
 
 
-PiecewiseApproximator::PiecewiseApproximator(boost::shared_ptr<OptimizationModelIF> pIn, const map<string,uint> &numPartitionsMap, uint numBits, double bigM, bool useExplicitNACs, string folder)  : m_bigM(bigM), m_useExplicitNACs(useExplicitNACs), m_folder(folder)
+PiecewiseApproximator::PiecewiseApproximator(ROCPPOptModelIF_Ptr pIn, const map<string,uint> &numPartitionsMap, uint numBits, double bigM, bool useExplicitNACs, string folder)  : m_bigM(bigM), m_useExplicitNACs(useExplicitNACs), m_folder(folder)
 {
     map<string, uint>::const_iterator pMap;
     
@@ -112,7 +112,7 @@ PiecewiseApproximator::PiecewiseApproximator(boost::shared_ptr<OptimizationModel
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void PiecewiseApproximator::InitializeMe(boost::shared_ptr<OptimizationModelIF> pIn, const map<string,uint> &numPartitionsMap, uint numBits, double bigM, bool useExplicitNACs, string folder)
+void PiecewiseApproximator::InitializeMe(ROCPPOptModelIF_Ptr pIn, const map<string,uint> &numPartitionsMap, uint numBits, double bigM, bool useExplicitNACs, string folder)
 {
     
     m_bigM=bigM;
@@ -121,13 +121,13 @@ void PiecewiseApproximator::InitializeMe(boost::shared_ptr<OptimizationModelIF> 
     m_folder=folder;
     // partition constructor
     
-    m_pPartConstructor = boost::shared_ptr<PartitionConstructorIF>(new StaticPartitionConstructor(numPartitionsMap));
+    m_pPartConstructor = ROCPPParConstructor_Ptr(new StaticPartitionConstructor(numPartitionsMap));
     
     // decision rule approximators
     
     // do DDU appoximation using piecewise constant decision rule
-    m_pCVA = boost::shared_ptr<ContinuousVarsDRIF>(new LinearDecisionRule());
-    m_pDVA = boost::shared_ptr<DiscreteVarsDRIF>(new ConstantDecisionRule());
+    m_pCVA = ROCPPContinuousVarsDR_Ptr(new LinearDecisionRule());
+    m_pDVA = ROCPPDiscreteVarsDR_Ptr(new ConstantDecisionRule());
     
     // -- partition related --
     
@@ -136,24 +136,24 @@ void PiecewiseApproximator::InitializeMe(boost::shared_ptr<OptimizationModelIF> 
     map<string,uint>::const_iterator mit(max_element(numPartitionsMap.begin(), numPartitionsMap.end(),
                                                      [] (const std::pair<string,uint>& a, const std::pair<string,uint>& b)->bool{ return a.second < b.second; }));
     
-    m_pPartConverter = boost::shared_ptr<PartitionConverter>(new PartitionConverter( (boost::lexical_cast<string>(mit->second)).size() ) );
+    m_pPartConverter = ROCPPParConverter_Ptr(new PartitionConverter( (to_string(mit->second)).size() ) );
     m_numPartitionsStr = m_pPartConverter->convertPartitionToString(numPartitionsMap, pIn);
     
     
     // ******************** MI to MB converter ******************************************************
     
-    m_pMItoMB_Bilinear = boost::shared_ptr<Bilinear_MItoMB_Converter>(new BinaryConverter());
+    m_pMItoMB_Bilinear = ROCPPMItoMB_Ptr(new BinaryConverter());
     
     // ******************** bilinear term reformulation ******************************************************
-    m_pBTR = boost::shared_ptr<BilinearTermReformulatorIF>(new BTR_bigM());
+    m_pBTR = ROCPPBilinearReform_Ptr(new BTR_bigM());
     
     
     // ******************* uncertainty set real var approximator ***********************************
-    m_pUSRVA = boost::shared_ptr<UncertaintySetRealVarApproximator>( new UncertaintySetRealVarApproximator(numBits));
-    m_pBPA = boost::shared_ptr<UncertaintySetRealVarApproximator>( new UncertaintySetRealVarApproximator(0));
+    m_pUSRVA = ROCPPUncSetRealVarApprox_Ptr( new UncertaintySetRealVarApproximator(numBits));
+    m_pBPA = ROCPPUncSetRealVarApprox_Ptr( new UncertaintySetRealVarApproximator(0));
 }
 
-void PiecewiseApproximator::createVariableMap(boost::shared_ptr<OptimizationModelIF> pIn, boost::shared_ptr<OptimizationModelIF> pMiddle, vector<boost::shared_ptr<ConstraintIF> >& vecNACs)
+void PiecewiseApproximator::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraint_Ptr >& vecNACs)
 {
 
     // iterate through the variables in pMiddle
@@ -168,11 +168,11 @@ void PiecewiseApproximator::createVariableMap(boost::shared_ptr<OptimizationMode
         uint varTS(0);
         
         
-        boost::shared_ptr<DecisionVariableIF> dv;
+        ROCPPVarIF_Ptr dv;
         
         string bla(vit->second->getName());
         
-        pair<bool,boost::shared_ptr<DecisionVariableIF> > tmpdvpair( findOrigVariable(vit->second) );
+        pair<bool,ROCPPVarIF_Ptr > tmpdvpair( findOrigVariable(vit->second) );
         
         
         if (tmpdvpair.first==true)
@@ -202,7 +202,7 @@ void PiecewiseApproximator::createVariableMap(boost::shared_ptr<OptimizationMode
             
             //to avoid having the same variable defined over different partitions (unless we want explicit NACs)
             
-            boost::shared_ptr<DecisionVariableIF> c_var;
+            ROCPPVarIF_Ptr c_var;
             
             if ( !dv->isAdaptive() )
             {
@@ -213,26 +213,26 @@ void PiecewiseApproximator::createVariableMap(boost::shared_ptr<OptimizationMode
                 if ( (basicPartition==(pit->first)) || (m_useExplicitNACs) ) // this partition is a basic partition
                 {
                     if (vit->second->getType()==contDV)
-                        c_var = boost::shared_ptr<DecisionVariableIF>(new VariableDouble( vit->second->getName()+"_"+((*pit).first), vit->second->getLB(), vit->second->getUB()));
+                        c_var = ROCPPVarIF_Ptr(new VariableDouble( vit->second->getName()+"_"+((*pit).first), vit->second->getLB(), vit->second->getUB()));
                     else if (vit->second->getType() == intDV)
-                        c_var = boost::shared_ptr<DecisionVariableIF>(new VariableInt( vit->second->getName()+"_"+((*pit).first), vit->second->getLB(), vit->second->getUB()));
+                        c_var = ROCPPVarIF_Ptr(new VariableInt( vit->second->getName()+"_"+((*pit).first), vit->second->getLB(), vit->second->getUB()));
                     else if (vit->second->getType() == boolDV)
-                        c_var = boost::shared_ptr<DecisionVariableIF>(new VariableBool( vit->second->getName()+"_"+((*pit).first), vit->second->getLB(), vit->second->getUB()));
+                        c_var = ROCPPVarIF_Ptr(new VariableBool( vit->second->getName()+"_"+((*pit).first), vit->second->getLB(), vit->second->getUB()));
                     
                     
                     // if we want explicit NACs, add them
                     if ( (m_useExplicitNACs) && (basicPartition!=(pit->first)) )
                     {
-                        map<string, map<string,boost::shared_ptr<DecisionVariableIF> > >::const_iterator tmpit (m_VariableMap.find(basicPartition) );
+                        map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator tmpit (m_VariableMap.find(basicPartition) );
                         if (tmpit==m_VariableMap.end())
                             throw MyException("this should not be happening: is the basic partition >= current partition?");
                         
-                        map<string,boost::shared_ptr<DecisionVariableIF> >::const_iterator fit ( tmpit->second.find( vit->second->getName() ) );
+                        map<string,ROCPPVarIF_Ptr >::const_iterator fit ( tmpit->second.find( vit->second->getName() ) );
                         
                         if (fit==tmpit->second.end())
                             throw MyException("unexpected error - variable not found");
                         
-                        boost::shared_ptr<ClassicConstraintIF> pCstr( new EqConstraint(false,true) );
+                        ROCPPClassicConstraint_Ptr pCstr( new EqConstraint(false,true) );
                         
                         pCstr->add_lhs(1., fit->second);
                         pCstr->add_lhs(-1., c_var);
@@ -243,11 +243,11 @@ void PiecewiseApproximator::createVariableMap(boost::shared_ptr<OptimizationMode
                 }
                 else
                 {
-                    map<string, map<string,boost::shared_ptr<DecisionVariableIF> > >::const_iterator tmpit (m_VariableMap.find(basicPartition) );
+                    map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator tmpit (m_VariableMap.find(basicPartition) );
                     if (tmpit==m_VariableMap.end())
                         throw MyException("this should not be happening: is the basic partition >= current partition?");
                     
-                    map<string,boost::shared_ptr<DecisionVariableIF> >::const_iterator fit ( tmpit->second.find( vit->second->getName() ) );
+                    map<string,ROCPPVarIF_Ptr >::const_iterator fit ( tmpit->second.find( vit->second->getName() ) );
                     
                     if (fit==tmpit->second.end())
                         throw MyException("unexpected error - variable not found");
@@ -260,7 +260,7 @@ void PiecewiseApproximator::createVariableMap(boost::shared_ptr<OptimizationMode
     }
 }
 
-boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<OptimizationModelIF> pIn)
+ROCPPMISOCP_Ptr PiecewiseApproximator::approx(ROCPPOptModelIF_Ptr pIn)
 {
     
     cout << "=========================================================================== " << endl;
@@ -273,7 +273,7 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
     
     // first write the problem in epigraph form!!!!
     
-    boost::shared_ptr<OptimizationModelIF> pModel(pIn->Clone());
+    ROCPPOptModelIF_Ptr pModel(pIn->Clone());
     
     if (pIn->getObjType() == robust)
         pModel->add_epigraph();
@@ -282,9 +282,9 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
         if( ! pIn->hasRectangularUncertaintySet())
             throw MyException("Stochastice model must have rectanular uncertainty set");
         
-        vector<boost::shared_ptr<LHSExpression> > objs(pIn->getObj()->getObj());
+        vector<ROCPPExpr_Ptr > objs(pIn->getObj()->getObj());
         
-        vector<boost::shared_ptr<LHSExpression> >::const_iterator obj(objs.begin());
+        vector<ROCPPExpr_Ptr >::const_iterator obj(objs.begin());
         
         for(; obj != objs.end(); obj++)
         {
@@ -296,12 +296,12 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
     string solver="gurobi";
     map<string,pair<double,double> > OAmargSupp;
     
-    boost::shared_ptr<OptimizationModelIF> pOutTmp( new Bilinear_MISOCP() );
+    ROCPPOptModelIF_Ptr pOutTmp( new Bilinear_MISOCP() );
     
-    boost::shared_ptr<OptimizationModelIF> pInNew( m_pUSRVA->doMyThing(pModel,true) );
+    ROCPPOptModelIF_Ptr pInNew( m_pUSRVA->convertVar(pModel,true) );
     
     
-    boost::shared_ptr<OptimizationModelIF> pBTRModel;
+    ROCPPOptModelIF_Ptr pBTRModel;
     if (pModel->isUncertainOptimizationModel())
         pBTRModel = InstanciateModel(pInNew->getType(),pInNew->getNumTimeStages(),pInNew->getObjType());
     else
@@ -316,10 +316,10 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
     pBTRModel->set_ddu(pInNew);
     
     // do linear decision rule
-    boost::shared_ptr<OptimizationModelIF> pLDRModel( m_pCVA->doMyThing(pBTRModel, true) );
+    ROCPPOptModelIF_Ptr pLDRModel( m_pCVA->convertVar(pBTRModel, true) );
     
     // do constant decision rule
-    boost::shared_ptr<OptimizationModelIF> pMiddle( m_pDVA->doMyThing(pLDRModel, true) );
+    ROCPPOptModelIF_Ptr pMiddle( m_pDVA->convertVar(pLDRModel, true) );
     
     // check that the problem does not have any more adaptive variables
     if ( pMiddle->getNumAdaptiveVars() != 0 )
@@ -339,29 +339,29 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
     
     // create translation map for the breakpoint variables (if any)
     // w_i
-    boost::shared_ptr<const dvContainer> bpdvs( m_pPartConstructor->getBPDVContainer() );// );boost::shared_ptr<dvContainer>( new dvContainer() )
-    map<string,boost::shared_ptr<LHSExpression> >  BPDVTranslationMap;
-    vector<boost::shared_ptr<ConstraintIF> > BPtoAdd;
+    ROCPPconstdvContainer_Ptr bpdvs( m_pPartConstructor->getBPDVContainer() );// );ROCPPdvContainer_Ptr( new dvContainer() )
+    map<string,ROCPPExpr_Ptr >  BPDVTranslationMap;
+    vector<ROCPPConstraint_Ptr > BPtoAdd;
     m_pBPA->createTranslationMap(*bpdvs,BPDVTranslationMap,BPtoAdd);
     
-    for (vector<boost::shared_ptr<ConstraintIF> >::const_iterator cit = BPtoAdd.begin(); cit != BPtoAdd.end(); cit++)
+    for (vector<ROCPPConstraint_Ptr >::const_iterator cit = BPtoAdd.begin(); cit != BPtoAdd.end(); cit++)
         pOutTmp->add_constraint(*cit);
     
     // create one to one converter using BPDVTranslationMap
-    boost::shared_ptr<PredefO2EVariableConverter> pO2OBPDVS( boost::shared_ptr<PredefO2EVariableConverter>( new PredefO2EVariableConverter(BPDVTranslationMap) ) );
+    ROCPPO2EVarConverter_Ptr pO2OBPDVS( ROCPPO2EVarConverter_Ptr( new PredefO2EVariableConverter(BPDVTranslationMap) ) );
     pO2OBPDVS->createInverseMap(*bpdvs);
     
-    vector<boost::shared_ptr<ConstraintIF> > vecNACs;
+    vector<ROCPPConstraint_Ptr > vecNACs;
     createVariableMap(pInNew,pMiddle,vecNACs);
     
     // robustify model on each partition
     uint dualvarscnt(0);
     uint partitionsCnt(1);
     
-    map<string, boost::shared_ptr<DecisionVariableIF> > inverseVarMapAll;
+    map<string, ROCPPVarIF_Ptr > inverseVarMapAll;
     
     // only for stochastic
-    vector<boost::shared_ptr<LHSExpression> > newObj;
+    vector<ROCPPExpr_Ptr > newObj;
     double allArea(1.0);
     map<string, pair<double, double> > allMap;
     
@@ -386,7 +386,7 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
             cout << "Robustyfying constraints on partition " << partitionsCnt << " (total partitions: " << m_pPartConstructor->getNumSubsets() << ")"<< endl;
         
         // create a new optimization model
-        boost::shared_ptr<OptimizationModelIF> pTmp( new UncertainSingleStageOptimizationModel() );
+        ROCPPOptModelIF_Ptr pTmp( new UncertainSingleStageOptimizationModel() );
         
         // add to it the constraints of pMiddle that are not deterministic; for the deterministic constraints, if it is the first time we go through the loop, add them to the output directly
         for (OptimizationModelIF::constraintIterator cit = pMiddle->constraintBegin(); cit != pMiddle->constraintEnd(); cit++)
@@ -396,35 +396,35 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
         
         // add to the problem the constraints specific to this partition (mapping the breakpoint variables)
         for (PartitionConstructorIF::usconstraints_iterator cit = m_pPartConstructor->USCbegin( (*pit).first ); cit != m_pPartConstructor->USCend( (*pit).first ); cit++)
-            pTmp->add_constraint( pO2OBPDVS->doMyThing(*cit) );
+            pTmp->add_constraint( pO2OBPDVS->convertVar(*cit) );
         
         pTmp->set_objective(pMiddle->getObj() );
         pTmp->set_ddu(pMiddle);
         
         // map the variables to variables over this partition
         // Y_(ij) -> Y_(ij)^s
-        boost::shared_ptr<PredefO2OVariableConverter> pO2OVC( new PredefO2OVariableConverter( m_VariableMap[ (*pit).first ] ) );
-        boost::shared_ptr<OptimizationModelIF> pTmp2( pO2OVC->doMyThing(pTmp,true) );
+        ROCPPO2OVarConverter_Ptr pO2OVC( new PredefO2OVariableConverter( m_VariableMap[ (*pit).first ] ) );
+        ROCPPOptModelIF_Ptr pTmp2( pO2OVC->convertVar(pTmp,true) );
         
         inverseVarMapAll.insert(pO2OVC->beginInv(), pO2OVC->endInv() );
         
         // approximate real-valued variables affecting the uncertainty set
-        boost::shared_ptr<OptimizationModelIF> pTmp3( m_pUSRVA->doMyThing(pTmp2) );
+        ROCPPOptModelIF_Ptr pTmp3( m_pUSRVA->convertVar(pTmp2) );
         
         // convert problem to uncertain single-stage problem (no bilinearities)
-        boost::shared_ptr<UncertainSingleStageOptimizationModel> pTmp4( convertToUSSOM(pTmp3) );
+        ROCPPUncSSOptModel_Ptr pTmp4( convertToUSSOM(pTmp3) );
         
         if (pIn->getObjType() == stochastic)
         {
-            boost::shared_ptr<ObjectiveFunctionIF> oldObj(pTmp4->getObj());
-            pair<double, map<string, boost::shared_ptr<LHSExpression> > > meanAndProb(calculateMeanAndProb(pTmp4, pit->first, allMap, allArea));
+            ROCPPObjectiveIF_Ptr oldObj(pTmp4->getObj());
+            pair<double, map<string, ROCPPExpr_Ptr > > meanAndProb(calculateMeanAndProb(pTmp4, pit->first, allMap, allArea));
             getStochasticObj(meanAndProb, oldObj, newObj);
         }
         
         // robustify pTmp4
         // generate the constraint with cone. robust MBLP->standard MBLP
-        boost::shared_ptr<RobustifyEngine> m_pRE (new RobustifyEngine(dualvarscnt,pit->first));
-        boost::shared_ptr<Bilinear_MISOCP> pRobustTmp( m_pRE->doMyThing(pTmp4)  );
+        ROCPPRobustifyEngine_Ptr m_pRE (new RobustifyEngine(dualvarscnt,pit->first));
+        ROCPPBilinMISOCP_Ptr pRobustTmp( m_pRE->robustify(pTmp4)  );
         
         for (OptimizationModelIF::constraintIterator cit = pRobustTmp->constraintBegin(); cit != pRobustTmp->constraintEnd(); cit++)
             pOutTmp->add_constraint( *cit );
@@ -440,12 +440,12 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
         
         if(newObj.size() == 1)
         {
-            boost::shared_ptr<ObjectiveFunctionIF> objToSet( new SimpleObjective(newObj[0] ) );
+            ROCPPObjectiveIF_Ptr objToSet( new SimpleObjective(newObj[0] ) );
             pOutTmp->set_objective(objToSet);
         }
         else
         {
-            boost::shared_ptr<ObjectiveFunctionIF> objToSet( new MaxObjective(newObj) );
+            ROCPPObjectiveIF_Ptr objToSet( new MaxObjective(newObj) );
             pOutTmp->set_objective(objToSet);
         }
 
@@ -454,19 +454,19 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
     pOutTmp->set_ddu(pMiddle);
     
     // Eliminate integer terms appearing in bilinearities
-    boost::shared_ptr<OptimizationModelIF> pOutTmp2( m_pMItoMB_Bilinear->doMyThing( boost::shared_ptr<OptimizationModelIF>(pOutTmp) ) );
+    ROCPPOptModelIF_Ptr pOutTmp2( m_pMItoMB_Bilinear->convertVar( ROCPPOptModelIF_Ptr(pOutTmp) ) );
     
     // then, eliminate bilinearities between binary and other terms
-    boost::shared_ptr<OptimizationModelIF> pOutTmp3( m_pBTR->doMyThing(pOutTmp2) );
+    ROCPPOptModelIF_Ptr pOutTmp3( m_pBTR->linearize(pOutTmp2) );
     
     // convert resulting problem to MISOCP
-    boost::shared_ptr<MISOCP> pOut( convertToMISOCP(pOutTmp3) );
+    ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp3) );
     
     if(pIn->isDDUOptimizationModel() )
     {
-        boost::shared_ptr<DDUOptimizationModel> pIn_DDU( boost::static_pointer_cast<DDUOptimizationModel>(pIn));
+        ROCPPDDUOptModel_Ptr pIn_DDU( static_pointer_cast<DDUOptimizationModel>(pIn));
         
-        boost::shared_ptr<LinearDecisionRule> pLDR(boost::static_pointer_cast<LinearDecisionRule>(m_pCVA));
+        ROCPPLinearDR_Ptr pLDR(static_pointer_cast<LinearDecisionRule>(m_pCVA));
         
         // ---------------- DECISION-DEPENDENT NON-ANTICIPATIVITY CONSTRAINTS -----------------------------------------------
         
@@ -475,24 +475,24 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
         {
             for (OneToExprVariableConverterIF::const_iterator tmldr_it=pLDR->begin(); tmldr_it!=pLDR->end(); tmldr_it++)
             {
-                boost::shared_ptr<DecisionVariableIF> odv( pIn_DDU->getVar( tmldr_it->first ) );//Y_{t,i}
+                ROCPPVarIF_Ptr odv( pIn_DDU->getVar( tmldr_it->first ) );//Y_{t,i}
                 
                 for (DDUOptimizationModel::dduIterator ddu_it = pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
                 {
-                    boost::shared_ptr<DecisionVariableIF> mv( pIn_DDU->getMeasVar(ddu_it->first,odv->getTimeStage()-1) );//original x_{t-1, j}
-                    boost::shared_ptr<DecisionVariableIF> mvp( getVarOnPartition(mp_it->first, mv->getName()) );//x_{t-1, j}^p
+                    ROCPPVarIF_Ptr mv( pIn_DDU->getMeasVar(ddu_it->first,odv->getTimeStage()-1) );//original x_{t-1, j}
+                    ROCPPVarIF_Ptr mvp( getVarOnPartition(mp_it->first, mv->getName()) );//x_{t-1, j}^p
                     
-                    boost::shared_ptr<DecisionVariableIF> ldrCoeff ( pLDR->getCoeffDV( odv->getName(),ddu_it->second->getName()) );//original Y_{t, ij}
-                    boost::shared_ptr<DecisionVariableIF> ldrCoeffp( getVarOnPartition(mp_it->first, ldrCoeff->getName()) );//Y_{t, ij}^p
+                    ROCPPVarIF_Ptr ldrCoeff ( pLDR->getCoeffDV( odv->getName(),ddu_it->second->getName()) );//original Y_{t, ij}
+                    ROCPPVarIF_Ptr ldrCoeffp( getVarOnPartition(mp_it->first, ldrCoeff->getName()) );//Y_{t, ij}^p
                     
                     // add non-anticipativity constraints
-                    boost::shared_ptr<ConstraintIF> pConstraint1( new IneqConstraint(false,true) );
+                    ROCPPConstraint_Ptr pConstraint1( new IneqConstraint(false,true) );
                     pConstraint1->add_lhs(1.,ldrCoeffp);
                     pConstraint1->add_lhs(-1.*m_bigM,mvp);
                     pConstraint1->set_rhs(make_pair(0.,true));
                     pOut->add_constraint(pConstraint1);
                     
-                    boost::shared_ptr<ConstraintIF> pConstraint2( new IneqConstraint(false,true) );
+                    ROCPPConstraint_Ptr pConstraint2( new IneqConstraint(false,true) );
                     pConstraint2->add_lhs(-1.,ldrCoeffp);
                     pConstraint2->add_lhs(-1.*m_bigM,mvp);
                     pConstraint2->set_rhs(make_pair(0.,true));
@@ -518,10 +518,10 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
             //pIn_DDU->getFirstStageObservable(ddu_it->first)
             for (uint t=1; t<pIn_DDU->getNumTimeStages(); t++)
             {
-                boost::shared_ptr<DecisionVariableIF> mv( pIn_DDU->getMeasVar(ddu_it->first,t) );// original x_{t, j}
+                ROCPPVarIF_Ptr mv( pIn_DDU->getMeasVar(ddu_it->first,t) );// original x_{t, j}
                 for (PartitionConstructorIF::const_iterator mp_it=m_pPartConstructor->begin(); mp_it!=m_pPartConstructor->end(); mp_it++)
                 {
-                    boost::shared_ptr<DecisionVariableIF> mvp( getVarOnPartition(mp_it->first, mv->getName()) );//x_{t, j}^p
+                    ROCPPVarIF_Ptr mvp( getVarOnPartition(mp_it->first, mv->getName()) );//x_{t, j}^p
                     
                     string deb(m_pPartConverter->convertPartitionToString(1));
                     
@@ -545,7 +545,7 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
                                 for (OneToExprVariableConverterIF::const_iterator tmldr_it=pLDR->begin(); tmldr_it!=pLDR->end(); tmldr_it++)
                                 {
                                     // find the original variable
-                                    boost::shared_ptr<DecisionVariableIF> odv( pIn_DDU->getVar( tmldr_it->first ) );
+                                    ROCPPVarIF_Ptr odv( pIn_DDU->getVar( tmldr_it->first ) );
                                     
                                     if ((odv->getTimeStage() == (mv->getTimeStage()+1) ))
                                     {
@@ -553,19 +553,19 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
                                         for (LHSExpression::dvIterator coeff_it=tmldr_it->second->varsBegin(); coeff_it!=tmldr_it->second->varsEnd(); coeff_it++)
                                         {
                                             // get coefficient of vars on each of subsets of partition
-                                            boost::shared_ptr<DecisionVariableIF> ldrCoeff ( coeff_it->second );
-                                            boost::shared_ptr<DecisionVariableIF> ldrCoeffp1( getVarOnPartition(mp_it->first, ldrCoeff->getName()) );
-                                            boost::shared_ptr<DecisionVariableIF> ldrCoeffp2( getVarOnPartition(mpi_it->first, ldrCoeff->getName()) );
+                                            ROCPPVarIF_Ptr ldrCoeff ( coeff_it->second );
+                                            ROCPPVarIF_Ptr ldrCoeffp1( getVarOnPartition(mp_it->first, ldrCoeff->getName()) );
+                                            ROCPPVarIF_Ptr ldrCoeffp2( getVarOnPartition(mpi_it->first, ldrCoeff->getName()) );
                                             
                                             // for each coefficient, add NACs
-                                            boost::shared_ptr<ConstraintIF> pConstraint1( new IneqConstraint(false,true) );
+                                            ROCPPConstraint_Ptr pConstraint1( new IneqConstraint(false,true) );
                                             pConstraint1->add_lhs(1.,ldrCoeffp1);
                                             pConstraint1->add_lhs(-1.,ldrCoeffp2);
                                             pConstraint1->add_lhs(-1.*m_bigM,mvp);
                                             pConstraint1->set_rhs(make_pair(0.,true));
                                             pOut->add_constraint(pConstraint1);
                                             
-                                            boost::shared_ptr<ConstraintIF> pConstraint2( new IneqConstraint(false,true) );
+                                            ROCPPConstraint_Ptr pConstraint2( new IneqConstraint(false,true) );
                                             pConstraint2->add_lhs(1.,ldrCoeffp2);
                                             pConstraint2->add_lhs(-1.,ldrCoeffp1);
                                             pConstraint2->add_lhs(-1.*m_bigM,mvp);
@@ -578,16 +578,16 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
                                 for (OneToOneVariableConverterIF::const_iterator tmcdr_it=m_pDVA->begin(); tmcdr_it!=m_pDVA->end(); tmcdr_it++)
                                 {
                                     // find the original variable
-                                    boost::shared_ptr<DecisionVariableIF> odv( pIn_DDU->getVar( tmcdr_it->first ) );
+                                    ROCPPVarIF_Ptr odv( pIn_DDU->getVar( tmcdr_it->first ) );
                                     
                                     if ((odv->getTimeStage() == (mv->getTimeStage()+1) ))
                                     {
                                         // get coefficient of vars on each of subsets of partition
-                                        boost::shared_ptr<DecisionVariableIF> cdrCoeff ( m_pDVA->find( odv->getName() )->second );
-                                        boost::shared_ptr<DecisionVariableIF> cdrCoeffp1( getVarOnPartition(mp_it->first, cdrCoeff->getName()) );
-                                        boost::shared_ptr<DecisionVariableIF> cdrCoeffp2( getVarOnPartition(mpi_it->first, cdrCoeff->getName()) );
+                                        ROCPPVarIF_Ptr cdrCoeff ( m_pDVA->find( odv->getName() )->second );
+                                        ROCPPVarIF_Ptr cdrCoeffp1( getVarOnPartition(mp_it->first, cdrCoeff->getName()) );
+                                        ROCPPVarIF_Ptr cdrCoeffp2( getVarOnPartition(mpi_it->first, cdrCoeff->getName()) );
                                         
-                                        boost::shared_ptr<ConstraintIF> pConstraint1( new IneqConstraint(false,true) );
+                                        ROCPPConstraint_Ptr pConstraint1( new IneqConstraint(false,true) );
                                         pConstraint1->add_lhs(1.,cdrCoeffp1);
                                         pConstraint1->add_lhs(-1.,cdrCoeffp2);
                                         if (odv->getType()==intDV)
@@ -597,7 +597,7 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
                                         pConstraint1->set_rhs(make_pair(0.,true));
                                         pOut->add_constraint(pConstraint1);
                                         
-                                        boost::shared_ptr<ConstraintIF> pConstraint2( new IneqConstraint(false,true) );
+                                        ROCPPConstraint_Ptr pConstraint2( new IneqConstraint(false,true) );
                                         pConstraint2->add_lhs(1.,cdrCoeffp2);
                                         pConstraint2->add_lhs(-1.,cdrCoeffp1);
                                         if (odv->getType()==intDV)
@@ -632,29 +632,29 @@ boost::shared_ptr<MISOCP> PiecewiseApproximator::DoMyThing(boost::shared_ptr<Opt
 }
 
 
-boost::shared_ptr<OptimizationModelIF> PiecewiseApproximator::fixBinaryVariableValues(boost::shared_ptr<OptimizationModelIF> pKadaptModel, const map<string,bool> &varValues) const
+ROCPPOptModelIF_Ptr PiecewiseApproximator::fixBinaryVariableValues(ROCPPOptModelIF_Ptr pKadaptModel, const map<string,bool> &varValues) const
 {
     throw MyException("Not implement yet.");
 }
 
-pair<double, map<string, boost::shared_ptr<LHSExpression> > > PiecewiseApproximator::calculateMeanAndProb(const boost::shared_ptr<OptimizationModelIF> pModel, string partition, const map<string,pair<double,double> > &allMap, double allArea)
+pair<double, map<string, ROCPPExpr_Ptr > > PiecewiseApproximator::calculateMeanAndProb(const ROCPPOptModelIF_Ptr pModel, string partition, const map<string,pair<double,double> > &allMap, double allArea)
 {
-    map<string, boost::shared_ptr<LHSExpression> > mapFromUncToMean;
+    map<string, ROCPPExpr_Ptr > mapFromUncToMean;
     double prob(1.0);
     
     map<string,pair<double,double> >::const_iterator u_it = allMap.begin();
     
     for(; u_it != allMap.end(); u_it++)
     {
-        boost::shared_ptr<LHSExpression> mean(new LHSExpression());
-        boost::shared_ptr<LHSExpression> range(new LHSExpression());
+        ROCPPExpr_Ptr mean(new LHSExpression());
+        ROCPPExpr_Ptr range(new LHSExpression());
         
         string uncNme(u_it->first);
         uint pos(m_pPartConstructor->getPos(partition, uncNme));
         
         if (pos == 1)
         {
-            boost::shared_ptr<LHSExpression> lb(new LHSExpression());
+            ROCPPExpr_Ptr lb(new LHSExpression());
             lb->add(allMap.find(uncNme)->second.first);
             mean->add(0.5, lb);
             range->add(-1.0, lb);
@@ -666,7 +666,7 @@ pair<double, map<string, boost::shared_ptr<LHSExpression> > > PiecewiseApproxima
         
         if ( (!m_pPartConstructor->hasPartition(uncNme)) || (m_pPartConstructor->getNumSubsets(uncNme) == pos))
         {
-            boost::shared_ptr<LHSExpression> ub(new LHSExpression());
+            ROCPPExpr_Ptr ub(new LHSExpression());
             ub->add(allMap.find(uncNme)->second.second);
             mean->add(0.5, ub);
             range->add(1.0, ub);
@@ -692,10 +692,10 @@ pair<double, map<string, boost::shared_ptr<LHSExpression> > > PiecewiseApproxima
     return make_pair(prob, mapFromUncToMean);
 }
 
-void PiecewiseApproximator::getStochasticObj(const pair<double, map<string, boost::shared_ptr<LHSExpression> > > meanAndProb, const boost::shared_ptr<ObjectiveFunctionIF> oldObj, vector<boost::shared_ptr<LHSExpression> > &newObj)
+void PiecewiseApproximator::getStochasticObj(const pair<double, map<string, ROCPPExpr_Ptr > > meanAndProb, const ROCPPObjectiveIF_Ptr oldObj, vector<ROCPPExpr_Ptr > &newObj)
 {
     double probability(meanAndProb.first);
-    map<string, boost::shared_ptr<LHSExpression> > mapFromUncToMean(meanAndProb.second);
+    map<string, ROCPPExpr_Ptr > mapFromUncToMean(meanAndProb.second);
     
     bool firstPartition(newObj.size() == 0);
     
@@ -706,20 +706,20 @@ void PiecewiseApproximator::getStochasticObj(const pair<double, map<string, boos
     
     for (uint numObj = 1; numObj <= objSize; numObj++) {
         if (firstPartition) {
-            boost::shared_ptr<LHSExpression> newObjExpr(new LHSExpression());
+            ROCPPExpr_Ptr newObjExpr(new LHSExpression());
             
-            boost::shared_ptr<LHSExpression> oldObjExpr;
+            ROCPPExpr_Ptr oldObjExpr;
             oldObjExpr = oldObj->getObj(numObj);
             
             newObjExpr->add(probability, oldObjExpr->mapUncs(mapFromUncToMean));
             newObj.push_back(newObjExpr);
         }
         else{
-            boost::shared_ptr<LHSExpression> oldObjExpr;
+            ROCPPExpr_Ptr oldObjExpr;
             oldObjExpr = oldObj->getObj(numObj);
             
-            boost::shared_ptr<LHSExpression> partObj(oldObjExpr->mapUncs(mapFromUncToMean));
-            map<string,boost::shared_ptr<DecisionVariableIF> > mapVar;
+            ROCPPExpr_Ptr partObj(oldObjExpr->mapUncs(mapFromUncToMean));
+            map<string,ROCPPVarIF_Ptr > mapVar;
             
             dvMapType::const_iterator v_it(partObj->varsBegin());
             for ( ; v_it != partObj->varsEnd(); v_it++)
@@ -728,7 +728,7 @@ void PiecewiseApproximator::getStochasticObj(const pair<double, map<string, boos
                     mapVar.insert(make_pair(v_it->first, newObj[numObj-1]->getVar(v_it->first)));
             }
             
-            boost::shared_ptr<LHSExpression> objToAdd(partObj->mapExprVars(mapVar));
+            ROCPPExpr_Ptr objToAdd(partObj->mapExprVars(mapVar));
             newObj[numObj-1]->add(probability, objToAdd);
         }
     }
@@ -748,10 +748,10 @@ string PiecewiseApproximator::getSolutionApproachParameters(string delimiter) co
     return out;
 }
 
-pair<bool,boost::shared_ptr<DecisionVariableIF> > PiecewiseApproximator::findOrigVariable(boost::shared_ptr<DecisionVariableIF> newdv) const
+pair<bool,ROCPPVarIF_Ptr > PiecewiseApproximator::findOrigVariable(ROCPPVarIF_Ptr newdv) const
 {
     // 1. try to find it in the reverse map of ldr
-    boost::shared_ptr<DecisionVariableIF> dv;
+    ROCPPVarIF_Ptr dv;
     bool found(false);
     
     VariableConverterIF::const_iterator_inv it_ldr ( m_pCVA->findInv ( newdv->getName() ) );
@@ -775,14 +775,14 @@ pair<bool,boost::shared_ptr<DecisionVariableIF> > PiecewiseApproximator::findOri
     return make_pair(found,dv);
 }
 
-boost::shared_ptr<DecisionVariableIF> PiecewiseApproximator::getVarOnPartition(string partition, string origVarName) const
+ROCPPVarIF_Ptr PiecewiseApproximator::getVarOnPartition(string partition, string origVarName) const
 {
     
-    map<string, map<string,boost::shared_ptr<DecisionVariableIF> > >::const_iterator it (m_VariableMap.find(partition));
+    map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator it (m_VariableMap.find(partition));
     if (it==m_VariableMap.end())
         throw MyException("subset of partition " + partition + " not found in map");
     
-    map<string,boost::shared_ptr<DecisionVariableIF> >::const_iterator subit(it->second.find(origVarName));
+    map<string,ROCPPVarIF_Ptr >::const_iterator subit(it->second.find(origVarName));
     
     if (subit==it->second.end())
         throw MyException("decision variable " + origVarName + " not found on subset " + partition + " of partition");
@@ -790,14 +790,13 @@ boost::shared_ptr<DecisionVariableIF> PiecewiseApproximator::getVarOnPartition(s
     return subit->second;
 }
 
-map<string, double> PiecewiseApproximator::getWsSolutions(boost::shared_ptr<OptimizationModelIF> pIn, const map<string, double> &warmStartResults, const map<string,uint> &wsMap) const
+//???: Question here
+void PiecewiseApproximator::getWsSolutions(ROCPPOptModelIF_Ptr pIn, const map<string, double> &warmStartResults, const map<string,uint> &wsMap, map<string, double> &wsSolutions)
 {
-    map<string, double> warmStartMap = map<string, double>();
-    
     if ( (m_pPartConstructor->getNumSubsets()!=1) && (pIn->getNumBoolVars()) )
     {
         
-        for (map<string, map<string,boost::shared_ptr<DecisionVariableIF> > >::const_iterator p_it = m_VariableMap.begin(); p_it != m_VariableMap.end(); p_it++)
+        for (map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator p_it = m_VariableMap.begin(); p_it != m_VariableMap.end(); p_it++)
         {
             
             uint cnt(0);
@@ -820,7 +819,8 @@ map<string, double> PiecewiseApproximator::getWsSolutions(boost::shared_ptr<Opti
                             throw MyException("unusable warm start");
                         
                         int div = static_cast<int>(cpart) / static_cast<int>(mpart);
-                        double tmp = boost::lexical_cast<double>(p_it->first.substr(cnt*m_pPartConverter->getNumEls(),m_pPartConverter->getNumEls()));
+                        //double tmp = lexical_cast<double>(p_it->first.substr(cnt*m_pPartConverter->getNumEls(),m_pPartConverter->getNumEls()));
+                        double tmp = stod(p_it->first.substr(cnt*m_pPartConverter->getNumEls(),m_pPartConverter->getNumEls()));
                         double cEl = ceil( tmp / static_cast<double>(div) );
                         mappedPartition+=m_pPartConverter->convertPartitionToString(static_cast<uint>(cEl));
                     }
@@ -829,17 +829,17 @@ map<string, double> PiecewiseApproximator::getWsSolutions(boost::shared_ptr<Opti
             }
             
             
-            for (map<string,boost::shared_ptr<DecisionVariableIF> >::const_iterator v_it = p_it->second.begin(); v_it != p_it->second.end(); v_it++)
+            for (map<string,ROCPPVarIF_Ptr >::const_iterator v_it = p_it->second.begin(); v_it != p_it->second.end(); v_it++)
             {
                 // find the mappedPartition in m_variableMap
-                map< string , map<string, boost::shared_ptr<DecisionVariableIF> > >::const_iterator mapped_it = m_VariableMap.find( mappedPartition );
+                map< string , map<string, ROCPPVarIF_Ptr > >::const_iterator mapped_it = m_VariableMap.find( mappedPartition );
                 
                 if (mapped_it==m_VariableMap.end())
                     throw MyException("mappedPartition not found");
                 
                 // find the name of the variable in mapped partition
                 
-                map<string, boost::shared_ptr<DecisionVariableIF> >::const_iterator mv_it ( mapped_it->second.find(v_it->first) );
+                map<string, ROCPPVarIF_Ptr >::const_iterator mv_it ( mapped_it->second.find(v_it->first) );
                 
                 if (mv_it == mapped_it->second.end())
                     throw MyException("variable not found in submap of m_VariableMap");
@@ -849,7 +849,7 @@ map<string, double> PiecewiseApproximator::getWsSolutions(boost::shared_ptr<Opti
                 if (r_it == warmStartResults.end())
                     throw MyException("variable not found in warm start results");
                 
-                warmStartMap.insert( make_pair(v_it->second->getName(), r_it->second) );
+                wsSolutions.insert( make_pair(v_it->second->getName(), r_it->second) );
                 
             }
         }
@@ -857,16 +857,14 @@ map<string, double> PiecewiseApproximator::getWsSolutions(boost::shared_ptr<Opti
     else{
         cout << "Static or LP model will return empty map";
     }
-    
-    return warmStartMap;
 }
 
-void PiecewiseApproximator::calculateSolution(boost::shared_ptr<OptimizationModelIF> pIn, const map<string, double> &resultIn, boost::shared_ptr<DecisionVariableIF> dv, string partition)
+void PiecewiseApproximator::calculateSolution(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv, string partition)
 {
-    map<string, boost::shared_ptr<DecisionVariableIF> > variableOnPartition = m_VariableMap.find(partition)->second;
+    map<string, ROCPPVarIF_Ptr > variableOnPartition = m_VariableMap.find(partition)->second;
     
     map<string, double> variableValue;
-    map<string, boost::shared_ptr<DecisionVariableIF> >::const_iterator variable = variableOnPartition.begin();
+    map<string, ROCPPVarIF_Ptr >::const_iterator variable = variableOnPartition.begin();
     map<string, double>::const_iterator result;
     
     for(; variable != variableOnPartition.end(); variable++)
@@ -891,12 +889,12 @@ void PiecewiseApproximator::calculateSolution(boost::shared_ptr<OptimizationMode
     }
 }
 
-void PiecewiseApproximator::calculateSolution(boost::shared_ptr<OptimizationModelIF> pIn, const map<string, double> &resultIn, boost::shared_ptr<UncertaintyIF> unc, string partition)
+void PiecewiseApproximator::calculateSolution(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc, string partition)
 {
-    map<string, boost::shared_ptr<DecisionVariableIF> > variableOnPartition = m_VariableMap.find(partition)->second;
+    map<string, ROCPPVarIF_Ptr > variableOnPartition = m_VariableMap.find(partition)->second;
     
     map<string, double> variableValue;
-    map<string, boost::shared_ptr<DecisionVariableIF> >::const_iterator variable = variableOnPartition.begin();
+    map<string, ROCPPVarIF_Ptr >::const_iterator variable = variableOnPartition.begin();
     map<string, double>::const_iterator result;
     
     for(; variable != variableOnPartition.end(); variable++)
@@ -911,7 +909,7 @@ void PiecewiseApproximator::calculateSolution(boost::shared_ptr<OptimizationMode
     uint t;
     string name = unc->getName();
     
-    boost::shared_ptr<DecisionVariableIF> meas;
+    ROCPPVarIF_Ptr meas;
     double value;
     
     for(t = 1; t < pIn->getNumTimeStages(); t++)
@@ -948,11 +946,11 @@ void PiecewiseApproximator::printParametersToScreen() const
     cout << endl;
 }
 
-void PiecewiseApproximator::printOut(const boost::shared_ptr<OptimizationModelIF> pIn, const map<string, double> &resultIn, boost::shared_ptr<DecisionVariableIF> dv, map<boost::shared_ptr<UncertaintyIF>, uint> partitionIn)
+void PiecewiseApproximator::printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv, map<ROCPPUnc_Ptr, uint> partitionIn)
 {
     map<string, uint> stringPartition;
     
-    map<boost::shared_ptr<UncertaintyIF>, uint>::const_iterator tmp = partitionIn.begin();
+    map<ROCPPUnc_Ptr, uint>::const_iterator tmp = partitionIn.begin();
     for(;tmp != partitionIn.end(); tmp++)
         stringPartition.insert(make_pair(tmp->first->getName(), tmp->second));
     
@@ -961,20 +959,20 @@ void PiecewiseApproximator::printOut(const boost::shared_ptr<OptimizationModelIF
     calculateSolution(pIn, resultIn, dv, partition);
 }
 
-void PiecewiseApproximator::printOut(const boost::shared_ptr<OptimizationModelIF> pIn, const map<string, double> &resultIn, boost::shared_ptr<DecisionVariableIF> dv)
+void PiecewiseApproximator::printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv)
 {
-    map<string, map<string,boost::shared_ptr<DecisionVariableIF> > >::const_iterator partitionIn;
+    map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator partitionIn;
     for(partitionIn = m_VariableMap.begin(); partitionIn != m_VariableMap.end(); partitionIn++)
     {
         calculateSolution(pIn, resultIn, dv, partitionIn->first);
     }
 }
 
-void PiecewiseApproximator::printOut(const boost::shared_ptr<OptimizationModelIF> pIn, const map<string, double> &resultIn, boost::shared_ptr<UncertaintyIF> unc, map<boost::shared_ptr<UncertaintyIF>, uint> partitionIn)
+void PiecewiseApproximator::printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc, map<ROCPPUnc_Ptr, uint> partitionIn)
 {
     map<string, uint> stringPartition;
     
-    map<boost::shared_ptr<UncertaintyIF>, uint>::const_iterator tmp = partitionIn.begin();
+    map<ROCPPUnc_Ptr, uint>::const_iterator tmp = partitionIn.begin();
     for(;tmp != partitionIn.end(); tmp++)
         stringPartition.insert(make_pair(tmp->first->getName(), tmp->second));
     
@@ -983,9 +981,9 @@ void PiecewiseApproximator::printOut(const boost::shared_ptr<OptimizationModelIF
     calculateSolution(pIn, resultIn, unc, partition);
 }
 
-void PiecewiseApproximator::printOut(const boost::shared_ptr<OptimizationModelIF> pIn, const map<string, double> &resultIn, boost::shared_ptr<UncertaintyIF> unc)
+void PiecewiseApproximator::printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc)
 {
-    map<string, map<string,boost::shared_ptr<DecisionVariableIF> > >::const_iterator partitionIn;
+    map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator partitionIn;
     for(partitionIn = m_VariableMap.begin(); partitionIn != m_VariableMap.end(); partitionIn++)
     {
         calculateSolution(pIn, resultIn, unc, partitionIn->first);

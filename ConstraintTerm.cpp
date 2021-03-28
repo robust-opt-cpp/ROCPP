@@ -30,21 +30,21 @@ ConstraintTermIF::ConstraintTermIF() : m_pDVContainer ( new dvContainer() ), m_p
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 bool ConstraintTermIF::operator==(const ProductTerm &other) const {throw MyException("operation not applicable");};
-void ConstraintTermIF::operator*=(boost::shared_ptr<const ConstraintTermIF> term) {throw MyException("operation not applicable");};
-void ConstraintTermIF::operator*=(boost::shared_ptr<DecisionVariableIF> var){throw MyException("operation not applicable");};
-void ConstraintTermIF::operator*=(boost::shared_ptr<UncertaintyIF> unc){throw MyException("operation not applicable");};
+void ConstraintTermIF::operator*=(ROCPPconstCstrTerm_Ptr term) {throw MyException("operation not applicable");};
+void ConstraintTermIF::operator*=(ROCPPVarIF_Ptr var){throw MyException("operation not applicable");};
+void ConstraintTermIF::operator*=(ROCPPUnc_Ptr unc){throw MyException("operation not applicable");};
 void ConstraintTermIF::operator*=(double a){throw MyException("operation not applicable");}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-pair<bool,boost::shared_ptr<ConstraintTermIF> > ConstraintTermIF::factorOut(boost::shared_ptr<UncertaintyIF> unc) const
+pair<bool,ROCPPCstrTerm_Ptr > ConstraintTermIF::factorOut(ROCPPUnc_Ptr unc) const
 {
     throw MyException("no factor");
 }
 
-void ConstraintTermIF::add(boost::shared_ptr<const ConstraintTermIF> other) {throw MyException("should not be here");}
+void ConstraintTermIF::add(ROCPPconstCstrTerm_Ptr other) {throw MyException("should not be here");}
 
 void ConstraintTermIF::add_int_vars(dvContainer &dvs) const
 {
@@ -104,41 +104,41 @@ bool ConstraintTermIF::allIntVarsBounded () const
 
 ProductTerm::ProductTerm(double c) : m_coeff(c){}
 
-ProductTerm::ProductTerm(double c, boost::shared_ptr<DecisionVariableIF> pVariable) : m_coeff(c)
+ProductTerm::ProductTerm(double c, ROCPPVarIF_Ptr pVariable) : m_coeff(c)
 {
     addVariable(pVariable);
 }
 
-ProductTerm::ProductTerm(double c, boost::shared_ptr<UncertaintyIF> pUncertainty,  boost::shared_ptr<DecisionVariableIF> pVariable) : m_coeff(c)
+ProductTerm::ProductTerm(double c, ROCPPUnc_Ptr pUncertainty,  ROCPPVarIF_Ptr pVariable) : m_coeff(c)
 {
     addUncertainty(pUncertainty);
     addVariable(pVariable);
 }
 
-ProductTerm::ProductTerm(double c, boost::shared_ptr<UncertaintyIF> pUncertainty) : m_coeff(c)
+ProductTerm::ProductTerm(double c, ROCPPUnc_Ptr pUncertainty) : m_coeff(c)
 {
     addUncertainty(pUncertainty);
 }
 
-ProductTerm::ProductTerm(double c, boost::shared_ptr<DecisionVariableIF> pVariable1, boost::shared_ptr<DecisionVariableIF> pVariable2) : m_coeff(c)
+ProductTerm::ProductTerm(double c, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2) : m_coeff(c)
 {
     addVariable(pVariable1);
     addVariable(pVariable2);
 }
 
-ProductTerm::ProductTerm(double c, boost::shared_ptr<UncertaintyIF> pUncertainty, boost::shared_ptr<DecisionVariableIF> pVariable1, boost::shared_ptr<DecisionVariableIF> pVariable2) : m_coeff(c)
+ProductTerm::ProductTerm(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2) : m_coeff(c)
 {
     addUncertainty(pUncertainty);
     addVariable(pVariable1);
     addVariable(pVariable2);
 }
 
-ProductTerm::ProductTerm(double c, const vector<boost::shared_ptr<UncertaintyIF> >& uncVec, const vector<boost::shared_ptr<DecisionVariableIF> >& varVec) : m_coeff(c)
+ProductTerm::ProductTerm(double c, const vector<ROCPPUnc_Ptr >& uncVec, const vector<ROCPPVarIF_Ptr >& varVec) : m_coeff(c)
 {
-    for (vector<boost::shared_ptr<UncertaintyIF> >::const_iterator uit = uncVec.begin(); uit != uncVec.end(); uit++)
+    for (vector<ROCPPUnc_Ptr >::const_iterator uit = uncVec.begin(); uit != uncVec.end(); uit++)
         addUncertainty(*uit);
     
-    for (vector<boost::shared_ptr<DecisionVariableIF> >::const_iterator vit = varVec.begin(); vit != varVec.end(); vit++)
+    for (vector<ROCPPVarIF_Ptr >::const_iterator vit = varVec.begin(); vit != varVec.end(); vit++)
         addVariable(*vit);
 }
 
@@ -151,12 +151,12 @@ bool ProductTerm::operator==(const ProductTerm &other) const
     return ( ( m_DVMap == other.m_DVMap ) && (m_UncMap == other.m_UncMap) );
 }
 
-void ProductTerm::operator*=(boost::shared_ptr<const ConstraintTermIF> term)
+void ProductTerm::operator*=(ROCPPconstCstrTerm_Ptr term)
 {
     if (term->getType() != prodTerm)
         throw MyException("can only multiply with product type");
     
-    boost::shared_ptr<const ProductTerm> pTerm = boost::static_pointer_cast<const ProductTerm>(term->Clone());
+    ROCPPconstProdTerm_Ptr pTerm = static_pointer_cast<const ProductTerm>(term->Clone());
     
     for ( varsIterator v_it = pTerm->varsBegin(); v_it!= pTerm->varsEnd(); v_it++ )
     {
@@ -176,17 +176,17 @@ void ProductTerm::operator*=(boost::shared_ptr<const ConstraintTermIF> term)
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-pair<bool,boost::shared_ptr<ConstraintTermIF> > ProductTerm::factorOut(boost::shared_ptr<UncertaintyIF> unc) const
+pair<bool,ROCPPCstrTerm_Ptr > ProductTerm::factorOut(ROCPPUnc_Ptr unc) const
 {
     uncIterator uit( m_UncMap.find(unc->getName()) );
     
     if (uit==m_UncMap.end())
-        return make_pair(false,boost::shared_ptr<ConstraintTermIF>(new ProductTerm(0.)));
+        return make_pair(false,ROCPPCstrTerm_Ptr(new ProductTerm(0.)));
     
     if ( (uit!=m_UncMap.end()) && (uit->second!=unc) )
         throw MyException("uncertainty with same name found");
     
-    boost::shared_ptr<ProductTerm> out (new ProductTerm(m_coeff));
+    ROCPPProdTerm_Ptr out (new ProductTerm(m_coeff));
     
     for (varsIterator vit = varsBegin(); vit != varsEnd(); vit++)
         (*out) *= vit->second;
@@ -210,17 +210,17 @@ pair<bool,boost::shared_ptr<ConstraintTermIF> > ProductTerm::factorOut(boost::sh
         }
     }
     
-    return make_pair(true,boost::shared_ptr<ConstraintTermIF>(out));
+    return make_pair(true,ROCPPCstrTerm_Ptr(out));
 }
 
-boost::shared_ptr<ConstraintTermIF> ProductTerm::mapTermVars(const map<string,boost::shared_ptr<DecisionVariableIF> > &mapFromOldToNewVars) const
+ROCPPCstrTerm_Ptr ProductTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
 {
-    vector<boost::shared_ptr<DecisionVariableIF> > vars;
-    vector<boost::shared_ptr<UncertaintyIF> > unc;
+    vector<ROCPPVarIF_Ptr > vars;
+    vector<ROCPPUnc_Ptr > unc;
     
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++)
     {
-        map<string,boost::shared_ptr<DecisionVariableIF> >::const_iterator m_it( mapFromOldToNewVars.find( v_it->first ) );
+        map<string,ROCPPVarIF_Ptr >::const_iterator m_it( mapFromOldToNewVars.find( v_it->first ) );
         
         if (m_it==mapFromOldToNewVars.end())
         {
@@ -237,18 +237,18 @@ boost::shared_ptr<ConstraintTermIF> ProductTerm::mapTermVars(const map<string,bo
         unc.push_back(u_it->second);
     }
     
-    boost::shared_ptr<ConstraintTermIF> termOut ( new ProductTerm( getCoeff(), unc, vars ) );
+    ROCPPCstrTerm_Ptr termOut ( new ProductTerm( getCoeff(), unc, vars ) );
     return termOut;
 }
 
-boost::shared_ptr<ConstraintTermIF> ProductTerm::mapTermUnc(const map<string,boost::shared_ptr<UncertaintyIF> > &mapFromOldToNewUnc) const
+ROCPPCstrTerm_Ptr ProductTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const
 {
-    vector<boost::shared_ptr<DecisionVariableIF> > vars;
-    vector<boost::shared_ptr<UncertaintyIF> > unc;
+    vector<ROCPPVarIF_Ptr > vars;
+    vector<ROCPPUnc_Ptr > unc;
     
     for (uncIterator u_it = uncBegin(); u_it != uncEnd(); u_it++)
     {
-        map<string,boost::shared_ptr<UncertaintyIF> >::const_iterator m_it( mapFromOldToNewUnc.find( u_it->first ) );
+        map<string,ROCPPUnc_Ptr >::const_iterator m_it( mapFromOldToNewUnc.find( u_it->first ) );
         
         if (m_it==mapFromOldToNewUnc.end())
         {
@@ -266,18 +266,18 @@ boost::shared_ptr<ConstraintTermIF> ProductTerm::mapTermUnc(const map<string,boo
         vars.push_back(v_it->second);
     }
     
-    boost::shared_ptr<ConstraintTermIF> termOut ( new ProductTerm( getCoeff(), unc, vars ) );
+    ROCPPCstrTerm_Ptr termOut ( new ProductTerm( getCoeff(), unc, vars ) );
     return termOut;
 }
 
-boost::shared_ptr<LHSExpression> ProductTerm::mapVars(const map<string, boost::shared_ptr<LHSExpression> > &mapFromVarToExpression) const
+ROCPPExpr_Ptr ProductTerm::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
 {
     // first check if the product term contains any variables that need to be mapped
     bool noneFound(true);
-    vector<map<string, boost::shared_ptr<LHSExpression> >::const_iterator> expr_it_vec;
+    vector<map<string, ROCPPExpr_Ptr >::const_iterator> expr_it_vec;
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++)
     {
-        map<string, boost::shared_ptr<LHSExpression> >::const_iterator expr_it (mapFromVarToExpression.find( v_it->second->getName() ) );
+        map<string, ROCPPExpr_Ptr >::const_iterator expr_it (mapFromVarToExpression.find( v_it->second->getName() ) );
         expr_it_vec.push_back( expr_it );
         if (expr_it != mapFromVarToExpression.end() )
             noneFound = false; // at least one variable must be mapped
@@ -285,21 +285,21 @@ boost::shared_ptr<LHSExpression> ProductTerm::mapVars(const map<string, boost::s
     
     if ( (mapFromVarToExpression.empty()) || (noneFound) )
     {
-        boost::shared_ptr<LHSExpression> same(new LHSExpression());
-        same->add(boost::shared_ptr<const ConstraintTermIF>(this->Clone()));
+        ROCPPExpr_Ptr same(new LHSExpression());
+        same->add(ROCPPconstCstrTerm_Ptr(this->Clone()));
         return same;
     }
     
-    boost::shared_ptr<LHSExpression> out( new LHSExpression() );
+    ROCPPExpr_Ptr out( new LHSExpression() );
     out->add( m_coeff );
     
-    vector<map<string, boost::shared_ptr<LHSExpression> >::const_iterator>::const_iterator expr_vec_it(expr_it_vec.begin());
+    vector<map<string, ROCPPExpr_Ptr >::const_iterator>::const_iterator expr_vec_it(expr_it_vec.begin());
     
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++, expr_vec_it++)
     {
-        map<string, boost::shared_ptr<LHSExpression> >::const_iterator expr_it( *expr_vec_it );
+        map<string, ROCPPExpr_Ptr >::const_iterator expr_it( *expr_vec_it );
         
-        boost::shared_ptr<LHSExpression> expr( new LHSExpression() );
+        ROCPPExpr_Ptr expr( new LHSExpression() );
         if (expr_it == mapFromVarToExpression.end() )
             expr->add( 1., (*v_it).second );
         else
@@ -314,9 +314,9 @@ boost::shared_ptr<LHSExpression> ProductTerm::mapVars(const map<string, boost::s
     return out;
 }
 
-boost::shared_ptr<LHSExpression> ProductTerm::mapUncs(const map<string, boost::shared_ptr<LHSExpression> > &mapFromUncToExpression) const
+ROCPPExpr_Ptr ProductTerm::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const
 {
-    boost::shared_ptr<LHSExpression> out( new LHSExpression() );
+    ROCPPExpr_Ptr out( new LHSExpression() );
     out->add( m_coeff );
     
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++)
@@ -325,9 +325,9 @@ boost::shared_ptr<LHSExpression> ProductTerm::mapUncs(const map<string, boost::s
     for (uncIterator u_it = uncBegin(); u_it!= uncEnd(); u_it++)
     {
         
-        map<string, boost::shared_ptr<LHSExpression> >::const_iterator expr_it (mapFromUncToExpression.find( u_it->second->getName() ) );
+        map<string, ROCPPExpr_Ptr >::const_iterator expr_it (mapFromUncToExpression.find( u_it->second->getName() ) );
         
-        boost::shared_ptr<LHSExpression> expr( new LHSExpression() );
+        ROCPPExpr_Ptr expr( new LHSExpression() );
         if (expr_it == mapFromUncToExpression.end() )
             expr->add( 1., (*u_it).second );
         else
@@ -339,10 +339,10 @@ boost::shared_ptr<LHSExpression> ProductTerm::mapUncs(const map<string, boost::s
     return out;
 }
 
-boost::shared_ptr<ConstraintTermIF> ProductTerm::replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const
+ROCPPCstrTerm_Ptr ProductTerm::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
 {
     
-    boost::shared_ptr<ConstraintTermIF> pOut;
+    ROCPPCstrTerm_Ptr pOut;
     
     if ( (term.size()>1) && this->m_DVMap.size()==1) // the term provided is nonlinear but the current term is linear then there is nothing to do
     {
@@ -359,13 +359,13 @@ boost::shared_ptr<ConstraintTermIF> ProductTerm::replaceTermWithVar(const multim
         }
         else
         {
-            multimap<string, boost::shared_ptr<DecisionVariableIF> > newdvmap = m_DVMap;
+            multimap<string, ROCPPVarIF_Ptr > newdvmap = m_DVMap;
             
-            for (multimap<string, boost::shared_ptr<DecisionVariableIF> >::const_iterator tit = term.begin(); tit != term.end(); tit++)
+            for (multimap<string, ROCPPVarIF_Ptr >::const_iterator tit = term.begin(); tit != term.end(); tit++)
             {
                 for (uint i=1; i<=nt; i++)
                 {
-                    multimap<string, boost::shared_ptr<DecisionVariableIF> >::iterator it ( newdvmap.find( tit->first ) );
+                    multimap<string, ROCPPVarIF_Ptr >::iterator it ( newdvmap.find( tit->first ) );
                     
                     if (it==newdvmap.end())
                         throw MyException("this shouldn't have happened!");
@@ -374,19 +374,19 @@ boost::shared_ptr<ConstraintTermIF> ProductTerm::replaceTermWithVar(const multim
                 }
             }
             
-            vector<boost::shared_ptr<DecisionVariableIF> > vvars;
-            vector<boost::shared_ptr<UncertaintyIF> > vuncs;
+            vector<ROCPPVarIF_Ptr > vvars;
+            vector<ROCPPUnc_Ptr > vuncs;
             
             for (uint i=1; i<=nt; i++)
                 vvars.push_back(var);
             
-            for (multimap<string, boost::shared_ptr<DecisionVariableIF> >::const_iterator vit = newdvmap.begin(); vit!=newdvmap.end(); vit++)
+            for (multimap<string, ROCPPVarIF_Ptr >::const_iterator vit = newdvmap.begin(); vit!=newdvmap.end(); vit++)
                 vvars.push_back(vit->second);
             
             for (uncIterator uit = uncBegin(); uit != uncEnd(); uit++)
                 vuncs.push_back(uit->second);
             
-            pOut = boost::shared_ptr<ConstraintTermIF>( new ProductTerm( m_coeff, vuncs, vvars ) );
+            pOut = ROCPPCstrTerm_Ptr( new ProductTerm( m_coeff, vuncs, vvars ) );
         }
         
     }
@@ -394,7 +394,7 @@ boost::shared_ptr<ConstraintTermIF> ProductTerm::replaceTermWithVar(const multim
     return pOut;
 }
 
-void ProductTerm::add(boost::shared_ptr<const ConstraintTermIF> other)
+void ProductTerm::add(ROCPPconstCstrTerm_Ptr other)
 {
     if (!other->isProductTerm())
         throw MyException("cannot add non product term");
@@ -456,22 +456,22 @@ bool ProductTerm::hasProdsContVars() const
     return false;
 }
 
-bool ProductTerm::is_same(boost::shared_ptr<const ConstraintTermIF> other) const
+bool ProductTerm::is_same(ROCPPconstCstrTerm_Ptr other) const
 {
     if (other->getType() != getType())
         return false;
     
-    boost::shared_ptr<const ProductTerm> pOther = boost::static_pointer_cast<const ProductTerm>(other);
+    ROCPPconstProdTerm_Ptr pOther = static_pointer_cast<const ProductTerm>(other);
     
     return ( *this == *pOther );
 }
 
-uint ProductTerm::getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const
+uint ProductTerm::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const
 {
     return getNTTermAppears(m_DVMap,term);
 }
 
-void ProductTerm::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, boost::shared_ptr<DecisionVariableIF> > > &termMap) const
+void ProductTerm::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const
 {
     GetAllProductsOf2Variables(m_DVMap,freqMap,termMap);
 }
@@ -480,10 +480,10 @@ void ProductTerm::getAllProductsOf2Variables(map< pair<string,string>, uint> &fr
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<ConstraintTermIF> ProductTerm::Clone() const
+ROCPPCstrTerm_Ptr ProductTerm::Clone() const
 {
-    vector<boost::shared_ptr<UncertaintyIF> > uncVec;
-    vector<boost::shared_ptr<DecisionVariableIF> > varVec;
+    vector<ROCPPUnc_Ptr > uncVec;
+    vector<ROCPPVarIF_Ptr > varVec;
     
     for (ProductTerm::varsIterator vit = varsBegin(); vit != varsEnd(); vit++)
         varVec.push_back(vit->second);
@@ -492,7 +492,7 @@ boost::shared_ptr<ConstraintTermIF> ProductTerm::Clone() const
         uncVec.push_back(uit->second);
     
     
-    boost::shared_ptr<ConstraintTermIF> out ( new ProductTerm( this->getCoeff(), uncVec, varVec ) );
+    ROCPPCstrTerm_Ptr out ( new ProductTerm( this->getCoeff(), uncVec, varVec ) );
     
     return out;
 }
@@ -542,14 +542,14 @@ void ProductTerm::WriteToStream(ofstream &ofs) const
 //%%%%%%%%%%%%%%%%%%%%%%% Private Fuctions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void ProductTerm::addVariable(boost::shared_ptr<DecisionVariableIF> pVariable)
+void ProductTerm::addVariable(ROCPPVarIF_Ptr pVariable)
 {
     if ( (!pVariable->isBooleanVar()) || (!m_pDVContainer->varIsInvolved(pVariable)) )
         m_DVMap.insert( make_pair( pVariable->getName(), pVariable ) );
     *m_pDVContainer += pVariable;
 }
 
-void ProductTerm::addUncertainty(boost::shared_ptr<UncertaintyIF> pUncertainty)
+void ProductTerm::addUncertainty(ROCPPUnc_Ptr pUncertainty)
 {
     m_UncMap.insert( make_pair( pUncertainty->getName(), pUncertainty ) );
     *m_pUncContainer += pUncertainty;
@@ -565,7 +565,7 @@ void ProductTerm::addUncertainty(boost::shared_ptr<UncertaintyIF> pUncertainty)
 //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-NormTerm::NormTerm(const vector<boost::shared_ptr<LHSExpression> > &pExpressionVec) : m_pExpressionVec(pExpressionVec)
+NormTerm::NormTerm(const vector<ROCPPExpr_Ptr > &pExpressionVec) : m_pExpressionVec(pExpressionVec)
 {
     if (m_pExpressionVec.empty())
         throw MyException("m_pExpressionVec cannot be empty");
@@ -588,81 +588,81 @@ NormTerm::NormTerm(const vector<boost::shared_ptr<LHSExpression> > &pExpressionV
 //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<ConstraintTermIF> NormTerm::mapTermVars(const map<string,boost::shared_ptr<DecisionVariableIF> > &mapFromOldToNewVars) const
+ROCPPCstrTerm_Ptr NormTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
 {
-    vector<boost::shared_ptr<LHSExpression> > vecOut;
+    vector<ROCPPExpr_Ptr > vecOut;
     
     for (const_iterator it = m_pExpressionVec.begin(); it != m_pExpressionVec.end(); it++)
     {
-        boost::shared_ptr<LHSExpression> pExpression ( (*it)->mapExprVars( mapFromOldToNewVars ) );
+        ROCPPExpr_Ptr pExpression ( (*it)->mapExprVars( mapFromOldToNewVars ) );
         vecOut.push_back( pExpression );
     }
     
-    boost::shared_ptr<ConstraintTermIF> termOut ( new NormTerm( vecOut ) );
+    ROCPPCstrTerm_Ptr termOut ( new NormTerm( vecOut ) );
     return termOut;
 }
 
-boost::shared_ptr<ConstraintTermIF> NormTerm::mapTermUnc(const map<string,boost::shared_ptr<UncertaintyIF> > &mapFromOldToNewUnc) const
+ROCPPCstrTerm_Ptr NormTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const
 {
-    vector<boost::shared_ptr<LHSExpression> > vecOut;
+    vector<ROCPPExpr_Ptr > vecOut;
     
     for (const_iterator it = m_pExpressionVec.begin(); it != m_pExpressionVec.end(); it++)
     {
-        boost::shared_ptr<LHSExpression> pExpression ( (*it)->mapExprUnc( mapFromOldToNewUnc ) );
+        ROCPPExpr_Ptr pExpression ( (*it)->mapExprUnc( mapFromOldToNewUnc ) );
         vecOut.push_back( pExpression );
     }
     
-    boost::shared_ptr<ConstraintTermIF> termOut ( new NormTerm( vecOut ) );
+    ROCPPCstrTerm_Ptr termOut ( new NormTerm( vecOut ) );
     return termOut;
 }
 
-boost::shared_ptr<LHSExpression> NormTerm::mapVars(const map<string, boost::shared_ptr<LHSExpression> > &mapFromVarToExpression) const
+ROCPPExpr_Ptr NormTerm::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
 {
-    vector<boost::shared_ptr<LHSExpression> > vecOut;
+    vector<ROCPPExpr_Ptr > vecOut;
     
     for (const_iterator it = begin(); it != end(); it++)
     {
-        boost::shared_ptr<LHSExpression> pExpression ( (*it)->mapVars( mapFromVarToExpression ) );
+        ROCPPExpr_Ptr pExpression ( (*it)->mapVars( mapFromVarToExpression ) );
         vecOut.push_back( pExpression );
     }
     
-    boost::shared_ptr<ConstraintTermIF> termOut ( new NormTerm( vecOut ) );
+    ROCPPCstrTerm_Ptr termOut ( new NormTerm( vecOut ) );
     
-    boost::shared_ptr<LHSExpression> exprOut( new LHSExpression() );
+    ROCPPExpr_Ptr exprOut( new LHSExpression() );
     exprOut->add(termOut);
     
     return exprOut;
 }
 
-boost::shared_ptr<LHSExpression> NormTerm::mapUncs(const map<string, boost::shared_ptr<LHSExpression> > &mapFromUncToExpression) const
+ROCPPExpr_Ptr NormTerm::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const
 {
-    vector<boost::shared_ptr<LHSExpression> > vecOut;
+    vector<ROCPPExpr_Ptr > vecOut;
     
     for (const_iterator it = begin(); it != end(); it++)
     {
-        boost::shared_ptr<LHSExpression> pExpression ( (*it)->mapUncs( mapFromUncToExpression ) );
+        ROCPPExpr_Ptr pExpression ( (*it)->mapUncs( mapFromUncToExpression ) );
         vecOut.push_back( pExpression );
     }
     
-    boost::shared_ptr<ConstraintTermIF> termOut ( new NormTerm( vecOut ) );
+    ROCPPCstrTerm_Ptr termOut ( new NormTerm( vecOut ) );
     
-    boost::shared_ptr<LHSExpression> exprOut( new LHSExpression() );
+    ROCPPExpr_Ptr exprOut( new LHSExpression() );
     exprOut->add(termOut);
     
     return exprOut;
 }
 
-boost::shared_ptr<ConstraintTermIF> NormTerm::replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const
+ROCPPCstrTerm_Ptr NormTerm::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
 {
-    vector<boost::shared_ptr<LHSExpression> > vecOut;
+    vector<ROCPPExpr_Ptr > vecOut;
     
     for (const_iterator it = m_pExpressionVec.begin(); it != m_pExpressionVec.end(); it++)
     {
-        boost::shared_ptr<LHSExpression> pExpression ( (*it)->replaceTermWithVar( term, var ) );
+        ROCPPExpr_Ptr pExpression ( (*it)->replaceTermWithVar( term, var ) );
         vecOut.push_back( pExpression );
     }
     
-    boost::shared_ptr<ConstraintTermIF> termOut ( new NormTerm( vecOut ) );
+    ROCPPCstrTerm_Ptr termOut ( new NormTerm( vecOut ) );
     return termOut;
 }
 
@@ -733,7 +733,7 @@ bool NormTerm::isWellDefined() const
     
 }
 
-bool NormTerm::is_same(boost::shared_ptr<const ConstraintTermIF> other) const
+bool NormTerm::is_same(ROCPPconstCstrTerm_Ptr other) const
 {
     if (other->getType() != getType())
         return false;
@@ -742,7 +742,7 @@ bool NormTerm::is_same(boost::shared_ptr<const ConstraintTermIF> other) const
     throw MyException("only one norm term allowed - you should not be here!");
 }
 
-uint NormTerm::getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const
+uint NormTerm::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const
 {
     uint out(0);
     
@@ -752,7 +752,7 @@ uint NormTerm::getNumTimesTermAppears(const multimap<string, boost::shared_ptr<D
     return out;
 }
 
-void NormTerm::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, boost::shared_ptr<DecisionVariableIF> > > &termMap) const
+void NormTerm::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const
 {
     for (const_iterator v_it = begin(); v_it!= end(); v_it++)
         (*v_it)->getAllProductsOf2Variables(freqMap,termMap);
@@ -776,14 +776,14 @@ double NormTerm::evaluate(const map<string,double>& valuesMap ) const
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<ConstraintTermIF> NormTerm::Clone() const
+ROCPPCstrTerm_Ptr NormTerm::Clone() const
 {
-    vector<boost::shared_ptr<LHSExpression> > vecOut;
+    vector<ROCPPExpr_Ptr > vecOut;
     
     for (const_iterator it = begin(); it != end(); it++)
         vecOut.push_back( (*it)->Clone() );
     
-    boost::shared_ptr<ConstraintTermIF> out ( new NormTerm(vecOut) );
+    ROCPPCstrTerm_Ptr out ( new NormTerm(vecOut) );
     return out;
 }
 
@@ -799,7 +799,7 @@ void NormTerm::WriteToStream(ofstream &ofs) const
     //ofs.showpos;
     ofs << " + || ( ";
     
-    for ( vector<boost::shared_ptr<LHSExpression> >::const_iterator it = m_pExpressionVec.begin(); it != m_pExpressionVec.end(); it++)
+    for ( vector<ROCPPExpr_Ptr >::const_iterator it = m_pExpressionVec.begin(); it != m_pExpressionVec.end(); it++)
     {
         if (it!=m_pExpressionVec.begin())
             ofs << ", ";
@@ -821,7 +821,7 @@ void NormTerm::WriteToStream(ofstream &ofs) const
 //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-LHSExpression::const_iterator LHSExpression::find(boost::shared_ptr<const ConstraintTermIF> term) const
+LHSExpression::const_iterator LHSExpression::find(ROCPPconstCstrTerm_Ptr term) const
 {
     for (const_iterator it = m_terms.begin(); it != m_terms.end(); it++)
     {
@@ -835,7 +835,7 @@ LHSExpression::const_iterator LHSExpression::find(boost::shared_ptr<const Constr
 //%%%%%%%%%%%%%%%%%%%%%%%%% Operators %%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void LHSExpression::operator*=(boost::shared_ptr<const ConstraintTermIF> term)
+void LHSExpression::operator*=(ROCPPconstCstrTerm_Ptr term)
 {
     for (const_iterator it = begin(); it!=end(); it++)
         *(*it) *= term;
@@ -844,15 +844,15 @@ void LHSExpression::operator*=(boost::shared_ptr<const ConstraintTermIF> term)
     *this->m_pUncContainer += *term->getUncContainer();
 };
 
-void LHSExpression::operator*=(boost::shared_ptr<const LHSExpression> other)
+void LHSExpression::operator*=(ROCPPconstExpr_Ptr other)
 {
-    boost::shared_ptr<LHSExpression> out (new LHSExpression() );
+    ROCPPExpr_Ptr out (new LHSExpression() );
     
     for (const_iterator oit = other->begin(); oit!=other->end(); oit++)
     {
-        boost::shared_ptr<ConstraintTermIF> oterm( (*oit)->Clone() );
-        boost::shared_ptr<LHSExpression> sexpr( new LHSExpression() );
-        (*sexpr) += boost::shared_ptr<LHSExpression>(this->Clone());
+        ROCPPCstrTerm_Ptr oterm( (*oit)->Clone() );
+        ROCPPExpr_Ptr sexpr( new LHSExpression() );
+        (*sexpr) += ROCPPExpr_Ptr(this->Clone());
         (*sexpr) *= oterm;
         (*out) += sexpr;
     }
@@ -860,7 +860,7 @@ void LHSExpression::operator*=(boost::shared_ptr<const LHSExpression> other)
     *this = *out;
 };
 
-void LHSExpression::operator*=(boost::shared_ptr<UncertaintyIF> unc)
+void LHSExpression::operator*=(ROCPPUnc_Ptr unc)
 {
     for (const_iterator it = begin(); it != end(); it++)
         *(*it) *= unc;
@@ -868,7 +868,7 @@ void LHSExpression::operator*=(boost::shared_ptr<UncertaintyIF> unc)
     (*m_pUncContainer) += unc;
 }
 
-void LHSExpression::operator*=(boost::shared_ptr<DecisionVariableIF> var)
+void LHSExpression::operator*=(ROCPPVarIF_Ptr var)
 {
     for (const_iterator it = begin(); it != end(); it++)
         *(*it) *= var;
@@ -888,45 +888,45 @@ void LHSExpression::operator*=(double a)
 
 void LHSExpression::add(double c)
 {
-    boost::shared_ptr<ConstraintTermIF> pT( new ProductTerm(c) );
+    ROCPPCstrTerm_Ptr pT( new ProductTerm(c) );
     add(pT);
 }
 
-void LHSExpression::add(double c, boost::shared_ptr<DecisionVariableIF> pVariable)
+void LHSExpression::add(double c, ROCPPVarIF_Ptr pVariable)
 {
-    boost::shared_ptr<ConstraintTermIF> pT( new ProductTerm(c,pVariable) );
+    ROCPPCstrTerm_Ptr pT( new ProductTerm(c,pVariable) );
     add(pT);
 }
 
-void LHSExpression::add(double c, boost::shared_ptr<UncertaintyIF> pUncertainty,  boost::shared_ptr<DecisionVariableIF> pVariable)
+void LHSExpression::add(double c, ROCPPUnc_Ptr pUncertainty,  ROCPPVarIF_Ptr pVariable)
 {
-    boost::shared_ptr<ConstraintTermIF> pT( new ProductTerm(c,pUncertainty,pVariable) );
+    ROCPPCstrTerm_Ptr pT( new ProductTerm(c,pUncertainty,pVariable) );
     add(pT);
 }
 
-void LHSExpression::add(double c, boost::shared_ptr<UncertaintyIF> pUncertainty)
+void LHSExpression::add(double c, ROCPPUnc_Ptr pUncertainty)
 {
-    boost::shared_ptr<ConstraintTermIF> pT( new ProductTerm(c,pUncertainty) );
+    ROCPPCstrTerm_Ptr pT( new ProductTerm(c,pUncertainty) );
     add(pT);
 }
 
 
-void LHSExpression::add(double c, boost::shared_ptr<DecisionVariableIF> pVariable1, boost::shared_ptr<DecisionVariableIF> pVariable2)
+void LHSExpression::add(double c, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2)
 {
-    boost::shared_ptr<ConstraintTermIF> pT( new ProductTerm(c,pVariable1,pVariable2) );
+    ROCPPCstrTerm_Ptr pT( new ProductTerm(c,pVariable1,pVariable2) );
     add(pT);
 }
 
-void LHSExpression::add(double c, boost::shared_ptr<UncertaintyIF> pUncertainty, boost::shared_ptr<DecisionVariableIF> pVariable1, boost::shared_ptr<DecisionVariableIF> pVariable2)
+void LHSExpression::add(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2)
 {
-    boost::shared_ptr<ConstraintTermIF> pT( new ProductTerm(c,pUncertainty,pVariable1,pVariable2) );
+    ROCPPCstrTerm_Ptr pT( new ProductTerm(c,pUncertainty,pVariable1,pVariable2) );
     add(pT);
 }
 
-void LHSExpression::add(boost::shared_ptr<const ConstraintTermIF> term)
+void LHSExpression::add(ROCPPconstCstrTerm_Ptr term)
 {
 
-    boost::shared_ptr<ConstraintTermIF> tClone( term->Clone() );
+    ROCPPCstrTerm_Ptr tClone( term->Clone() );
     
     if ( (term->isNormTerm()) && ( hasNormTerm() ) )
         throw MyException("a norm term is already present");
@@ -953,50 +953,50 @@ void LHSExpression::add(boost::shared_ptr<const ConstraintTermIF> term)
     }
 }
 
-void LHSExpression::add(boost::shared_ptr<const LHSExpression> expr)
+void LHSExpression::add(ROCPPconstExpr_Ptr expr)
 {
     for (const_iterator it = expr->begin(); it != expr->end(); it++)
         add( *it);
 }
 
-void LHSExpression::add(double c, boost::shared_ptr<const ConstraintTermIF> term)
+void LHSExpression::add(double c, ROCPPconstCstrTerm_Ptr term)
 {
-    boost::shared_ptr<ConstraintTermIF> scaled_term( term->Clone() );
+    ROCPPCstrTerm_Ptr scaled_term( term->Clone() );
     *scaled_term *= c;
     
     add(scaled_term);
 }
 
-void LHSExpression::add(double c, boost::shared_ptr<const LHSExpression> expr)
+void LHSExpression::add(double c, ROCPPconstExpr_Ptr expr)
 {
     
-    boost::shared_ptr<LHSExpression> scaled_expr( expr->Clone() );
+    ROCPPExpr_Ptr scaled_expr( expr->Clone() );
     *scaled_expr *= c;
     
     add(scaled_expr);
 }
 
-void LHSExpression::add(double c, boost::shared_ptr<const LHSExpression> pExpression,  boost::shared_ptr<DecisionVariableIF> pVariable)
+void LHSExpression::add(double c, ROCPPconstExpr_Ptr pExpression,  ROCPPVarIF_Ptr pVariable)
 {
-    boost::shared_ptr<LHSExpression> scaled_expr( pExpression->Clone() );
+    ROCPPExpr_Ptr scaled_expr( pExpression->Clone() );
     *scaled_expr *= c;
     *scaled_expr *= pVariable;
     
     add(scaled_expr);
 }
 
-void LHSExpression::add(double c, boost::shared_ptr<const LHSExpression> pExpression,  boost::shared_ptr<UncertaintyIF> pUnc)
+void LHSExpression::add(double c, ROCPPconstExpr_Ptr pExpression,  ROCPPUnc_Ptr pUnc)
 {
-    boost::shared_ptr<LHSExpression> scaled_expr( pExpression->Clone() );
+    ROCPPExpr_Ptr scaled_expr( pExpression->Clone() );
     *scaled_expr *= c;
     *scaled_expr *= pUnc;
     
     add(scaled_expr);
 }
 
-boost::shared_ptr<LHSExpression> LHSExpression::mapExprVars(const map<string,boost::shared_ptr<DecisionVariableIF> > &mapFromOldToNewVars) const
+ROCPPExpr_Ptr LHSExpression::mapExprVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
 {
-    boost::shared_ptr<LHSExpression> exprOut( new LHSExpression() );
+    ROCPPExpr_Ptr exprOut( new LHSExpression() );
     
     for (const_iterator it = begin(); it != end(); it++)
         exprOut->add( (*it)->mapTermVars(mapFromOldToNewVars ) );
@@ -1004,9 +1004,9 @@ boost::shared_ptr<LHSExpression> LHSExpression::mapExprVars(const map<string,boo
     return exprOut;
 }
 
-boost::shared_ptr<LHSExpression> LHSExpression::mapExprUnc(const map<string,boost::shared_ptr<UncertaintyIF> > &mapFromOldToNewUnc) const
+ROCPPExpr_Ptr LHSExpression::mapExprUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const
 {
-    boost::shared_ptr<LHSExpression> exprOut( new LHSExpression() );
+    ROCPPExpr_Ptr exprOut( new LHSExpression() );
     
     for (const_iterator it = begin(); it != end(); it++)
         exprOut->add( (*it)->mapTermUnc(mapFromOldToNewUnc ) );
@@ -1014,9 +1014,9 @@ boost::shared_ptr<LHSExpression> LHSExpression::mapExprUnc(const map<string,boos
     return exprOut;
 }
 
-boost::shared_ptr<LHSExpression> LHSExpression::mapVars(const map<string, boost::shared_ptr<LHSExpression> > &mapFromVarToExpression) const
+ROCPPExpr_Ptr LHSExpression::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
 {
-    boost::shared_ptr<LHSExpression> exprOut( new LHSExpression() );
+    ROCPPExpr_Ptr exprOut( new LHSExpression() );
     
     for (const_iterator it = begin(); it != end(); it++)
         exprOut->add( (*it)->mapVars(mapFromVarToExpression ) );
@@ -1024,9 +1024,9 @@ boost::shared_ptr<LHSExpression> LHSExpression::mapVars(const map<string, boost:
     return exprOut;
 }
 
-boost::shared_ptr<LHSExpression> LHSExpression::mapUncs(const map<string, boost::shared_ptr<LHSExpression> > &mapFromUncToExpression) const
+ROCPPExpr_Ptr LHSExpression::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const
 {
-    boost::shared_ptr<LHSExpression> exprOut( new LHSExpression() );
+    ROCPPExpr_Ptr exprOut( new LHSExpression() );
     
     for (const_iterator it = begin(); it != end(); it++)
         exprOut->add( (*it)->mapUncs(mapFromUncToExpression ) );
@@ -1034,9 +1034,9 @@ boost::shared_ptr<LHSExpression> LHSExpression::mapUncs(const map<string, boost:
     return exprOut;
 }
 
-boost::shared_ptr<LHSExpression> LHSExpression::replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const
+ROCPPExpr_Ptr LHSExpression::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
 {
-    boost::shared_ptr<LHSExpression> exprOut( new LHSExpression() );
+    ROCPPExpr_Ptr exprOut( new LHSExpression() );
     
     for (const_iterator it = begin(); it != end(); it++)
         exprOut->add( (*it)->replaceTermWithVar(term, var ) );
@@ -1044,9 +1044,9 @@ boost::shared_ptr<LHSExpression> LHSExpression::replaceTermWithVar(const multima
     return exprOut;
 }
 
-boost::shared_ptr<LHSExpression> LHSExpression::replaceBilinearTerm(map<pair<string,string>, boost::shared_ptr<DecisionVariableIF> > &allTerm, uint &count ) const
+ROCPPExpr_Ptr LHSExpression::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count ) const
 {
-    boost::shared_ptr<LHSExpression> newLhs(new LHSExpression());
+    ROCPPExpr_Ptr newLhs(new LHSExpression());
     
     for(ConstraintLHS_const_iterator tit = begin(); tit != end(); tit++)
     {
@@ -1055,36 +1055,36 @@ boost::shared_ptr<LHSExpression> LHSExpression::replaceBilinearTerm(map<pair<str
         else{
             
             map< pair<string,string>, uint> freqMap;
-            map< pair<string,string>, multimap<string, boost::shared_ptr<DecisionVariableIF> > > termMap;
+            map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > termMap;
             (*tit)->getAllProductsOf2Variables(freqMap, termMap);
             
             
-            map< pair<string,string>, multimap<string, boost::shared_ptr<DecisionVariableIF> > >::const_iterator term = termMap.begin();
+            map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > >::const_iterator term = termMap.begin();
             for(; term != termMap.end(); term++)
             {
                 pair<string, string> otherName(make_pair(term->first.second,term->first.first));
                 
-                multimap<string, boost::shared_ptr<DecisionVariableIF> > tmpTerm;
-                boost::shared_ptr<DecisionVariableIF> dv1 ( m_pDVContainer->find(term->first.first)->second );
-                boost::shared_ptr<DecisionVariableIF> dv2 ( m_pDVContainer->find(term->first.second)->second );
+                multimap<string, ROCPPVarIF_Ptr > tmpTerm;
+                ROCPPVarIF_Ptr dv1 ( m_pDVContainer->find(term->first.first)->second );
+                ROCPPVarIF_Ptr dv2 ( m_pDVContainer->find(term->first.second)->second );
                 
                 tmpTerm.insert(make_pair(term->first.first, dv1) );
                 tmpTerm.insert(make_pair(term->first.second, dv2) );
                 
                 if(allTerm.find(term->first) != allTerm.end())
                 {
-                    boost::shared_ptr<DecisionVariableIF> newdv = allTerm.find(term->first)->second;
+                    ROCPPVarIF_Ptr newdv = allTerm.find(term->first)->second;
                     newLhs->add((*tit)->replaceTermWithVar(tmpTerm, newdv));
                 }
                 else if(allTerm.find(otherName) != allTerm.end())
                 {
-                    boost::shared_ptr<DecisionVariableIF> newdv = allTerm.find(otherName)->second;
+                    ROCPPVarIF_Ptr newdv = allTerm.find(otherName)->second;
                     newLhs->add((*tit)->replaceTermWithVar(tmpTerm, newdv));
                 }
                 else
                 {
-                    boost::shared_ptr<DecisionVariableIF> bindv;
-                    boost::shared_ptr<DecisionVariableIF> otherdv;
+                    ROCPPVarIF_Ptr bindv;
+                    ROCPPVarIF_Ptr otherdv;
                     
                     pair<string, string> newDvMap;
                     if ( dv1->isBooleanVar() )
@@ -1104,18 +1104,18 @@ boost::shared_ptr<LHSExpression> LHSExpression::replaceBilinearTerm(map<pair<str
                     else
                         throw MyException("at least one of the two variables must be binary");
                     
-                    boost::shared_ptr<DecisionVariableIF> newdv;
+                    ROCPPVarIF_Ptr newdv;
                     
                     string nme;
-                    nme = "bl_"+bindv->getName()+"_"+otherdv->getName()+"_"+ boost::lexical_cast<string>(count++);
+                    nme = "bl_"+bindv->getName()+"_"+otherdv->getName()+"_"+ to_string(count++);
                     
                     if (otherdv->isBooleanVar())
                     {
                         
                         if ( (otherdv->isAdaptive()) || (bindv->isAdaptive()) )
-                            newdv = boost::shared_ptr<DecisionVariableIF>( new AdaptVarBool(  nme, max( bindv->getTimeStage(), otherdv->getTimeStage() ) ) );
+                            newdv = ROCPPVarIF_Ptr( new AdaptVarBool(  nme, max( bindv->getTimeStage(), otherdv->getTimeStage() ) ) );
                         else
-                            newdv = boost::shared_ptr<DecisionVariableIF>( new VariableBool(  nme ) );
+                            newdv = ROCPPVarIF_Ptr( new VariableBool(  nme ) );
                         
                     }
                     else if (otherdv->isIntegerVar())
@@ -1128,9 +1128,9 @@ boost::shared_ptr<LHSExpression> LHSExpression::replaceBilinearTerm(map<pair<str
                         ub = ((otherdv->getUB() < INFINITY)?max( otherdv->getUB(), 0. ):(INFINITY));
                         
                         if ( (otherdv->isAdaptive()) || (bindv->isAdaptive()) )
-                            newdv = boost::shared_ptr<DecisionVariableIF>( new AdaptVarInt(  nme, max( bindv->getTimeStage(), otherdv->getTimeStage() ), lb, ub ) );
+                            newdv = ROCPPVarIF_Ptr( new AdaptVarInt(  nme, max( bindv->getTimeStage(), otherdv->getTimeStage() ), lb, ub ) );
                         else
-                            newdv = boost::shared_ptr<DecisionVariableIF>( new VariableInt(  nme, lb, ub ) );
+                            newdv = ROCPPVarIF_Ptr( new VariableInt(  nme, lb, ub ) );
                         
                     }
                     else if (otherdv->isRealVar() )
@@ -1141,9 +1141,9 @@ boost::shared_ptr<LHSExpression> LHSExpression::replaceBilinearTerm(map<pair<str
                         ub = ((otherdv->getUB() < INFINITY)?max( otherdv->getUB(), 0. ):(INFINITY));
                         
                         if ( (otherdv->isAdaptive()) || (bindv->isAdaptive()) )
-                            newdv = boost::shared_ptr<DecisionVariableIF>( new AdaptVarDouble(nme, max( bindv->getTimeStage(), otherdv->getTimeStage() ), lb, ub ) );
+                            newdv = ROCPPVarIF_Ptr( new AdaptVarDouble(nme, max( bindv->getTimeStage(), otherdv->getTimeStage() ), lb, ub ) );
                         else
-                            newdv = boost::shared_ptr<DecisionVariableIF>( new VariableDouble( nme, lb, ub ) );
+                            newdv = ROCPPVarIF_Ptr( new VariableDouble( nme, lb, ub ) );
                         
                     }
                     
@@ -1159,17 +1159,17 @@ boost::shared_ptr<LHSExpression> LHSExpression::replaceBilinearTerm(map<pair<str
     return newLhs;
 }
 
-pair<bool,boost::shared_ptr<LHSExpression> > LHSExpression::factorOut(boost::shared_ptr<UncertaintyIF> unc) const
+pair<bool,ROCPPExpr_Ptr > LHSExpression::factorOut(ROCPPUnc_Ptr unc) const
 {
-    boost::shared_ptr<LHSExpression> out(new LHSExpression());
+    ROCPPExpr_Ptr out(new LHSExpression());
     bool found(false);
     
     for (const_iterator it = begin(); it != end(); it++)
     {
         if ( (*it)->isProductTerm() )
         {
-            boost::shared_ptr<ProductTerm> pPT = boost::static_pointer_cast<ProductTerm>(*it);
-            pair<bool,boost::shared_ptr<ConstraintTermIF> > tmp( pPT->factorOut(unc) );
+            ROCPPProdTerm_Ptr pPT = static_pointer_cast<ProductTerm>(*it);
+            pair<bool,ROCPPCstrTerm_Ptr > tmp( pPT->factorOut(unc) );
             if (tmp.first)
             {
                 (*out) += tmp.second;
@@ -1290,9 +1290,9 @@ bool LHSExpression::isQuadratic() const
     return someQuadratic;
 }
 
-boost::shared_ptr<LHSExpression> LHSExpression::getLinearPart() const
+ROCPPExpr_Ptr LHSExpression::getLinearPart() const
 {
-    boost::shared_ptr<LHSExpression> out( new LHSExpression() );
+    ROCPPExpr_Ptr out( new LHSExpression() );
     for (const_iterator tit = begin(); tit != end(); tit++)
     {
         if ( (*tit)->isProductTerm() )
@@ -1301,17 +1301,17 @@ boost::shared_ptr<LHSExpression> LHSExpression::getLinearPart() const
     return out;
 }
 
-boost::shared_ptr<NormTerm> LHSExpression::getNormTerm() const
+ROCPPNormTerm_Ptr LHSExpression::getNormTerm() const
 {
     if (!hasNormTerm() )
         throw MyException("this expression does not have a norm term");
     
-    boost::shared_ptr<NormTerm> out;
+    ROCPPNormTerm_Ptr out;
     for (const_iterator tit = begin(); tit != end(); tit++)
     {
         if ( (*tit)->isNormTerm() )
         {
-            out = boost::static_pointer_cast<NormTerm>((*tit)->Clone());
+            out = static_pointer_cast<NormTerm>((*tit)->Clone());
             return out;
         }
     }
@@ -1320,9 +1320,9 @@ boost::shared_ptr<NormTerm> LHSExpression::getNormTerm() const
     
 }
 
-boost::shared_ptr<LHSExpression> LHSExpression::getDeterministicLinearPart() const
+ROCPPExpr_Ptr LHSExpression::getDeterministicLinearPart() const
 {
-    boost::shared_ptr<LHSExpression> out( new LHSExpression() );
+    ROCPPExpr_Ptr out( new LHSExpression() );
     
     for (const_iterator it = begin(); it != end(); it++)
     {
@@ -1333,7 +1333,7 @@ boost::shared_ptr<LHSExpression> LHSExpression::getDeterministicLinearPart() con
     return out;
 }
 
-uint LHSExpression::getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const
+uint LHSExpression::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const
 {
     uint out(0);
     
@@ -1343,29 +1343,29 @@ uint LHSExpression::getNumTimesTermAppears(const multimap<string, boost::shared_
     return out;
 }
 
-void LHSExpression::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, boost::shared_ptr<DecisionVariableIF> > > &termMap) const
+void LHSExpression::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const
 {
     for (const_iterator it = begin(); it != end(); it++)
         (*it)->getAllProductsOf2Variables(freqMap,termMap);
     
 }
 
-boost::shared_ptr<const dvContainer> LHSExpression::getDVContainer() const
+ROCPPconstdvContainer_Ptr LHSExpression::getDVContainer() const
 {
     return m_pDVContainer;
 }
 
-boost::shared_ptr<const uncContainer> LHSExpression::getUncContainer() const
+ROCPPconstuncContainer_Ptr LHSExpression::getUncContainer() const
 {
     return m_pUncContainer;
 }
 
-boost::shared_ptr<DecisionVariableIF> LHSExpression::getVar(string varName) const
+ROCPPVarIF_Ptr LHSExpression::getVar(string varName) const
 {
     return( m_pDVContainer->findthrow(varName)->second );
 }
 
-bool LHSExpression::varIsInvolved(boost::shared_ptr<DecisionVariableIF> dv) const
+bool LHSExpression::varIsInvolved(ROCPPVarIF_Ptr dv) const
 {
     return m_pDVContainer->varIsInvolved(dv);
 }
@@ -1379,9 +1379,9 @@ bool LHSExpression::AnyVarIsInvolved(dvContainer& dvs) const
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<LHSExpression> LHSExpression::Clone() const
+ROCPPExpr_Ptr LHSExpression::Clone() const
 {
-    boost::shared_ptr<LHSExpression> out ( new LHSExpression() );
+    ROCPPExpr_Ptr out ( new LHSExpression() );
     for (LHSExpression::const_iterator it = begin(); it != end(); it++)
         (*out) += (*it)->Clone();
     
@@ -1404,7 +1404,7 @@ void LHSExpression::WriteToStream(ofstream& ofs) const
 //%%%%%%%%%%%%%%%%%%%%% Protected Members %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-LHSExpression::iterator LHSExpression::find(boost::shared_ptr<ConstraintTermIF> term)
+LHSExpression::iterator LHSExpression::find(ROCPPCstrTerm_Ptr term)
 {
     for (iterator it = m_terms.begin(); it != m_terms.end(); it++)
     {
@@ -1420,7 +1420,7 @@ LHSExpression::iterator LHSExpression::find(boost::shared_ptr<ConstraintTermIF> 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-bool GetAllProductsOf2Variables(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, boost::shared_ptr<DecisionVariableIF> > > &termMap)
+bool GetAllProductsOf2Variables(const multimap<string, ROCPPVarIF_Ptr > &term, map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap)
 {
     
     if (term.size()==2)
@@ -1462,13 +1462,13 @@ bool GetAllProductsOf2Variables(const multimap<string, boost::shared_ptr<Decisio
     {
         bool tmp(true);
         
-        for (multimap<string, boost::shared_ptr<DecisionVariableIF> >::const_iterator tit=term.begin(); tit!=term.end(); tit++)
+        for (multimap<string, ROCPPVarIF_Ptr >::const_iterator tit=term.begin(); tit!=term.end(); tit++)
         {
             // duplicate the term
-            multimap<string, boost::shared_ptr<DecisionVariableIF> > termClone(term);
+            multimap<string, ROCPPVarIF_Ptr > termClone(term);
             
             // from the clone, delete the current term
-            multimap<string, boost::shared_ptr<DecisionVariableIF> >::iterator tcit = termClone.find(tit->first);
+            multimap<string, ROCPPVarIF_Ptr >::iterator tcit = termClone.find(tit->first);
             termClone.erase(tcit);
             
             // pass the subset term to the function recursively
@@ -1481,25 +1481,25 @@ bool GetAllProductsOf2Variables(const multimap<string, boost::shared_ptr<Decisio
     }
 }
 
-bool comparison(const pair<string, boost::shared_ptr<DecisionVariableIF> >& p1, const pair<string, boost::shared_ptr<DecisionVariableIF> >& p2) {
+bool comparison(const pair<string, ROCPPVarIF_Ptr >& p1, const pair<string, ROCPPVarIF_Ptr >& p2) {
     return p1.first < p2.first;
 }
 
-uint getNTTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &sup, const multimap<string, boost::shared_ptr<DecisionVariableIF> > &sub)
+uint getNTTermAppears(const multimap<string, ROCPPVarIF_Ptr > &sup, const multimap<string, ROCPPVarIF_Ptr > &sub)
 {
     
-    //multimap<string, boost::shared_ptr<DecisionVariableIF> >::key_compare thiscomp ( sub.key_comp() );
+    //multimap<string, ROCPPVarIF_Ptr >::key_compare thiscomp ( sub.key_comp() );
     
     bool termIsSubset ( includes( sup.begin(), sup.end(), sub.begin(), sub.end(), comparison ) );
     
     if (!termIsSubset)
         return 0;
     
-    multimap<string, boost::shared_ptr<DecisionVariableIF> > newdvmap = sup;
+    multimap<string, ROCPPVarIF_Ptr > newdvmap = sup;
     
-    for (multimap<string, boost::shared_ptr<DecisionVariableIF> >::const_iterator tit = sub.begin(); tit != sub.end(); tit++)
+    for (multimap<string, ROCPPVarIF_Ptr >::const_iterator tit = sub.begin(); tit != sub.end(); tit++)
     {
-        multimap<string, boost::shared_ptr<DecisionVariableIF> >::iterator it ( newdvmap.find( tit->first ) );
+        multimap<string, ROCPPVarIF_Ptr >::iterator it ( newdvmap.find( tit->first ) );
         newdvmap.erase(it);
     }
     

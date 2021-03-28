@@ -19,9 +19,6 @@
 #include "nlpi/nlpi_ipopt.h"
 #include <map>
 
-class ConstraintIF;
-class ObjectiveFunctionIF;
-class CPLEXMISOCP;
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,7 +67,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    void solve(boost::shared_ptr<OptimizationModelIF> pModelIn, bool writeSlnToFile = false, string fileName = "", bool writeSlnToConsle = true, const map<string, double>& WSvars = (map<string, double>()), const map<string,int>& priorities = (map<string,int>()), bool deleteModel=false);
+    void solve(ROCPPOptModelIF_Ptr pModelIn, bool writeSlnToFile = false, string fileName = "", bool writeSlnToConsle = true, const map<string, double>& WSvars = (map<string, double>()), const map<string,int>& priorities = (map<string,int>()), bool deleteModel=false);
     
     void Reset();
     
@@ -92,24 +89,17 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    bool setParameters(SCIP* scip) const;
+    SCIP_RETCODE setParameters(SCIP* scip) const;
+    SCIP_RETCODE setPriorities(SCIP* scip, const map<string,int>& priorities);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%% Creater Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    bool solveSCIPModel(boost::shared_ptr<CPLEXMISOCP> pModelIn, bool writeSlnToConsle);
-    bool createSCIPmodel(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* scip);
-    bool addSCIPdecisionVars(boost::shared_ptr<CPLEXMISOCP> pModel, SCIP* scip);
-    bool addConstraint(SCIP* scip, boost::shared_ptr<ConstraintIF> pCstrIn, uint num);
+    SCIP_RETCODE solveSCIPModel(ROCPPCPLEXMISOCP_Ptr pModelIn, bool writeSlnToConsle, const map<string, double>& WSvars, const map<string,int>& priorities);
+    SCIP_RETCODE createSCIPmodel(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip);
+    SCIP_RETCODE addSCIPdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip);
+    SCIP_RETCODE addConstraint(SCIP* scip, ROCPPConstraint_Ptr pCstrIn, uint num);
 };
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%% SCIP SOLVER TYPE DEFS %%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-typedef SCIPModeller ROCPPSCIP;
-typedef boost::shared_ptr<SCIPModeller> ROCPPSCIP_Ptr;
 #endif /* SCIPModeller_hpp */
 #endif

@@ -13,7 +13,7 @@
 // ONLY INCLUDE IN THIS FILE HEADER FILES THAT ARE USED IN ALMOST ALL CPP FILES
 
 #include "Exceptions.hpp"
-#include "boost/lexical_cast.hpp"
+//#include "boost/lexical_cast.hpp"
 
 
 #endif /* IncludeFiles_hpp */

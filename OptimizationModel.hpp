@@ -13,14 +13,6 @@
 #include <stdio.h>
 #include <vector>
 
-class ConstraintIF;
-class UncertaintyIF;
-class DecisionVariableIF;
-class dvContainer;
-class uncContainer;
-class ProductTerm;
-class LHSExpression;
-class ObjectiveFunctionIF;
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -74,16 +66,16 @@ enum uncOptModelObjType {
 struct measPair
 {
     /// Constructor of the measPair structure
-    measPair(boost::shared_ptr<UncertaintyIF> ddu, boost::shared_ptr<DecisionVariableIF> var) : m_measVar(var), m_ddu(ddu) {}
+    measPair(ROCPPUnc_Ptr ddu, ROCPPVarIF_Ptr var) : m_measVar(var), m_ddu(ddu) {}
     
     /// Destructor of the measPair structure
     ~measPair(){}
     
     /// Measurement variable
-    boost::shared_ptr<DecisionVariableIF> m_measVar;
+    ROCPPVarIF_Ptr m_measVar;
     
     /// Uncertain parameter whose time of revelation is decision-dependent
-    boost::shared_ptr<UncertaintyIF> m_ddu;
+    ROCPPUnc_Ptr m_ddu;
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -113,13 +105,13 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constant iterator for optimization model constraints
-    typedef vector<boost::shared_ptr<ConstraintIF> >::const_iterator constraintIterator;
+    typedef vector<ROCPPConstraint_Ptr >::const_iterator constraintIterator;
     
     /// Constant iterator for optimization model decision variable map
     typedef dvMapType::const_iterator varsIterator;
     
     /// Constant iterator for optimization model uncertain parameter map
-    typedef map<string, boost::shared_ptr<UncertaintyIF> >::const_iterator uncertaintiesIterator;
+    typedef map<string, ROCPPUnc_Ptr >::const_iterator uncertaintiesIterator;
     
     /// Return a constant iterator pointing to the beginning of the constraint vector
     constraintIterator constraintBegin() const {return m_constraints.begin();}
@@ -146,14 +138,14 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Check compatibility for the given constraint of this optimization model
-    virtual void checkCompatibility(boost::shared_ptr<ConstraintIF> pConstraint) const;
+    virtual void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
     
     /// Check compatibility for the given decision variable of this optimization model
-    virtual void checkCompatibility(boost::shared_ptr<DecisionVariableIF> pVariable) const;
+    virtual void checkCompatibility(ROCPPVarIF_Ptr pVariable) const;
     
     /// Check compatibility for the given objective function of this optimization model
     /// @warning Cannot add objective function which contains products of continuous variables or products of uncertianties or has a larger time stage that the planning horizon into the optimization model
-    virtual void checkCompatibility(boost::shared_ptr<ObjectiveFunctionIF> pObjFun) const;
+    virtual void checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
@@ -161,44 +153,44 @@ public:
     
     /// Add a constraint into the optimization model after setting the constraint attributes
     /// @note We first map all the variables and uncertainties to make sure they are not used in any other model and then add the new constraint to the model
-    /// @see ConstraintIF::mapVars(const map<string,boost::shared_ptr<DecisionVariableIF> >), ConstraintIF::mapUnc(), OptimizationModelIF::createVarMap(boost::shared_ptr<ConstraintIF>), OptimizationModelIF::createUncMap(boost::shared_ptr<ConstraintIF>), OptimizationModelIF::push_constraint()
-    void add_constraint(boost::shared_ptr<ConstraintIF> pConstraint);
+    /// @see ConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr >), ConstraintIF::mapUnc(), OptimizationModelIF::createVarMap(ROCPPConstraint_Ptr), OptimizationModelIF::createUncMap(ROCPPConstraint_Ptr), OptimizationModelIF::push_constraint()
+    void add_constraint(ROCPPConstraint_Ptr pConstraint);
     
     /// Add a soc constraint into the optimization model
     /// @param coneHead Cone head decision variable
     /// @param otherVars Other variables
-    void add_soc_constraint(boost::shared_ptr<DecisionVariableIF> coneHead, const vector<boost::shared_ptr<DecisionVariableIF> > &otherVars);
+    void add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr > &otherVars);
     
     /// Add constraints into the optimization model
-    void add_constraints(vector<boost::shared_ptr<ConstraintIF> >::const_iterator first, vector<boost::shared_ptr<ConstraintIF> >::const_iterator last);
+    void add_constraints(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last);
     
     /// Add a constraint defining the uncertainty set into the model
-    void add_constraint_uncset(boost::shared_ptr<ConstraintIF> pUncCstr);
+    void add_constraint_uncset(ROCPPConstraint_Ptr pUncCstr);
     
     /// Add an epipragh variable as the objective function and an epigraph constraint into this model
     void add_epigraph();
 
-    virtual void add_ddu(boost::shared_ptr<UncertaintyIF> pUncertainty, uint firstTimeStageObservable, uint lastTimeStageObservable, const map<uint, double> &obsCosts);
+    virtual void add_ddu(ROCPPUnc_Ptr pUncertainty, uint firstTimeStageObservable, uint lastTimeStageObservable, const map<uint, double> &obsCosts);
     
     /// Set the given objective as the objective function of the model
     /// @note We first map all the variables and uncertainties to make sure they are not used in any other model and then set the new objective
-    /// @see ConstraintIF::mapVars(const map<string,boost::shared_ptr<DecisionVariableIF> >), ConstraintIF::mapUnc(), OptimizationModelIF::createVarMap(boost::shared_ptr<ConstraintIF>), OptimizationModelIF::createUncMap(boost::shared_ptr<ConstraintIF>)
-    virtual void set_objective(boost::shared_ptr<ObjectiveFunctionIF> pObj);
+    /// @see ConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr >), ConstraintIF::mapUnc(), OptimizationModelIF::createVarMap(ROCPPConstraint_Ptr), OptimizationModelIF::createUncMap(ROCPPConstraint_Ptr)
+    virtual void set_objective(ROCPPObjectiveIF_Ptr pObj);
     
     /// Create an objective function using the given expression and add it to the optimization model
-    /// @see Optimization::set_objective(boost::shared_ptr<ObjectiveFunctionIF>)
-    void set_objective(boost::shared_ptr<LHSExpression> objFun);
+    /// @see Optimization::set_objective(ROCPPObjectiveIF_Ptr)
+    void set_objective(ROCPPExpr_Ptr objFun);
     
     /// Create an objective function using the given expressions and add it to the optimization model
-    /// @see Optimization::set_objective(boost::shared_ptr<ObjectiveFunctionIF>)
-    void set_objective(vector<boost::shared_ptr<LHSExpression> > objFuns);
+    /// @see Optimization::set_objective(ROCPPObjectiveIF_Ptr)
+    void set_objective(vector<ROCPPExpr_Ptr > objFuns);
     
     /// Replace the given term in this model with the given decision variable
     /// @see ObjectiveFunctionIF::replaceTermWithVar(), ConstraintIF::replaceTermWithVar()
-    boost::shared_ptr<OptimizationModelIF> replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const;
+    ROCPPOptModelIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
     
     /// Copy the information in the given model and set it to this one, make sure the information of ddu is kept after clone or reformulation
-    virtual void set_ddu(boost::shared_ptr<OptimizationModelIF> pIn);
+    virtual void set_ddu(ROCPPOptModelIF_Ptr pIn);
     
     /// Copy the information in the given maps and set it to this one, make sure the information of ddu is kept after clone or reformulation
     virtual void set_ddu(const map< pair<string,uint>, measPair > &dduToMeasMap, const map< string, pair<uint,uint> > &dduStagesObs);
@@ -209,21 +201,21 @@ public:
     /// Iterate through all variables in the given constraint. If a variable with the same name exists in the model, use the old one. If a variables with the same name does not exist, create a new variable and add it into the model.
     /// @return A map from the variable name to the variable
     /// @see OptimizationModelIF::varIsDefined(), OptimizationModelIF::add_var()
-    map<string, boost::shared_ptr<DecisionVariableIF> > createVarMap(boost::shared_ptr<ConstraintIF> pConstraint);
+    map<string, ROCPPVarIF_Ptr > createVarMap(ROCPPConstraint_Ptr pConstraint);
     
     /// Create the variable map for the given objective function
     /// Iterate through all variables in the given objective function. If a variable with the same name exists in the model, use the old one. If a variables with the same name does not exist, create a new variable and add it into the model.
     /// @return A map from the variable name to the variable
     /// @see OptimizationModelIF::varIsDefined(), OptimizationModelIF::add_var()
-    map<string, boost::shared_ptr<DecisionVariableIF> > createVarMap(boost::shared_ptr<ObjectiveFunctionIF> objFun);
+    map<string, ROCPPVarIF_Ptr > createVarMap(ROCPPObjectiveIF_Ptr objFun);
     
     /// @note Only valid in uncertain model
-    virtual map<string, boost::shared_ptr<UncertaintyIF> > createUncMap(boost::shared_ptr<ConstraintIF> pConstraint);
+    virtual map<string, ROCPPUnc_Ptr > createUncMap(ROCPPConstraint_Ptr pConstraint);
     
     /// @note Only valid in uncertain model
-    virtual map<string, boost::shared_ptr<UncertaintyIF> > createUncMap(boost::shared_ptr<ObjectiveFunctionIF> objFun);
+    virtual map<string, ROCPPUnc_Ptr > createUncMap(ROCPPObjectiveIF_Ptr objFun);
     
-    virtual void pair_uncertainties(boost::shared_ptr<UncertaintyIF> u1, boost::shared_ptr<UncertaintyIF> u2);
+    virtual void pair_uncertainties(ROCPPUnc_Ptr u1, ROCPPUnc_Ptr u2);
     
     /// Convert the objective function to its expectation
     virtual void getExpectation();
@@ -263,25 +255,25 @@ public:
     virtual problemType getType() const = 0;
     
     /// Return the measurement variable for the given uncertainty and the time stage
-    virtual boost::shared_ptr<DecisionVariableIF> getMeasVar(string dduncName, uint timeStage) const;
+    virtual ROCPPVarIF_Ptr getMeasVar(string dduncName, uint timeStage) const;
     
     /// Return the variable called varName
-    boost::shared_ptr<DecisionVariableIF> getVar(string varName) const;
+    ROCPPVarIF_Ptr getVar(string varName) const;
     
     /// Return the uncertain parameter called uncName
-    virtual boost::shared_ptr<UncertaintyIF> getUnc(string uncName) const;
+    virtual ROCPPUnc_Ptr getUnc(string uncName) const;
     
     /// Return the number of times the given term in the map appears in this model
     /// @see ObjectiveFunctionIF::getNumTimesTermAppears(), ConstraintIF::getNumTimesTermAppears()
-    uint getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const;
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const;
     
     /// Return all products of two variables in this model
     /// @note There are no nonlinearities in the objective function
     /// @see ConstraintIF::getAllProductsOf2Variables()
-    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, boost::shared_ptr<DecisionVariableIF> > > &termMap) const;
+    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const;
     
     /// Return a pointer pointing to the objective function of this problem
-    boost::shared_ptr<ObjectiveFunctionIF> getObj() const {return m_pObj;}
+    ROCPPObjectiveIF_Ptr getObj() const {return m_pObj;}
     
     /// Return a map from decision dependent uncertain parameters to associated measurement variables
     /// @return the first element of the map is a pair of uncertainty name and time stage; the second element is the measurement structure corresponding to this pair. If there is no such parameter, return an empty map.
@@ -300,11 +292,11 @@ public:
     virtual uint getLastStageObservable(string uncName) const;
     
     /// Return the decision variable container (m_dvContainer) of this object
-    boost::shared_ptr<const dvContainer> getDVContainer() const {return m_pDVContainer; }
+    ROCPPconstdvContainer_Ptr getDVContainer() const {return m_pDVContainer; }
     
     /// Return the uncertainty container (m_uncContainer) of this object
     /// @warning Not valid in deterministic model
-    virtual boost::shared_ptr<uncContainer> getUncContainer() const;
+    virtual ROCPPuncContainer_Ptr getUncContainer() const;
     
     /// Return the objective type
     virtual uncOptModelObjType getObjType() const;
@@ -344,7 +336,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Clone this problem
-    virtual boost::shared_ptr<OptimizationModelIF> Clone() const;
+    virtual ROCPPOptModelIF_Ptr Clone() const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -359,13 +351,13 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Decision variable container of this model
-    boost::shared_ptr<dvContainer> m_pDVContainer;
+    ROCPPdvContainer_Ptr m_pDVContainer;
     
     /// Vector of constraints in this model
-    vector<boost::shared_ptr<ConstraintIF> > m_constraints;
+    vector<ROCPPConstraint_Ptr> m_constraints;
     
     /// Objective function of this model
-    boost::shared_ptr<ObjectiveFunctionIF> m_pObj;
+    ROCPPObjectiveIF_Ptr m_pObj;
     
 protected:
     
@@ -374,17 +366,17 @@ protected:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Add the given variable into the dvContainer of this model
-    virtual void add_var(boost::shared_ptr<DecisionVariableIF> pVariable);
+    virtual void add_var(ROCPPVarIF_Ptr pVariable);
     
     /// Add the variable in the given container into the dvContainer of this model
-    virtual void add_vars(boost::shared_ptr<const dvContainer> pDVcontainer);
+    virtual void add_vars(ROCPPconstdvContainer_Ptr pDVcontainer);
     
     /// Add the information discovery cost to the objective model
     /// @note Used in DDUOptimizationModel
-    void add_ddu_obj(boost::shared_ptr<DecisionVariableIF> pVar, double cost);
+    void add_ddu_obj(ROCPPVarIF_Ptr pVar, double cost);
     
     /// Push the constraint back into the vector of constraints of this model
-    void push_constraint(boost::shared_ptr<ConstraintIF> pConstraint);
+    void push_constraint(ROCPPConstraint_Ptr pConstraint);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Protected Members %%%%%%%%%%%%%%%%%%%%%
@@ -394,16 +386,16 @@ protected:
     uint m_numTimeStages;
     
     /// Vector collecting the uncertainty set constraints of this model
-    vector<boost::shared_ptr<ConstraintIF> > m_uncertaintySet;
+    vector<ROCPPConstraint_Ptr > m_uncertaintySet;
     
     /// Uncertain parameter container of this model
-    boost::shared_ptr<uncContainer> m_pUncContainer;
+    ROCPPuncContainer_Ptr m_pUncContainer;
     
     /// Container of decision dependent uncertain parameters in this model
-    boost::shared_ptr<uncContainer> m_dduContainer;
+    ROCPPuncContainer_Ptr m_dduContainer;
     
     /// Container of non decision dependent uncertain parameters in this model
-    boost::shared_ptr<uncContainer> m_nondduContainer;
+    ROCPPuncContainer_Ptr m_nondduContainer;
     
     /// Map from measurement varaibles to measurement pairs
     map<string, measPair> m_measVars;
@@ -441,13 +433,13 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// @warning Cannot add uncertain constraint into a deterministic model
-    void checkCompatibility(boost::shared_ptr<ConstraintIF> pConstraint) const;
+    void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
     
     /// @warning Cannot add adaptive variable into a deterministic model
-    void checkCompatibility(boost::shared_ptr<DecisionVariableIF> pVariable) const;
+    void checkCompatibility(ROCPPVarIF_Ptr pVariable) const;
     
     /// @warning Cannot add uncertain objective function into a deterministic model
-    void checkCompatibility(boost::shared_ptr<ObjectiveFunctionIF> pObjFun) const;
+    void checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -483,7 +475,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Const iterator in the uncertainty set constraints of this model
-    typedef vector<boost::shared_ptr<ConstraintIF> >::const_iterator uncertaintySetIterator;
+    typedef vector<ROCPPConstraint_Ptr >::const_iterator uncertaintySetIterator;
     
     /// Return a constant iterator pointing to the beginning of the uncertain parameter container
     uncertaintiesIterator uncertaintiesBegin() const;
@@ -502,8 +494,8 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// @warning Cannot add constraint which has norm term but does not define uncertainty set into the model
-    virtual void checkCompatibility(boost::shared_ptr<ConstraintIF> pConstraint) const;
-    virtual void checkCompatibility(boost::shared_ptr<ObjectiveFunctionIF> pObjFun) const;
+    virtual void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
+    virtual void checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
@@ -511,11 +503,11 @@ public:
     
     /// Create the uncertain parameter map for the given constraint
     /// Iterate through all uncertainties in the given constraint. If an uncertain parameter with the same name exists in the model, use the old one. If no parameter with the same name exists, create a new one and add it to the model.
-    virtual map<string, boost::shared_ptr<UncertaintyIF> > createUncMap(boost::shared_ptr<ConstraintIF> pConstraint);
+    virtual map<string, ROCPPUnc_Ptr > createUncMap(ROCPPConstraint_Ptr pConstraint);
     
     /// Create the uncertainty map for the given objective function
     /// Iterate through all uncertainties in the given objective function. If an uncertain parameter with the same name exists in the model, use the old one. If no parameter with the same name exists, create a new one and add it to the model.
-    map<string, boost::shared_ptr<UncertaintyIF> > createUncMap(boost::shared_ptr<ObjectiveFunctionIF> objFun);
+    map<string, ROCPPUnc_Ptr > createUncMap(ROCPPObjectiveIF_Ptr objFun);
     
     void set_objType(uncOptModelObjType pType) {m_objType = pType;}
     
@@ -529,10 +521,10 @@ public:
     size_t getNumUncertainties() const;
     
     /// Return the location of the given uncertain parameter in the uncContainer of this model
-    uint getAlphabeticalLocation(boost::shared_ptr<UncertaintyIF> pUncertainty) const;
+    uint getAlphabeticalLocation(ROCPPUnc_Ptr pUncertainty) const;
     
     /// Return the location of the given uncertain parameter in the container of the observable uncertainties of this model
-    uint getObservableAlphabeticalLocation(boost::shared_ptr<UncertaintyIF> pUncertainty) const;
+    uint getObservableAlphabeticalLocation(ROCPPUnc_Ptr pUncertainty) const;
     
     /// Return 1 for non-ddu model
     virtual uint getFirstStageObservable(string uncName) const;
@@ -561,9 +553,9 @@ public:
     
     virtual problemType getType() const {return uncertainType;}
     uncOptModelObjType getObjType() const {return m_objType;}
-    boost::shared_ptr<UncertaintyIF> getUnc(string uncName) const;
-    boost::shared_ptr<uncContainer> getUncContainer() const {return m_pUncContainer; }
-    boost::shared_ptr<uncContainer> getObsUncContainer() const;
+    ROCPPUnc_Ptr getUnc(string uncName) const;
+    ROCPPuncContainer_Ptr getUncContainer() const {return m_pUncContainer; }
+    ROCPPuncContainer_Ptr getObsUncContainer() const;
     
 protected:
     
@@ -572,10 +564,10 @@ protected:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Add uncertainty to the m_pUncContainer of this modeel
-    virtual void add_uncertainty( boost::shared_ptr<UncertaintyIF> pUnc);
+    virtual void add_uncertainty( ROCPPUnc_Ptr pUnc);
     
     /// Add uncertainties to the m_pUncContainer of this model
-    void add_uncertainties(boost::shared_ptr<const uncContainer> pUncContainer);
+    void add_uncertainties(ROCPPconstuncContainer_Ptr pUncContainer);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Protected Members %%%%%%%%%%%%%%%%%%%%%
@@ -613,7 +605,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// @warning No bilinear term is allowed in simple uncertain optimization model
-    void checkCompatibility(boost::shared_ptr<ConstraintIF> pConstraint) const;
+    void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%%
@@ -649,7 +641,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// @warning No adaptive decision variable is allowed in the simple uncertain single stage optimization model
-    void checkCompatibility(boost::shared_ptr<DecisionVariableIF> pVariable) const;
+    void checkCompatibility(ROCPPVarIF_Ptr pVariable) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%%
@@ -686,7 +678,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// @warning No adaptive decision variable is allowed in the single stage uncertain optimization model
-    void checkCompatibility(boost::shared_ptr<DecisionVariableIF> pVariable) const;
+    void checkCompatibility(ROCPPVarIF_Ptr pVariable) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%%
@@ -722,13 +714,13 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// @warning No uncertainty and bilinearity is allowed in this model
-    void checkCompatibility(boost::shared_ptr<ConstraintIF> pConstraint) const;
+    void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
     
     /// @warning No adaptive decision variable is allowed in this model
-    void checkCompatibility(boost::shared_ptr<DecisionVariableIF> pVariable) const;
+    void checkCompatibility(ROCPPVarIF_Ptr pVariable) const;
     
     /// @warning No adaptive variable and no uncertainty are allowed in this model
-    void checkCompatibility(boost::shared_ptr<ObjectiveFunctionIF> pObjFun) const;
+    void checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%%
@@ -765,13 +757,13 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// @warning No uncertainty is allowed in this model
-    void checkCompatibility(boost::shared_ptr<ConstraintIF> pConstraint) const;
+    void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
     
     /// @warning No adaptive decision variable is allowed in this model
-    void checkCompatibility(boost::shared_ptr<DecisionVariableIF> pVariable) const;
+    void checkCompatibility(ROCPPVarIF_Ptr pVariable) const;
     
     /// @warning No adaptive variable and no uncertainty are allowed in this model
-    void checkCompatibility(boost::shared_ptr<ObjectiveFunctionIF> pObjFun) const;
+    void checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%%
@@ -799,7 +791,7 @@ public:
     /// Turn all constraints in the given model to the from of: cone head^2 >= \sum non cone head ^2 and create a CLPEXMISCOP problem
     /// @param pIn Input model
     /// @param baseVarNme Base name of the variables
-    CPLEXMISOCP(boost::shared_ptr<MISOCP> pIn, string baseVarNme = "s");
+    CPLEXMISOCP(ROCPPMISOCP_Ptr pIn, string baseVarNme = "s");
     
     /// Destructor of CPLEXMISOCP
     ~CPLEXMISOCP(){}
@@ -809,23 +801,23 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// @warning No uncertainty is allowed in this model
-    void checkCompatibility(boost::shared_ptr<ConstraintIF> pConstraint) const;
+    void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
     
     /// @warning No adaptive decision variable is allowed in this model
-    void checkCompatibility(boost::shared_ptr<DecisionVariableIF> pVariable) const;
+    void checkCompatibility(ROCPPVarIF_Ptr pVariable) const;
     
     /// @warning No adaptive variable and no uncertainty is allowed in this model
-    void checkCompatibility(boost::shared_ptr<ObjectiveFunctionIF> pObjFun) const;
+    void checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Goer Functions %%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    /// Create product term for the cone head variable and call function CPLEXMISOCP::add_cplexsoc_constraint(boost::shared_ptr<ProductTerm>, const vector<boost::shared_ptr<ProductTerm> >)
-    void add_cplexsoc_constraint(boost::shared_ptr<DecisionVariableIF> coneHead, const vector<boost::shared_ptr<DecisionVariableIF> > &otherVars);
+    /// Create product term for the cone head variable and call function CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr, const vector<ROCPPProdTerm_Ptr >)
+    void add_cplexsoc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr > &otherVars);
     
     /// Add constraint in the form of: cone head^2 >= sum non cone head ^2
-    void add_cplexsoc_constraint(boost::shared_ptr<ProductTerm> coneHead, const vector<boost::shared_ptr<ProductTerm> > &otherVars);
+    void add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vector<ROCPPProdTerm_Ptr > &otherVars);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%%
@@ -913,17 +905,17 @@ public:
     /// @param firstTimeStageObservable first time stage when this uncertainty can be observed
     /// @param lastTimeStageObservable last time stage when this uncertainty can be observed
     /// @param obsCosts map from time stage to the cost of observing the uncertainty at that stage
-    void add_ddu(boost::shared_ptr<UncertaintyIF> pUncertainty, uint firstTimeStageObservable, uint lastTimeStageObservable, const map<uint, double> &obsCosts);
+    void add_ddu(ROCPPUnc_Ptr pUncertainty, uint firstTimeStageObservable, uint lastTimeStageObservable, const map<uint, double> &obsCosts);
     
     /// @note Automatically adds the observation cost to objective function of the ddu model
-    void set_objective(boost::shared_ptr<ObjectiveFunctionIF> pObj);
+    void set_objective(ROCPPObjectiveIF_Ptr pObj);
     
     using OptimizationModelIF::set_objective;
     
     /// Pair the given uncertainties: make their associated measurement variables equal (one is observed if and only if the other one is)
-    void pair_uncertainties(boost::shared_ptr<UncertaintyIF> u1, boost::shared_ptr<UncertaintyIF> u2);
+    void pair_uncertainties(ROCPPUnc_Ptr u1, ROCPPUnc_Ptr u2);
     
-    void set_ddu(boost::shared_ptr<OptimizationModelIF> pIn);
+    void set_ddu(ROCPPOptModelIF_Ptr pIn);
     
     void set_ddu(const map< pair<string,uint>, measPair > &dduToMeasMap, const map< string, pair<uint,uint> > &dduStagesObs);
     
@@ -955,10 +947,10 @@ public:
     size_t getNumDDUncertainties() const;
     
     /// Return the measurement variable associated with the uncertain parameter dduncName at time timeStage
-    boost::shared_ptr<DecisionVariableIF> getMeasVar(string dduncName, uint timeStage) const;
+    ROCPPVarIF_Ptr getMeasVar(string dduncName, uint timeStage) const;
     
     /// Return the uncertain parameter associated with a given measurement variable
-    boost::shared_ptr<UncertaintyIF> getAssociatedUncertainty(string measVar) const;
+    ROCPPUnc_Ptr getAssociatedUncertainty(string measVar) const;
     
     /// Return the map m_dduToMeasMap
     map< pair<string,uint>, measPair > getDDUToMeasMap() const {return m_dduToMeasMap;}
@@ -978,7 +970,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    boost::shared_ptr<OptimizationModelIF> Clone() const;
+    ROCPPOptModelIF_Ptr Clone() const;
     
 protected:
     
@@ -987,16 +979,16 @@ protected:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Return the ddu container of the model
-    boost::shared_ptr<uncContainer> getDDUContainer() const {return m_dduContainer;}
+    ROCPPuncContainer_Ptr getDDUContainer() const {return m_dduContainer;}
     
     /// Return the non ddu container of the model
-    boost::shared_ptr<uncContainer> getnonDDUContainer() const {return m_nondduContainer;}
+    ROCPPuncContainer_Ptr getnonDDUContainer() const {return m_nondduContainer;}
     
     /// Return the map of all measurement variables
     map<string, measPair> getMeasVars() const {return m_measVars;}
     
     /// Add uncertainty pUnc to this model; also add the uncertainty either in ddu container or in non ddu container depending on its type
-    void add_uncertainty( boost::shared_ptr<UncertaintyIF> pUnc);
+    void add_uncertainty( ROCPPUnc_Ptr pUnc);
     
 private:
     
@@ -1005,7 +997,7 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Map from name of the ddu to pair of measurement variable and observation cost
-    map<string, pair<boost::shared_ptr<DecisionVariableIF>, double> > obsCost;
+    map<string, pair<ROCPPVarIF_Ptr, double> > obsCost;
     
 };
 
@@ -1015,42 +1007,9 @@ private:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<OptimizationModelIF> InstanciateModel( problemType type, uint numTimeStages=1, uncOptModelObjType objType = robust );
+ROCPPOptModelIF_Ptr InstanciateModel( problemType type, uint numTimeStages=1, uncOptModelObjType objType = robust );
 
 bool approximatelyEqual(double a, double b, double epsilon);
 
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%% OPTIMIZATION MODEL TYPE DEFS %%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-typedef OptimizationModelIF ROCPPOptModelIF;
-typedef boost::shared_ptr<ROCPPOptModelIF> ROCPPOptModelIF_Ptr;
-
-typedef DDUOptimizationModel ROCPPDDUOptModel;
-typedef boost::shared_ptr<ROCPPDDUOptModel> ROCPPDDUOptModel_Ptr;
-
-typedef DeterministicOptimizationModel ROCPPDetOptModel;
-typedef boost::shared_ptr<ROCPPDetOptModel> ROCPPDetOptModel_Ptr;
-
-typedef UncertainOptimizationModel ROCPPUncOptModel;
-typedef boost::shared_ptr<ROCPPUncOptModel> ROCPPUncOptModel_Ptr;
-
-typedef SimpleUncertainOptimizationModel ROCPPSimpleUncOptModel;
-typedef boost::shared_ptr<ROCPPSimpleUncOptModel> ROCPPSimpleUncOptModel_Ptr;
-
-typedef UncertainSingleStageOptimizationModel ROCPPUncSSOptModel;
-typedef boost::shared_ptr<ROCPPUncSSOptModel> ROCPPUncSSOptModel_Ptr;
-
-typedef Bilinear_MISOCP ROCPPBilinMISOCP;
-typedef boost::shared_ptr<ROCPPBilinMISOCP> ROCPPBilinMISOCP_Ptr;
-
-typedef MISOCP ROCPPMISOCP;
-typedef boost::shared_ptr<ROCPPMISOCP> ROCPPMISOCP_Ptr;
-
-typedef CPLEXMISOCP ROCPCPLEXMISOCP;
-typedef boost::shared_ptr<ROCPCPLEXMISOCP> ROCPCPLEXMISOCP_Ptr;
 
 #endif /* OptimizationModel_hpp */

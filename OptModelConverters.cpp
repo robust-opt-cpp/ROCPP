@@ -43,9 +43,9 @@ typename T::iterator map_max_element(T &A)
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<OptimizationModelIF> BilinearTermReformulatorIF::doMyThing(boost::shared_ptr<OptimizationModelIF> pIn, const map<string,pair<double,double> >& variableBounds)
+ROCPPOptModelIF_Ptr BilinearTermReformulatorIF::linearize(ROCPPOptModelIF_Ptr pIn, const map<string,pair<double,double> >& variableBounds)
 {
-    boost::shared_ptr<OptimizationModelIF> pOut;
+    ROCPPOptModelIF_Ptr pOut;
     
     if (pIn->isUncertainOptimizationModel())
         pOut = InstanciateModel(pIn->getType(), pIn->getNumTimeStages(), pIn->getObjType());
@@ -53,9 +53,9 @@ boost::shared_ptr<OptimizationModelIF> BilinearTermReformulatorIF::doMyThing(boo
         pOut = InstanciateModel(pIn->getType(), pIn->getNumTimeStages(),robust);
     
     map<string,pair<double,double> > variableBoundsCopy = variableBounds;
-    vector<boost::shared_ptr<ConstraintIF> > cstrsToAdd;
+    vector<ROCPPConstraint_Ptr > cstrsToAdd;
     
-    map<pair<string,string>, boost::shared_ptr<DecisionVariableIF> > allTerm;
+    map<pair<string,string>, ROCPPVarIF_Ptr > allTerm;
     uint count = 0;
     
     for(OptimizationModelIF::constraintIterator cit = pIn->constraintBegin(); cit != pIn->constraintEnd(); cit++)
@@ -63,21 +63,21 @@ boost::shared_ptr<OptimizationModelIF> BilinearTermReformulatorIF::doMyThing(boo
         if(!(*cit)->hasNonlinearities())
             pOut->add_constraint((*cit));
         else{
-            boost::shared_ptr<ConstraintIF> newCstr = (*cit)->replaceBilinearTerm(allTerm, count);
+            ROCPPConstraint_Ptr newCstr = (*cit)->replaceBilinearTerm(allTerm, count);
             pOut->add_constraint(newCstr);
         }
     }
     
-    map<pair<string,string>, boost::shared_ptr<DecisionVariableIF> >::const_iterator term = allTerm.begin();
+    map<pair<string,string>, ROCPPVarIF_Ptr >::const_iterator term = allTerm.begin();
     for(;term != allTerm.end(); term++)
     {
-        boost::shared_ptr<DecisionVariableIF> bindv = pIn->getVar(term->first.first);
-        boost::shared_ptr<DecisionVariableIF> otherdv = pIn->getVar(term->first.second);
-        boost::shared_ptr<DecisionVariableIF> newdv = term->second;
-        linearize(bindv, otherdv, newdv, cstrsToAdd, variableBoundsCopy);
+        ROCPPVarIF_Ptr bindv = pIn->getVar(term->first.first);
+        ROCPPVarIF_Ptr otherdv = pIn->getVar(term->first.second);
+        ROCPPVarIF_Ptr newdv = term->second;
+        getlinearCstr(bindv, otherdv, newdv, cstrsToAdd, variableBoundsCopy);
     }
     
-    for (vector<boost::shared_ptr<ConstraintIF> >::const_iterator it = cstrsToAdd.begin(); it != cstrsToAdd.end(); it++)
+    for (vector<ROCPPConstraint_Ptr >::const_iterator it = cstrsToAdd.begin(); it != cstrsToAdd.end(); it++)
         pOut->add_constraint(*it);
     
     pOut->set_objective(pIn->getObj());
@@ -93,7 +93,7 @@ boost::shared_ptr<OptimizationModelIF> BilinearTermReformulatorIF::doMyThing(boo
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void BTR_bigM::linearize(boost::shared_ptr<DecisionVariableIF> bindv, boost::shared_ptr<DecisionVariableIF> otherdv, boost::shared_ptr<DecisionVariableIF> newdv, vector<boost::shared_ptr<ConstraintIF> >& cstrvec, map<string,pair<double,double> >& variableBounds)
+void BTR_bigM::getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr  newdv, vector<ROCPPConstraint_Ptr >& cstrvec, map<string,pair<double,double> >& variableBounds)
 {
     
     double M_ub(m_M);
@@ -139,21 +139,21 @@ void BTR_bigM::linearize(boost::shared_ptr<DecisionVariableIF> bindv, boost::sha
     
     // w=xy (x is bin) <=> w <= max( M_ub, 0 ) x, w >= min( M_lb, 0 ) x, w <= y - (1-x) M_lb, w >= y - (1-x) M_ub
     {
-        boost::shared_ptr<ClassicConstraintIF> cstr( new IneqConstraint() );
+        ROCPPClassicConstraint_Ptr cstr( new IneqConstraint() );
         cstr->add_lhs(1.,newdv);
         cstr->add_lhs(-1.* max( M_ub, 0.), bindv);
         cstr->set_rhs( make_pair(0.,true) );
         cstrvec.push_back(cstr);
     }
     {
-        boost::shared_ptr<ClassicConstraintIF> cstr( new IneqConstraint() );
+        ROCPPClassicConstraint_Ptr cstr( new IneqConstraint() );
         cstr->add_lhs(-1.,newdv);
         cstr->add_lhs(min( M_lb, 0.), bindv);
         cstr->set_rhs( make_pair(0.,true) );
         cstrvec.push_back(cstr);
     }
     {
-        boost::shared_ptr<ClassicConstraintIF> cstr( new IneqConstraint() );
+        ROCPPClassicConstraint_Ptr cstr( new IneqConstraint() );
         cstr->add_lhs(1.,newdv);
         cstr->add_lhs(-1., otherdv);
         cstr->add_lhs(-M_lb, bindv);
@@ -161,7 +161,7 @@ void BTR_bigM::linearize(boost::shared_ptr<DecisionVariableIF> bindv, boost::sha
         cstrvec.push_back(cstr);
     }
     {
-        boost::shared_ptr<ClassicConstraintIF> cstr( new IneqConstraint() );
+        ROCPPClassicConstraint_Ptr cstr( new IneqConstraint() );
         cstr->add_lhs(M_ub, bindv);
         cstr->add_lhs(1.,otherdv);
         cstr->add_lhs(-1.,newdv);
@@ -177,9 +177,9 @@ void BTR_bigM::linearize(boost::shared_ptr<DecisionVariableIF> bindv, boost::sha
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<UncertainSingleStageOptimizationModel> convertToUSSOM(boost::shared_ptr<OptimizationModelIF> pIn)
+ROCPPUncSSOptModel_Ptr convertToUSSOM(ROCPPOptModelIF_Ptr pIn)
 {
-    boost::shared_ptr<UncertainSingleStageOptimizationModel> pModelOut(new UncertainSingleStageOptimizationModel(pIn->getObjType() ));
+    ROCPPUncSSOptModel_Ptr pModelOut(new UncertainSingleStageOptimizationModel(pIn->getObjType() ));
     
     for (OptimizationModelIF::constraintIterator c_it=pIn->constraintBegin(); c_it != pIn->constraintEnd(); c_it++)
         pModelOut->add_constraint(*c_it);
@@ -189,9 +189,9 @@ boost::shared_ptr<UncertainSingleStageOptimizationModel> convertToUSSOM(boost::s
     return pModelOut;
 }
 
-boost::shared_ptr<MISOCP> convertToMISOCP(boost::shared_ptr<OptimizationModelIF> pIn)
+ROCPPMISOCP_Ptr convertToMISOCP(ROCPPOptModelIF_Ptr pIn)
 {
-    boost::shared_ptr<MISOCP> pModelOut(new MISOCP());
+    ROCPPMISOCP_Ptr pModelOut(new MISOCP());
     
     for (OptimizationModelIF::constraintIterator c_it=pIn->constraintBegin(); c_it != pIn->constraintEnd(); c_it++)
         pModelOut->add_constraint(*c_it);

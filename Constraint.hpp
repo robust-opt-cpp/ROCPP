@@ -15,16 +15,8 @@
 #include "HeaderIncludeFiles.hpp"
 
 
-class DecisionVariableIF;
-class dvContainer;
-class UncertaintyIF;
-class uncContainer;
-class ConstraintTermIF;
-class LHSExpression;
-class NormTerm;
-
-typedef vector<boost::shared_ptr<ConstraintTermIF> >::const_iterator ConstraintLHS_const_iterator;
-typedef vector<boost::shared_ptr<ConstraintTermIF> >::iterator ConstraintLHS_iterator;
+typedef vector<ROCPPCstrTerm_Ptr >::const_iterator ConstraintLHS_const_iterator;
+typedef vector<ROCPPCstrTerm_Ptr >::iterator ConstraintLHS_iterator;
 
 
 /// Constraint right hand side parameters class
@@ -107,22 +99,22 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     /// Map the decision variables in this constraint to new variables
-    virtual boost::shared_ptr<ConstraintIF> mapVars(const map<string, boost::shared_ptr<LHSExpression> > &mapFromVarToExpression) const = 0;
+    virtual ROCPPConstraint_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const = 0;
     
     /// Map the uncertain parameters in this constraint to new uncertain parameters
-    virtual boost::shared_ptr<ConstraintIF> mapUncs(const map<string, boost::shared_ptr<LHSExpression> > &mapFromUncToExpression) const = 0;
+    virtual ROCPPConstraint_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const = 0;
     
     /// Replace the given term in this expression with the given decision variable
-    virtual boost::shared_ptr<ConstraintIF> replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const = 0;
+    virtual ROCPPConstraint_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const = 0;
     
     /// Replace the bilinear term in this objecet with the given decision variable
-    virtual boost::shared_ptr<ConstraintIF> replaceBilinearTerm(map<pair<string,string>, boost::shared_ptr<DecisionVariableIF> > &allTerm, uint &count) const = 0;
+    virtual ROCPPConstraint_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const = 0;
     
     /// Map the decision variables in this constraint to some expressions
-    virtual boost::shared_ptr<ConstraintIF> mapVars(const map<string,boost::shared_ptr<DecisionVariableIF> > &mapFromOldToNewVars) const = 0;
+    virtual ROCPPConstraint_Ptr mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const = 0;
     
     /// Map the uncertain parameters in this constraint to some expressions
-    virtual boost::shared_ptr<ConstraintIF> mapUnc(const map<string,boost::shared_ptr<UncertaintyIF> > &mapFromOldToNewUnc) const = 0;
+    virtual ROCPPConstraint_Ptr mapUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const = 0;
     
     /// Add the decisions variables involved in a product in this term to the given container dvs
     virtual void add_vars_involved_in_prod(dvContainer &dvs) const = 0;
@@ -134,34 +126,34 @@ public:
     virtual void add_lhs(double c);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, boost::shared_ptr<DecisionVariableIF> pVariable);
+    virtual void add_lhs(double c, ROCPPVarIF_Ptr pVariable);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, boost::shared_ptr<UncertaintyIF> pUncertainty,  boost::shared_ptr<DecisionVariableIF> pVariable);
+    virtual void add_lhs(double c, ROCPPUnc_Ptr pUncertainty,  ROCPPVarIF_Ptr pVariable);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, boost::shared_ptr<UncertaintyIF> pUncertainty);
+    virtual void add_lhs(double c, ROCPPUnc_Ptr pUncertainty);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, boost::shared_ptr<DecisionVariableIF> pVariable1, boost::shared_ptr<DecisionVariableIF> pVariable2);
+    virtual void add_lhs(double c, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, boost::shared_ptr<UncertaintyIF> pUncertainty, boost::shared_ptr<DecisionVariableIF> pVariable1, boost::shared_ptr<DecisionVariableIF> pVariable2);
+    virtual void add_lhs(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(boost::shared_ptr<const ConstraintTermIF> term);
+    virtual void add_lhs(ROCPPconstCstrTerm_Ptr term);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, boost::shared_ptr<const ConstraintTermIF> term);
+    virtual void add_lhs(double c, ROCPPconstCstrTerm_Ptr term);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(boost::shared_ptr<const LHSExpression> pExpression);
+    virtual void add_lhs(ROCPPconstExpr_Ptr pExpression);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, boost::shared_ptr<const LHSExpression> pExpression);
+    virtual void add_lhs(double c, ROCPPconstExpr_Ptr pExpression);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, boost::shared_ptr<const LHSExpression> pExpression,  boost::shared_ptr<DecisionVariableIF> pVariable);
+    virtual void add_lhs(double c, ROCPPconstExpr_Ptr pExpression,  ROCPPVarIF_Ptr pVariable);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -170,16 +162,16 @@ public:
     /// Get the number of times the term given in the multimap appears in this constraint
     /// @param term multimap from the name of the decision variable to the desicion variable used to define this term
     /// @note The same decision variable may appear many times in a term (indicating that we have a product of the same variable)
-    virtual uint getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const = 0;
+    virtual uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const = 0;
     
     /// Get the all products of two variables in this constraint.
-    virtual void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, boost::shared_ptr<DecisionVariableIF> > > &termMap) const = 0;
+    virtual void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const = 0;
     
     /// Get the decision variable container of this constraint
-    virtual boost::shared_ptr<const dvContainer> getDVContainer() const = 0;
+    virtual ROCPPconstdvContainer_Ptr getDVContainer() const = 0;
     
     /// Get the uncertain parameter container of this constraint
-    virtual boost::shared_ptr<const uncContainer> getUncContainer() const = 0;
+    virtual ROCPPconstuncContainer_Ptr getUncContainer() const = 0;
     
     /// Get the number of real-valued decision variables in this constraint
     virtual uint getNumContVars() const = 0;
@@ -263,7 +255,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Return a copy of this constraint
-    virtual boost::shared_ptr<ConstraintIF> Clone() const = 0;
+    virtual ROCPPConstraint_Ptr Clone() const = 0;
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -344,82 +336,82 @@ public:
     /// Create a new ProductTerm using the given inputs and add it to the left hand side of this constraint
     /// @param c coefficient of the term to add
     /// @param pVariable decision variable of the term to add
-    void add_lhs(double c, boost::shared_ptr<DecisionVariableIF> pVariable);
+    void add_lhs(double c, ROCPPVarIF_Ptr pVariable);
     
     /// Create a new ProductTerm using the given inputs and add it to the left hand side of this constraint
     /// @param c coefficient of the term to add
     /// @param pUncertainty uncertain parameter of the term to add
     /// @param pVariable decision variable of the term to add
-    void add_lhs(double c, boost::shared_ptr<UncertaintyIF> pUncertainty,  boost::shared_ptr<DecisionVariableIF> pVariable);
+    void add_lhs(double c, ROCPPUnc_Ptr pUncertainty,  ROCPPVarIF_Ptr pVariable);
     
     /// Create a new ProductTerm using the given inputs and add it to the left hand side of this constraint
     /// @param c coefficient of the term to add
     /// @param pUncertainty uncertain parameter of the term to add
-    void add_lhs(double c, boost::shared_ptr<UncertaintyIF> pUncertainty);
+    void add_lhs(double c, ROCPPUnc_Ptr pUncertainty);
     
     /// Create a new ProductTerm using the given inputs and add it to the left hand side of this constraint
     /// @param c coefficient of the term to add
     /// @param pVariable1 first decision variable of the term to add
     /// @param pVariable2 second decision variable of the term to add
-    void add_lhs(double c, boost::shared_ptr<DecisionVariableIF> pVariable1, boost::shared_ptr<DecisionVariableIF> pVariable2);
+    void add_lhs(double c, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2);
     
     /// Create a new ProductTerm using the given inputs and add it to the left hand side of this constraint
     /// @param c coefficient of the term to add
     /// @param pUncertainty uncertain parameter of the term to add
     /// @param pVariable1 first decision variable of the term to add
     /// @param pVariable2 second decision variable of the term to add
-    void add_lhs(double c, boost::shared_ptr<UncertaintyIF> pUncertainty, boost::shared_ptr<DecisionVariableIF> pVariable1, boost::shared_ptr<DecisionVariableIF> pVariable2);
+    void add_lhs(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2);
     
     /// Add the given term to the left hand side of this constraint
     /// @note If the term already exists, change the coefficient
     /// @warning One expression can only have one norm term with coefficient equal to 1
-    void add_lhs(boost::shared_ptr<const ConstraintTermIF> term);
+    void add_lhs(ROCPPconstCstrTerm_Ptr term);
     
     /// Add the product of the given inputs into the left hand side of this constraint
     /// @param c coefficient
     /// @param term term to add to expression after multiplying it by coefficient
-    /// @note Call LHExpression::add(boost::shared_ptr<const ConstraintTermIF>) after multiplying term by c
-    void add_lhs(double c, boost::shared_ptr<const ConstraintTermIF> term);
+    /// @note Call LHExpression::add(ROCPPconstCstrTerm_Ptr) after multiplying term by c
+    void add_lhs(double c, ROCPPconstCstrTerm_Ptr term);
     
     /// Add the given expression to the left hand side of this constraint
     /// @param pExpression expression to add to this expression after multiplying it by coefficient c
-    /// @note Call LHExpression::add(boost::shared_ptr<const LHSExpression>) after scaling it by
-    void add_lhs(boost::shared_ptr<const LHSExpression> pExpression);
+    /// @note Call LHExpression::add(ROCPPconstExpr_Ptr) after scaling it by
+    void add_lhs(ROCPPconstExpr_Ptr pExpression);
     
     /// Add the given expression multiplied by c to the left hand side of this constraint
     /// @param c coefficient
     /// @param pExpression expression to add to this expression after multiplying it by coefficient c
-    /// @note Call LHExpression::add(boost::shared_ptr<const LHSExpression>) after scaled
-    void add_lhs(double c, boost::shared_ptr<const LHSExpression> pExpression);
+    /// @note Call LHExpression::add(ROCPPconstExpr_Ptr) after scaled
+    void add_lhs(double c, ROCPPconstExpr_Ptr pExpression);
     
     /// Add the product of the given inputs to the left hand side of this constraint
     /// @param c coefficient
     /// @param pVariable decision variable
     /// @param pExpression expression to add to this expression after multiplying it by coefficient c and by decision variable pVariable
-    /// @note Call LHExpression::add(boost::shared_ptr<const LHSExpression>)
-    void add_lhs(double c, boost::shared_ptr<const LHSExpression> pExpression,  boost::shared_ptr<DecisionVariableIF> pVariable);
+    /// @note Call LHExpression::add(ROCPPconstExpr_Ptr)
+    void add_lhs(double c, ROCPPconstExpr_Ptr pExpression,  ROCPPVarIF_Ptr pVariable);
     
     /// Set right-hand side parameter of this constraint
     /// @param rhs first element of the pair is the right-hand side parameter, the second one is true if the parameter is 0, false otherwise
     void set_rhs(pair<double,bool> rhs);
     
-    /// @note Call LHExpression::mapVars(const map<string, boost::shared_ptr<LHSExpression> >) for the left-hand side expression of this constraint
-    boost::shared_ptr<ConstraintIF> mapVars(const map<string, boost::shared_ptr<LHSExpression> > &mapFromVarToExpression) const;
+    /// @note Call LHExpression::mapVars(const map<string, ROCPPExpr_Ptr >) for the left-hand side expression of this constraint
+    ROCPPConstraint_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const;
     
     /// @note Call LHExpression::mapUncs() for the left-hand side expression of this constraint
-    boost::shared_ptr<ConstraintIF> mapUncs(const map<string, boost::shared_ptr<LHSExpression> > &mapFromUncToExpression) const;
+    ROCPPConstraint_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const;
     
     /// @note Call LHExpression::replaceTermWithVar() for the left-hand side expression of this constraint
-    boost::shared_ptr<ConstraintIF> replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const;
+    ROCPPConstraint_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
     
     /// @note Call LHExpression::replaceBilinearTerm() for the left-hand side expression of this constraint
-    boost::shared_ptr<ConstraintIF> replaceBilinearTerm(map<pair<string,string>, boost::shared_ptr<DecisionVariableIF> > &allTerm, uint &count) const;
+    ROCPPConstraint_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const;
     
-    /// @note Call LHExpression::mapVars(const map<string,boost::shared_ptr<DecisionVariableIF> >) for the left-hand side expression of this constraint
-    boost::shared_ptr<ConstraintIF> mapVars(const map<string,boost::shared_ptr<DecisionVariableIF> > &mapFromOldToNewVars) const;
+    /// @note Call LHExpression::mapVars(const map<string,ROCPPVarIF_Ptr >) for the left-hand side expression of this constraint
+    ROCPPConstraint_Ptr mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const;
     
     /// @note Call LHExpression::mapUnc() for the left-hand side expression of this constraint
-    boost::shared_ptr<ConstraintIF> mapUnc(const map<string,boost::shared_ptr<UncertaintyIF> > &mapFromOldToNewUnc) const;
+    ROCPPConstraint_Ptr mapUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const;
     
     /// @note Call LHExpression::hasProdsContVars() for the left-hand side expression of this constraint
     void add_vars_involved_in_prod(dvContainer &dvs) const;
@@ -432,13 +424,13 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     /// @note Call LHExpression::getNumTimesTermAppears() for the left-hand side expression of this constraint
-    uint getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const;
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const;
     
     /// @note Call LHExpression::getAllProductsOf2Variables() for the left-hand side expression of this constraint
-    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, boost::shared_ptr<DecisionVariableIF> > > &termMap) const;
+    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const;
     
-    boost::shared_ptr<const dvContainer> getDVContainer() const;
-    boost::shared_ptr<const uncContainer> getUncContainer() const;
+    ROCPPconstdvContainer_Ptr getDVContainer() const;
+    ROCPPconstuncContainer_Ptr getUncContainer() const;
     
     uint getNumContVars() const;
     uint getNumIntVars() const;
@@ -475,21 +467,21 @@ public:
     
     pair<double,bool> get_rhs() const;
     
-    boost::shared_ptr<LHSExpression> getLHS() const;
+    ROCPPExpr_Ptr getLHS() const;
     
     /// Get the part without norm term in the left-hand side expression of this constraint
     /// @note Call LHExpression::getLineatPart()
-    boost::shared_ptr<LHSExpression> getLinearPart() const;
+    ROCPPExpr_Ptr getLinearPart() const;
     
     /// Get the  norm term in the left-hand side expression of this constraint
     /// @note Call LHExpression::getNormTerm()
-    boost::shared_ptr<NormTerm> getNormTerm() const;
+    ROCPPNormTerm_Ptr getNormTerm() const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    boost::shared_ptr<ConstraintIF> Clone() const;
+    ROCPPConstraint_Ptr Clone() const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -503,7 +495,7 @@ public:
     
 private:
     /// Left-hand side expression of this constraint
-    boost::shared_ptr<LHSExpression> m_pLHS;
+    ROCPPExpr_Ptr m_pLHS;
     
     /// Right-hand side parameter of this constraint
     rhsParams m_rhsParams;
@@ -593,7 +585,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Map from decision variable name to pair of the decision variable and weight associated with the variable in the SOS constraint
-    typedef map<string, pair<boost::shared_ptr<DecisionVariableIF>, double> > SOSMapType;
+    typedef map<string, pair<ROCPPVarIF_Ptr, double> > SOSMapType;
     
     /// Constant iterator into SOSMapType
     typedef SOSMapType::const_iterator sos_iterator;
@@ -618,7 +610,7 @@ public:
     
     /// Added the decision variable dv with associated weight weight to the constraint
     /// @param weight is the weight associated with the decision variable in the SOS constraint
-    void add(boost::shared_ptr<DecisionVariableIF> dv, double weight);
+    void add(ROCPPVarIF_Ptr dv, double weight);
     
     /// @note Call dvContainer::add_int_vars() for the dvContainer of this constraint
     void add_int_vars(dvContainer &dvs) const;
@@ -627,21 +619,21 @@ public:
     void add_vars_involved_in_prod(dvContainer &dvs) const {}
     
     /// @warning Should consider modelling it as a classic constaint if the given expression has more than a single variable
-    boost::shared_ptr<ConstraintIF> mapVars(const map<string, boost::shared_ptr<LHSExpression> > &mapFromVarToExpression) const;
+    ROCPPConstraint_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const;
     
     /// @note Return a copy of the original constraint because there is no uncertainty in the SOS constraint
-    boost::shared_ptr<ConstraintIF> mapUncs(const map<string, boost::shared_ptr<LHSExpression> > &mapFromUncToExpression) const {return this->Clone();}
+    ROCPPConstraint_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const {return this->Clone();}
     
     /// @note Only replaces the term in the given map if the term is a single variable
-    boost::shared_ptr<ConstraintIF> replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const;
+    ROCPPConstraint_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
     
     /// @note Returns a copy of the original constraint since there is no uncertain parameters in SOSConstraint
-    boost::shared_ptr<ConstraintIF> replaceBilinearTerm(map<pair<string,string>, boost::shared_ptr<DecisionVariableIF> > &allTerm, uint &count) const;
+    ROCPPConstraint_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const;
     
-    boost::shared_ptr<ConstraintIF> mapVars(const map<string,boost::shared_ptr<DecisionVariableIF> > &mapFromOldToNewVars) const;
+    ROCPPConstraint_Ptr mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const;
     
     /// @note Returns a copy of the original constraint since there is no uncertain parameters in SOSConstraint
-    boost::shared_ptr<ConstraintIF> mapUnc(const map<string,boost::shared_ptr<UncertaintyIF> > &mapFromOldToNewUnc) const {return this->Clone();}
+    ROCPPConstraint_Ptr mapUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const {return this->Clone();}
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -654,8 +646,8 @@ public:
     /// Return the number of decision variables in this constraint
     size_t getSize() const {return m_sosMap.size();}
     
-    boost::shared_ptr<const dvContainer> getDVContainer() const;
-    boost::shared_ptr<const uncContainer> getUncContainer() const;
+    ROCPPconstdvContainer_Ptr getDVContainer() const;
+    ROCPPconstuncContainer_Ptr getUncContainer() const;
     
     /// Check whether this constraint has decision variables or not
     /// @return True if there is no decision variable in this constraint
@@ -688,10 +680,10 @@ public:
     bool AnyVarIsInvolved(dvContainer& dvs) const;
     
     /// @note Only counts the term in the given map if it is a single variable
-    uint getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const;
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const;
     
     /// @note There are no products of decision variables in SOSConstraints
-    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, boost::shared_ptr<DecisionVariableIF> > > &termMap) const {};
+    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const {};
     
     bool hasNormTerm() const {return false;}
     bool isSOSConstraint() const {return true;}
@@ -701,7 +693,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Create a copy of this constraint
-    boost::shared_ptr<ConstraintIF> Clone() const;
+    ROCPPConstraint_Ptr Clone() const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -719,7 +711,7 @@ private:
     uint m_SOSType;
     
     /// Decision variable container
-    boost::shared_ptr<dvContainer> m_pDVContainer;
+    ROCPPdvContainer_Ptr m_pDVContainer;
     
     /// Map from the variable name to the pair of the variable and its weight
     SOSMapType m_sosMap;
@@ -743,7 +735,7 @@ public:
     /// IfThenConstraint constructor
     /// @param lhs "If" part
     /// @param rhs "Then" part
-    IfThenConstraint(boost::shared_ptr<ConstraintIF> lhs, boost::shared_ptr<ConstraintIF> rhs);
+    IfThenConstraint(ROCPPConstraint_Ptr lhs, ROCPPConstraint_Ptr rhs);
     
     /// IfThenConstraint destructor
     ~IfThenConstraint(){}
@@ -768,23 +760,23 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    /// @note Call ClassicConstraintIF::mapVars(const map<string, boost::shared_ptr<LHSExpression> >) for both statements in the if-then constraint
-    boost::shared_ptr<ConstraintIF> mapVars(const map<string, boost::shared_ptr<LHSExpression> > &mapFromVarToExpression) const;
+    /// @note Call ClassicConstraintIF::mapVars(const map<string, ROCPPExpr_Ptr >) for both statements in the if-then constraint
+    ROCPPConstraint_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const;
     
     /// @note Call ClassicConstraintIF::mapUncs() for both statements in the if-then constraint
-    boost::shared_ptr<ConstraintIF> mapUncs(const map<string, boost::shared_ptr<LHSExpression> > &mapFromUncToExpression) const;
+    ROCPPConstraint_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const;
     
     /// @note Call ClassicConstraintIF::replaceTermWithVar() for both statements in the if-then constraint
-    boost::shared_ptr<ConstraintIF> replaceTermWithVar(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term, boost::shared_ptr<DecisionVariableIF> var) const;
+    ROCPPConstraint_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
     
     /// @note Call ClassicConstraintIF::replaceBilinearTerm() for both of two statements in the if-then constraint
-    boost::shared_ptr<ConstraintIF> replaceBilinearTerm(map<pair<string,string>, boost::shared_ptr<DecisionVariableIF> > &allTerm, uint &count) const;
+    ROCPPConstraint_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const;
     
-    /// @note Call ClassicConstraintIF::mapVars(const map<string,boost::shared_ptr<DecisionVariableIF> >) for both of two statements in the if-then constraint
-    boost::shared_ptr<ConstraintIF> mapVars(const map<string,boost::shared_ptr<DecisionVariableIF> > &mapFromOldToNewVars) const;
+    /// @note Call ClassicConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr >) for both of two statements in the if-then constraint
+    ROCPPConstraint_Ptr mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const;
     
     /// @note Call ClassicConstraintIF::mapUnc() for both statements in the if-then constraint
-    boost::shared_ptr<ConstraintIF> mapUnc(const map<string,boost::shared_ptr<UncertaintyIF> > &mapFromOldToNewUnc) const;
+    ROCPPConstraint_Ptr mapUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const;
     
     void add_vars_involved_in_prod(dvContainer &dvs) const { m_lhs->add_vars_involved_in_prod(dvs); m_rhs->add_vars_involved_in_prod(dvs); }
     void add_int_vars(dvContainer &dvs) const { m_lhs->add_int_vars(dvs); m_rhs->add_int_vars(dvs); }
@@ -794,23 +786,23 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Returns the "If" part of the constraint
-    boost::shared_ptr<ConstraintIF> get_lhs() const {return m_lhs->Clone();}
+    ROCPPConstraint_Ptr get_lhs() const {return m_lhs->Clone();}
     
     /// Returns the "Then" part of the constraint
-    boost::shared_ptr<ConstraintIF> get_rhs() const {return m_rhs->Clone();}
+    ROCPPConstraint_Ptr get_rhs() const {return m_rhs->Clone();}
     
     /// @note Calculate the total number of times the term appears in both statements of the if-then constraint
     /// @note Call ClassicConstraintIF::getNumTimesTermAppears() for both statements in the if-then constraint
-    uint getNumTimesTermAppears(const multimap<string, boost::shared_ptr<DecisionVariableIF> > &term) const {return (m_lhs->getNumTimesTermAppears(term) + m_rhs->getNumTimesTermAppears(term));}
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const {return (m_lhs->getNumTimesTermAppears(term) + m_rhs->getNumTimesTermAppears(term));}
     
     /// @note Get all products of two variables in both statements in the if-then constraint
     /// @note Call ClassicConstraintIF::getAllProductsOf2Variables() for both statements in the if-then constraint
-    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, boost::shared_ptr<DecisionVariableIF> > > &termMap) const
+    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const
     {m_lhs->getAllProductsOf2Variables(freqMap,termMap); m_rhs->getAllProductsOf2Variables(freqMap,termMap);}
     
     
-    boost::shared_ptr<const dvContainer> getDVContainer() const;
-    boost::shared_ptr<const uncContainer> getUncContainer() const;
+    ROCPPconstdvContainer_Ptr getDVContainer() const;
+    ROCPPconstuncContainer_Ptr getUncContainer() const;
     
     uint getNumContVars() const;
     uint getNumIntVars() const;
@@ -848,7 +840,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    boost::shared_ptr<ConstraintIF> Clone() const;
+    ROCPPConstraint_Ptr Clone() const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -863,33 +855,23 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// If part of constraint
-    boost::shared_ptr<ConstraintIF> m_lhs;
+    ROCPPConstraint_Ptr m_lhs;
     
     /// Else part of constraint
-    boost::shared_ptr<ConstraintIF> m_rhs;
+    ROCPPConstraint_Ptr m_rhs;
     
     /// Decision variable container of this constraint
-    boost::shared_ptr<dvContainer> m_pDVContainer;
+    ROCPPdvContainer_Ptr m_pDVContainer;
     
     /// Uncertain parameter container of this constraint
-    boost::shared_ptr<uncContainer> m_pUncContainer;
+    ROCPPuncContainer_Ptr m_pUncContainer;
     
     /// Vector of terms in this constraint
-    vector<boost::shared_ptr<ConstraintTermIF> > m_terms;
+    vector<ROCPPCstrTerm_Ptr > m_terms;
 };
 
-boost::shared_ptr<ConstraintIF> createConstraint(boost::shared_ptr<LHSExpression> lhs, double rhs, bool isEqual, bool definesUncertaintySet=false, bool isNAC=false);
+ROCPPConstraint_Ptr createConstraint(ROCPPExpr_Ptr lhs, double rhs, bool isEqual, bool definesUncertaintySet=false, bool isNAC=false);
 
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%% CONSTRAINT TYPE DEFS %%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-typedef ConstraintIF ROCPPConstraint;
-typedef boost::shared_ptr<ROCPPConstraint> ROCPPConstraint_Ptr;
 
 #endif /* Constraint_hpp */
 

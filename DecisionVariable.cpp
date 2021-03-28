@@ -66,12 +66,12 @@ void DecisionVariableIF::setUB(double ub)
 
 string DecisionVariableIF::writeLB() const
 {
-    return boost::lexical_cast<string>(m_lb);
+    return to_string(m_lb);
 }
 
 string DecisionVariableIF::writeUB() const
 {
-    return boost::lexical_cast<string>(m_ub);
+    return to_string(m_ub);
 }
 
 
@@ -114,9 +114,9 @@ void VariableBool::setUB(double ub)
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-boost::shared_ptr<DecisionVariableIF> VariableBool::Clone()
+ROCPPVarIF_Ptr VariableBool::Clone()
 {
-    boost::shared_ptr<DecisionVariableIF> out(new VariableBool( this->getName(),this->getLB(),this->getUB()) );
+    ROCPPVarIF_Ptr out(new VariableBool( this->getName(),this->getLB(),this->getUB()) );
     return out;
 }
 
@@ -133,9 +133,9 @@ VariableIF(name, intDV, lb, ub)
 {
 }
 
-boost::shared_ptr<DecisionVariableIF> VariableInt::Clone()
+ROCPPVarIF_Ptr VariableInt::Clone()
 {
-    boost::shared_ptr<DecisionVariableIF> out( new VariableInt( this->getName(), this->getLB(), this->getUB()) );
+    ROCPPVarIF_Ptr out( new VariableInt( this->getName(), this->getLB(), this->getUB()) );
     return out;
 }
 
@@ -152,9 +152,9 @@ VariableIF(name, contDV, lb, ub)
 {
 }
 
-boost::shared_ptr<DecisionVariableIF> VariableDouble::Clone()
+ROCPPVarIF_Ptr VariableDouble::Clone()
 {
-    boost::shared_ptr<DecisionVariableIF> out( new VariableDouble( this->getName(), this->getLB(), this->getUB()) );
+    ROCPPVarIF_Ptr out( new VariableDouble( this->getName(), this->getLB(), this->getUB()) );
     return out;
 }
 
@@ -194,9 +194,9 @@ void AdaptVarBool::setUB(double ub)
     DecisionVariableIF::setUB(min(1.0, ub));
 }
 
-boost::shared_ptr<DecisionVariableIF> AdaptVarBool::Clone()
+ROCPPVarIF_Ptr AdaptVarBool::Clone()
 {
-    boost::shared_ptr<DecisionVariableIF> out( new AdaptVarBool( this->getName(), this->getTimeStage(), this->getLB(), this->getUB()) );
+    ROCPPVarIF_Ptr out( new AdaptVarBool( this->getName(), this->getTimeStage(), this->getLB(), this->getUB()) );
     return out;
 }
 
@@ -213,9 +213,9 @@ AdaptiveVariableIF(name, intDV, timeStage, lb, ub)
 {
 }
 
-boost::shared_ptr<DecisionVariableIF> AdaptVarInt::Clone()
+ROCPPVarIF_Ptr AdaptVarInt::Clone()
 {
-    boost::shared_ptr<DecisionVariableIF> out( new AdaptVarInt(  this->getName(), this->getTimeStage(), this->getLB(), this->getUB()) );
+    ROCPPVarIF_Ptr out( new AdaptVarInt(  this->getName(), this->getTimeStage(), this->getLB(), this->getUB()) );
     return out;
 }
 
@@ -232,9 +232,9 @@ AdaptiveVariableIF(name, contDV, timeStage, lb, ub)
 {
 }
 
-boost::shared_ptr<DecisionVariableIF> AdaptVarDouble::Clone()
+ROCPPVarIF_Ptr AdaptVarDouble::Clone()
 {
-    boost::shared_ptr<DecisionVariableIF> out( new AdaptVarDouble(  this->getName(), this->getTimeStage(), this->getLB(), this->getUB()) );
+    ROCPPVarIF_Ptr out( new AdaptVarDouble(  this->getName(), this->getTimeStage(), this->getLB(), this->getUB()) );
     return out;
 }
 
@@ -253,11 +253,11 @@ boost::shared_ptr<DecisionVariableIF> AdaptVarDouble::Clone()
 void dvContainer::operator+=(const dvContainer &a)
 {
     // iterate through the decision variables in a
-    for (map<string, boost::shared_ptr<DecisionVariableIF> >::const_iterator dv_it = a.m_DVMap.begin(); dv_it != a.m_DVMap.end(); dv_it++)
+    for (map<string, ROCPPVarIF_Ptr >::const_iterator dv_it = a.m_DVMap.begin(); dv_it != a.m_DVMap.end(); dv_it++)
         *this += dv_it->second;
 }
 
-void dvContainer::operator+=(const boost::shared_ptr<DecisionVariableIF>& dv)
+void dvContainer::operator+=(const ROCPPVarIF_Ptr& dv)
 {
 
     string varName(dv->getName());
@@ -328,7 +328,7 @@ bool dvContainer::AnyVarIsInvolved(dvContainer& dvs) const
     return false;
 }
 
-bool dvContainer::varIsInvolved(boost::shared_ptr<DecisionVariableIF> dv) const
+bool dvContainer::varIsInvolved(ROCPPVarIF_Ptr dv) const
 {
     const_iterator it (find(dv->getName()));
     return (it!=end());
@@ -343,7 +343,7 @@ bool dvContainer::varIsInvolved(boost::shared_ptr<DecisionVariableIF> dv) const
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-boost::shared_ptr<DecisionVariableIF> createVariable( string name, decVariableType type, bool isAdaptive, uint timeStage, double lb, double ub)
+ROCPPVarIF_Ptr createVariable( string name, decVariableType type, bool isAdaptive, uint timeStage, double lb, double ub)
 {
     if(!isAdaptive)
     {
@@ -352,14 +352,14 @@ boost::shared_ptr<DecisionVariableIF> createVariable( string name, decVariableTy
         switch (type) {
             case boolDV:
                 if(ub < INFINITY)
-                    return boost::shared_ptr<DecisionVariableIF>( new  VariableBool(name, lb, ub) );
+                    return ROCPPVarIF_Ptr( new  VariableBool(name, lb, ub) );
                 else
-                    return boost::shared_ptr<DecisionVariableIF>( new  VariableBool(name) );
+                    return ROCPPVarIF_Ptr( new  VariableBool(name) );
                 break;
             case intDV:
-                return boost::shared_ptr<DecisionVariableIF>( new  VariableInt(name, lb, ub) );
+                return ROCPPVarIF_Ptr( new  VariableInt(name, lb, ub) );
             case contDV:
-                return boost::shared_ptr<DecisionVariableIF>( new  VariableDouble(name, lb, ub) );
+                return ROCPPVarIF_Ptr( new  VariableDouble(name, lb, ub) );
             default:
             {
                 throw MyException("Variable type can not be recognized");
@@ -372,14 +372,14 @@ boost::shared_ptr<DecisionVariableIF> createVariable( string name, decVariableTy
         switch (type) {
             case boolDV:
                 if(ub < INFINITY)
-                    return boost::shared_ptr<DecisionVariableIF>( new  AdaptVarBool(name, timeStage, lb, ub) );
+                    return ROCPPVarIF_Ptr( new  AdaptVarBool(name, timeStage, lb, ub) );
                 else
-                    return boost::shared_ptr<DecisionVariableIF>( new  AdaptVarBool(name, timeStage) );
+                    return ROCPPVarIF_Ptr( new  AdaptVarBool(name, timeStage) );
                 break;
             case intDV:
-                return boost::shared_ptr<DecisionVariableIF>( new  AdaptVarInt(name, timeStage, lb, ub) );
+                return ROCPPVarIF_Ptr( new  AdaptVarInt(name, timeStage, lb, ub) );
             case contDV:
-                return boost::shared_ptr<DecisionVariableIF>( new  AdaptVarDouble(name, timeStage, lb, ub) );
+                return ROCPPVarIF_Ptr( new  AdaptVarDouble(name, timeStage, lb, ub) );
             default:
             {
                 throw MyException("Variable type can not be recognized");
