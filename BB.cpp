@@ -116,12 +116,19 @@ int main(int argc, const char * argv[])
 	BPconfig["Value_2"] = 3;
 	BPconfig["Value_4"] = 3;
 
-	// Construct the PWC decision rule approximator
-	ROCPPApproximator_Ptr pPWCApprox(new ROCPPPiecewiseApprox(BBModel,BPconfig));
-	// Approximate the decisions using PWC decision rules and robustify
-	ROCPPMISOCP_Ptr BBModelPWC(pPWCApprox->DoMyThing(BBModel));
-	// Construct the solver; in this case, use the gurobi solver as a deterministic solver
-	ROCPPSolver_Ptr pSolver(new ROCPPGurobi(SolverParams()));
+    // Construct the PWC decision rule approximator
+    ROCPPApproximator_Ptr pPWCApprox(new ROCPPPiecewiseApprox(BBModel,BPconfig));
+    // Approximate the decisions using PWC decision rules and robustify
+    ROCPPMISOCP_Ptr BBModelPWC(pPWCApprox->approx(BBModel));
+    // Construct the solver; in this case, use the gurobi or SCIP solver as a deterministic solver
+    SolverParams sparams = SolverParams();
+#ifdef USE_GUROBI
+    ROCPPSolver_Ptr pSolver(new GurobiModeller(sparams, false) );
+#elif defined(USE_SCIP)
+    ROCPPSolver_Ptr pSolver(new SCIPModeller(sparams, false) );
+#else
+    throw MyException("Can not find your solver.");
+#endif
 	// Solve the problem
 	pSolver->solve(BBModelPWC); 
 	// Retrieve the optimal solution from the solver

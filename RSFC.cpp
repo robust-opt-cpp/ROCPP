@@ -151,9 +151,16 @@ int main(int argc, const char * argv[]) {
     // Construct the linear/constant decision rule approximator
     ROCPPApproximator_Ptr pLDRApprox(new ROCPPLCDRApprox(RSFCModel));
     // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
-    ROCPPMISOCP_Ptr RSFCModelLDR(pLDRApprox->DoMyThing(RSFCModel));
-    // Construct the solver; in this case, use the gurobi solver as a deterministic solver
-    ROCPPSolver_Ptr pSolver(new ROCPPGurobi(SolverParams()));
+    ROCPPMISOCP_Ptr RSFCModelLDR(pLDRApprox->approx(RSFCModel));
+    // Construct the solver; in this case, use the gurobi or SCIP solver as a deterministic solver
+    SolverParams sparams = SolverParams();
+#ifdef USE_GUROBI
+    ROCPPSolver_Ptr pSolver(new GurobiModeller(sparams, false) );
+#elif defined(USE_SCIP)
+    ROCPPSolver_Ptr pSolver(new SCIPModeller(sparams, false) );
+#else
+    throw MyException("Can not find your solver.");
+#endif
     // Solve the problem
     pSolver->solve(RSFCModelLDR);
     
