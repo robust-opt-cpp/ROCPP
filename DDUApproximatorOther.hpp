@@ -183,7 +183,7 @@ public:
     void createVariableAndUncMap(dvContainer::const_iterator varsBegin, dvContainer::const_iterator varsEnd, uncContainer::const_iterator uncBegin, uncContainer::const_iterator uncEnd);
     
     /// Check the compatability of the input model and check whether the model has constraint uncertainty to choose the appropriate method
-    ROCPPMISOCP_Ptr approx(ROCPPOptModelIF_Ptr pIn);
+    ROCPPMISOCP_Ptr approximate(ROCPPOptModelIF_Ptr pIn);
     
     //ROCPPOptModelIF_Ptr fixSecondStageVariablesToWarmStart(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pKadaptModel, string folderName, string slnName, uint K);
     
@@ -311,7 +311,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Approximate the input model using linear and constant decision rules
-    ROCPPMISOCP_Ptr approx(ROCPPOptModelIF_Ptr pIn);
+    ROCPPMISOCP_Ptr approximate(ROCPPOptModelIF_Ptr pIn);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%

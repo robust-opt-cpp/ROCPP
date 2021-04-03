@@ -627,9 +627,8 @@ void DeterministicOptimizationModel::checkCompatibility(ROCPPConstraint_Ptr pCon
     if (pConstraint->definesUncertaintySet())
         throw MyException("cannot add uncertainty set constraint");
     
-    // check that it does not contain bilinear terms
     if (pConstraint->getNumAdaptiveVars()!=0)
-        throw MyException("cannot add adaptive to a DeterministicOptimizationModel");
+        throw MyException("cannot add adaptive variables to a DeterministicOptimizationModel");
 }
 
 void DeterministicOptimizationModel::checkCompatibility(ROCPPVarIF_Ptr pVariable) const
@@ -647,7 +646,7 @@ void DeterministicOptimizationModel::checkCompatibility(ROCPPObjectiveIF_Ptr pOb
     
     // check that it does not contain bilinear terms
     if (pObjFun->getNumAdaptiveVars()!=0)
-        throw MyException("cannot add adaptive to a DeterministicOptimizationModel");
+        throw MyException("cannot add adaptive variables to a DeterministicOptimizationModel");
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -898,10 +897,11 @@ void UncertainOptimizationModel::add_uncertainties(ROCPPconstuncContainer_Ptr pU
 
 void SimpleUncertainOptimizationModel::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
 {
+    UncertainOptimizationModel::checkCompatibility(pConstraint);
+    
     if (pConstraint->hasNonlinearities())
         throw MyException("SimpleUncertainOptimizationModel should not have bilinear terms");
-    
-    UncertainOptimizationModel::checkCompatibility(pConstraint);
+
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -912,6 +912,8 @@ void SimpleUncertainOptimizationModel::checkCompatibility(ROCPPConstraint_Ptr pC
 
 void SimpleUncertainSingleStageOptimizationModel::checkCompatibility(ROCPPVarIF_Ptr pVariable) const
 {
+    OptimizationModelIF::checkCompatibility(pVariable);
+    
     if (pVariable->isAdaptive())
         throw MyException("cannot add adaptive variable to single stage model");
 }
@@ -924,6 +926,8 @@ void SimpleUncertainSingleStageOptimizationModel::checkCompatibility(ROCPPVarIF_
 
 void UncertainSingleStageOptimizationModel::checkCompatibility(ROCPPVarIF_Ptr pVariable) const
 {
+    OptimizationModelIF::checkCompatibility(pVariable);
+    
     if (pVariable->isAdaptive())
         throw MyException("cannot add adaptive variable to single stage model");
     
@@ -941,32 +945,25 @@ void UncertainSingleStageOptimizationModel::checkCompatibility(ROCPPVarIF_Ptr pV
 
 void MISOCP::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
 {
-    if (!pConstraint->isDeterministic())
-        throw MyException("cannot add non deterministic constraint to a simple optimization model");
-    
-    if (pConstraint->definesUncertaintySet())
-        throw MyException("cannot add uncertainty set constraint");
+    DeterministicOptimizationModel::checkCompatibility(pConstraint);
     
     // check that it does not contain bilinear terms
     if (pConstraint->hasNonlinearities())
-        throw MyException("cannot add bilinear terms to a simple optimization problem");
+        throw MyException("cannot add nonlinear terms to an MISOCP problem");
 }
 
 void MISOCP::checkCompatibility(ROCPPVarIF_Ptr pVariable) const
 {
-    if (pVariable->isAdaptive())
-        throw MyException("cannot add adaptive variable to single stage model");
+    DeterministicOptimizationModel::checkCompatibility(pVariable);
 }
 
 void MISOCP::checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const
 {
-    OptimizationModelIF::checkCompatibility(pObjFun);
+    DeterministicOptimizationModel::checkCompatibility(pObjFun);
     
-    if (!pObjFun->isDeterministic())
-        throw MyException("cannot add non deterministic constraint to a simple optimization model");
-    
-    if (pObjFun->getNumAdaptiveVars()!=0)
-        throw MyException("cannot add adaptive to a DeterministicOptimizationModel");
+    // check that it does not contain bilinear terms
+    if (pObjFun->hasNonlinearities())
+        throw MyException("cannot add nonlinear terms to an MISOCP problem");
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -977,28 +974,17 @@ void MISOCP::checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const
 
 void Bilinear_MISOCP::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
 {
-    if (!pConstraint->isDeterministic())
-        throw MyException("cannot add non deterministic constraint to a bilinear model");
-    
-    if (pConstraint->definesUncertaintySet())
-        throw MyException("cannot add uncertainty set constraint");
+    DeterministicOptimizationModel::checkCompatibility(pConstraint);
 }
 
 void Bilinear_MISOCP::checkCompatibility(ROCPPVarIF_Ptr pVariable) const
 {
-    if (pVariable->isAdaptive())
-        throw MyException("cannot add adaptive variable to single stage bilinear model");
+    DeterministicOptimizationModel::checkCompatibility(pVariable);
 }
 
 void Bilinear_MISOCP::checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const
 {
-    OptimizationModelIF::checkCompatibility(pObjFun);
-    
-    if (!pObjFun->isDeterministic())
-        throw MyException("cannot add non deterministic object to a simple optimization model");
-    
-    if (pObjFun->getNumAdaptiveVars()!=0)
-        throw MyException("cannot add adaptive to a DeterministicOptimizationModel");
+    DeterministicOptimizationModel::checkCompatibility(pObjFun);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1105,30 +1091,21 @@ CPLEXMISOCP::CPLEXMISOCP(ROCPPMISOCP_Ptr pIn, string baseVarNme) : m_baseVarNme(
 
 void CPLEXMISOCP::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
 {
-    if (!pConstraint->isDeterministic())
-        throw MyException("cannot add non-deterministic constraint to CPLEXMISOCP");
-    
+    DeterministicOptimizationModel::checkCompatibility(pConstraint);
 }
 
 void CPLEXMISOCP::checkCompatibility(ROCPPVarIF_Ptr pVariable) const
 {
-    if (pVariable->isAdaptive())
-        throw MyException("cannot add adaptive variable to CPLEXMISOCP");
+    DeterministicOptimizationModel::checkCompatibility(pVariable);
 }
 
 void CPLEXMISOCP::checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const
 {
-    OptimizationModelIF::checkCompatibility(pObjFun);
-    
-    if (!pObjFun->isDeterministic())
-        throw MyException("cannot add non deterministic constraint to a simple optimization model");
-    
-    if (pObjFun->getNumAdaptiveVars()!=0)
-        throw MyException("cannot add adaptive to a DeterministicOptimizationModel");
+    DeterministicOptimizationModel::checkCompatibility(pObjFun);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%% Goer Functions %%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr > &otherVars)

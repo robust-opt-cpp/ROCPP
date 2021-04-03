@@ -454,7 +454,7 @@ void KadaptabilityApproximatorMS::createVariableAndUncMap(dvContainer::const_ite
     }
 }
 
-ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approx(ROCPPOptModelIF_Ptr pIn)
+ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approximate(ROCPPOptModelIF_Ptr pIn)
 {
     cout << endl;
     cout << "=========================================================================== " << endl;
@@ -1607,7 +1607,7 @@ m_bigM(bigM), m_numBits(numBits), m_folder(folder)
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPMISOCP_Ptr LDRCDRApproximator::approx(ROCPPOptModelIF_Ptr pIn)
+ROCPPMISOCP_Ptr LDRCDRApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
 {
     cout << endl;
     cout << "=========================================================================== " << endl;

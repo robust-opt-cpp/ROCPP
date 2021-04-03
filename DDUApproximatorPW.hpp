@@ -70,7 +70,7 @@ public:
     
     /// Approximate the input model
     /// First construct the partition maps, then calculate and robustity the model on each subset, finally add non-anticipativity constraints
-    ROCPPMISOCP_Ptr approx(ROCPPOptModelIF_Ptr pIn);
+    ROCPPMISOCP_Ptr approximate(ROCPPOptModelIF_Ptr pIn);
     
     
     /// Return a new model after fixing the binary variables to the value provided in the input map

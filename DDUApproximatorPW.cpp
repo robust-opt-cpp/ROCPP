@@ -260,7 +260,7 @@ void PiecewiseApproximator::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptM
     }
 }
 
-ROCPPMISOCP_Ptr PiecewiseApproximator::approx(ROCPPOptModelIF_Ptr pIn)
+ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
 {
     
     cout << "=========================================================================== " << endl;

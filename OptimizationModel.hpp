@@ -694,7 +694,7 @@ public:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /// Mix integer socp model
-class MISOCP : public OptimizationModelIF
+class MISOCP : public DeterministicOptimizationModel
 {
 public:
     
@@ -703,7 +703,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constructor of MISOCP
-    MISOCP() : OptimizationModelIF()
+    MISOCP() : DeterministicOptimizationModel()
     {}
     
     /// Destructor of MISOCP
@@ -736,7 +736,7 @@ public:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /// Bilinear  mix integer socp model
-class Bilinear_MISOCP : public OptimizationModelIF
+class Bilinear_MISOCP : public DeterministicOptimizationModel
 {
 public:
     
@@ -745,8 +745,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constructor of Bilinear_MISOCP
-    Bilinear_MISOCP() :
-    OptimizationModelIF()
+    Bilinear_MISOCP() : DeterministicOptimizationModel()
     {}
     
     /// Destructor of Bilinear_MISOCP
@@ -778,7 +777,7 @@ public:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /// CPLEX MISOCP model
-class CPLEXMISOCP : public OptimizationModelIF
+class CPLEXMISOCP : public DeterministicOptimizationModel
 {
 public:
     
