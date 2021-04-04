@@ -11,7 +11,9 @@ Please visit our [website](https://sites.google.com/usc.edu/robust-opt-cpp/home)
 ROC++ requires at least one of the following MILP solvers:
 * [GUROBI](https://www.gurobi.com/)
 * [SCIP](https://www.scipopt.org/)
-	* Note that to solve nonlinear problems in SCIP, you need to install at least one supported nonlinear solver and compile it with SCIP. The information can be found [here](https://scipopt.org/doc/html/NLPI.php). 
+	* Note that SCIP needs at leaset one LP solver, the supported LP solver interfaces are listed [here](https://www.scipopt.org/doc/html/LPI.php).
+	* If you want to solve a nonlinear MIP porblem, you need to have at least one of [NLP solver](https://www.scipopt.org/doc/html/NLPISOLVERS.php) supported by SCIP.
+	* The compilation instructions of SCIP are [here](https://www.scipopt.org/doc/html/CMAKE.php) using CMake and [here](https://www.scipopt.org/doc/html/MAKE.php) using Makefiles.
 
 ### Compile
 After installation of the solvers, we can build the ROCPP project using CMake by following steps:
