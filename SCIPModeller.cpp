@@ -2,8 +2,10 @@
 //  SCIPModeller.cpp
 //  ROCPP
 //
-//  Created by 靳晴 on 1/16/21.
+// This software is Copyright © 2020 Phebe Vayanos. All Rights Reserved.
+// Software created by Phebe Vayanos, Qing Jin, and George Elissaios
 //
+
 #ifdef USE_SCIP
 #include "SCIPModeller.hpp"
 #include "Exceptions.hpp"
