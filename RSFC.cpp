@@ -134,7 +134,7 @@ int main(int argc, const char * argv[]) {
         for (uint t=1; t<=T; t++)
             EllipsoidElements.push_back(Demand[t] - NomDemand);
         // Create the norm term
-        boost::shared_ptr<ConstraintTermIF> EllipsoidalConstraintTerm(new NormTerm(EllipsoidElements));
+        shared_ptr<ConstraintTermIF> EllipsoidalConstraintTerm(new NormTerm(EllipsoidElements));
         // Create the ellipsoidal uncertainty constraint
         RSFCModel->add_constraint_uncset(EllipsoidalConstraintTerm <= Omega);
         
@@ -151,7 +151,7 @@ int main(int argc, const char * argv[]) {
     // Construct the linear/constant decision rule approximator
     ROCPPApproximator_Ptr pLDRApprox(new ROCPPLCDRApprox(RSFCModel));
     // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
-    ROCPPMISOCP_Ptr RSFCModelLDR(pLDRApprox->approx(RSFCModel));
+    ROCPPMISOCP_Ptr RSFCModelLDR(pLDRApprox->approximate(RSFCModel));
     // Construct the solver; in this case, use the gurobi or SCIP solver as a deterministic solver
     SolverParams sparams = SolverParams();
 #ifdef USE_GUROBI

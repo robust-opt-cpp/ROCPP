@@ -115,7 +115,7 @@ int main(int argc, const char * argv[])
     // Construct the finite adaptability approximator with K candidate policies
     ROCPPApproximator_Ptr pKAdaptaApprox(new ROCPPKadaptApprox(PBModel,K));
     // Approximate the adaptive decisions using K-adaptability approximator and robustify
-    ROCPPMISOCP_Ptr PBModelKAdapt(pKAdaptaApprox->approx(PBModel));
+    ROCPPMISOCP_Ptr PBModelKAdapt(pKAdaptaApprox->approximate(PBModel));
     // Construct the solver; in this case, use the gurobi or SCIP solver as a deterministic solver
     SolverParams sparams = SolverParams();
 #ifdef USE_GUROBI

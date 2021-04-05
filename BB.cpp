@@ -119,7 +119,7 @@ int main(int argc, const char * argv[])
     // Construct the PWC decision rule approximator
     ROCPPApproximator_Ptr pPWCApprox(new ROCPPPiecewiseApprox(BBModel,BPconfig));
     // Approximate the decisions using PWC decision rules and robustify
-    ROCPPMISOCP_Ptr BBModelPWC(pPWCApprox->approx(BBModel));
+    ROCPPMISOCP_Ptr BBModelPWC(pPWCApprox->approximate(BBModel));
     // Construct the solver; in this case, use the gurobi or SCIP solver as a deterministic solver
     SolverParams sparams = SolverParams();
 #ifdef USE_GUROBI
