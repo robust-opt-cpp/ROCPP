@@ -30,12 +30,15 @@ CMake will build files in a separated directory. Users need to create this direc
 Next, run `make` to compile the source code. A generated executable can be found in `bin`. In macOS, you need to give the system permission to run the executable. A library `ROCPP.a` will also be created and put in the folder `lib`.
 
 #### ROPY library
-We use [pybind11](https://pybind11.readthedocs.io/en/stable/index.html) to create Python bindings of the C++ code. We add `pybind11` as a submodule of this repo. 
-When you clone this repo, an empty `pybind11` directory will be created. Run the following commands to initialize the local configuration files and fetch the data. 
+We use [pybind11](https://pybind11.readthedocs.io/en/stable/index.html) to create Python bindings of the C++ code. 
+
+We add pybind11 as a submodule of this repo. 
+If you clone this repo, an empty `pybind11` directory will be created. Run the following commands to initialize the local configuration files and fetch the data. 
 ```
 git submodule init
 git submodule update
 ```
+If you directly download the .zip, then there will be an empty pybind11 directory. You need to download it [here](https://github.com/pybind/pybind11) and replace the empty one.
 
 Now we are able to build the `ROPY` library by the following steps. Note that we don't need to create a new build folder if it already existed.
 ```
