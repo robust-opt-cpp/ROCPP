@@ -25,6 +25,7 @@
 #include "IndexSetCreator.hpp"
 #include <iomanip>
 #include <chrono>
+#include <sstream>
 
 
 
@@ -404,7 +405,8 @@ void KadaptabilityApproximatorMS::createVariableAndUncMap(dvContainer::const_ite
                  tit->second.end(); pit++)
             {
                 uint t( tit->first );
-                ROCPPUnc_Ptr newunc( new UncertaintyIF(  u_it->second->getName() + "_" + to_string(t) + "_" + pit->first , u_it->second->isObservable() ) );
+                // ???: isObservable is the thrid arguement
+                ROCPPUnc_Ptr newunc( new UncertaintyIF(  u_it->second->getName() + "_" + to_string(t) + "_" + pit->first , 1, u_it->second->isObservable() ) );
                 
                 subUncMap.insert( make_pair( make_pair(t,pit->first) , newunc ) );
             }
@@ -531,8 +533,9 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
     
     // **** initialize the problem ****
 
-    ROCPPBilinMISOCP_Ptr pBilinearMISOCPout( new Bilinear_MISOCP());
-
+    //ROCPPBilinMISOCP_Ptr pBilinearMISOCPout( new Bilinear_MISOCP());
+    ROCPPUncSSOptModel_Ptr pOutTest( new UncertainSingleStageOptimizationModel(robust));
+    
     // add all the deterministic constraints from the original problem to pBilinearMISOCPout
 
     for (OptimizationModelIF::constraintIterator c_it = pIn->constraintBegin(); c_it != pIn->constraintEnd(); c_it++)
@@ -553,7 +556,8 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
                 //newcstr = newcstr->mapVars( dvMapit->second );
 
 
-                pBilinearMISOCPout->add_constraint(newcstr);
+                //pBilinearMISOCPout->add_constraint(newcstr);
+                pOutTest->add_constraint(newcstr);
             }
 
         }
@@ -570,14 +574,15 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
             
             ROCPPConstraint_Ptr newcstr ( (*c_it)->mapVars(dvMapit->second) );
 
-            pBilinearMISOCPout->add_constraint(newcstr);
+            //pBilinearMISOCPout->add_constraint(newcstr);
+            pOutTest->add_constraint(newcstr);
         }
         else if ( !(*c_it)->definesUncertaintySet() && !(*c_it)->isDeterministic() )
             throw MyException("there shouldn‘t be any uncertain constraints in this type of problem");
     }
     
 
-    pBilinearMISOCPout = static_pointer_cast<Bilinear_MISOCP>( addProblemSpecificConstraints(pBilinearMISOCPout) );
+    //pBilinearMISOCPout = static_pointer_cast<Bilinear_MISOCP>( addProblemSpecificConstraints(pBilinearMISOCPout) );
     
     // *** for each element from elements, create a problem to robustify, robustify it, and add the robustified constraints to the final output problem ****
 
@@ -588,7 +593,9 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
     ROCPPExpr_Ptr newObjFun(new LHSExpression() );
     newObjFun->add(1.0, pEpi);
     ROCPPObjectiveIF_Ptr newObj(new SimpleObjective(newObjFun) );
-    pBilinearMISOCPout->set_objective(newObj);
+    //pBilinearMISOCPout->set_objective(newObj);
+    
+    pOutTest->set_objective(newObj);
 
     ROCPPUnc_Ptr pEpigraphUnc (new UncertaintyIF( "tau_unc"));
 
@@ -601,7 +608,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
             cout << "Creating K-adaptability problem on subset " << elcnt << " of " << elements.size() << endl;
 
         // **** first, we are going to write the problem as a single stage robut problem with decision-dependent uncertainty set ****
-        ROCPPUncSSOptModel_Ptr pRobust ( new UncertainSingleStageOptimizationModel(robust) );
+        //ROCPPUncSSOptModel_Ptr pRobust ( new UncertainSingleStageOptimizationModel(robust) );
 
         string elstring(to_string(elcnt));
 
@@ -614,7 +621,9 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
         pcstr_epi->add_lhs(1., pEpigraphUnc);
         pcstr_epi->add_lhs(-1., pEpi);
         pcstr_epi->set_rhs(make_pair(0.,true));
-        pRobust->add_constraint(pcstr_epi);
+        //pRobust->add_constraint(pcstr_epi);
+        
+        pOutTest->add_constraint(pcstr_epi);
 
         
         uint kcount(0);
@@ -652,8 +661,9 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
             pcstr->add_lhs(1., pEpigraphUnc);
 
             pcstr->set_rhs(make_pair(0.,true));
-
-            pRobust->add_constraint(pcstr);
+            
+            pOutTest->add_constraint(pcstr);
+            //pRobust->add_constraint(pcstr);
             
         
 
@@ -682,7 +692,8 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
                         ROCPPConstraint_Ptr newcstr (  (*c_it)->mapUnc(uncMapit->second) );
                         newcstr = newcstr->mapVars( dvMapit->second );
 
-                        pRobust->add_constraint(newcstr);
+                        //pRobust->add_constraint(newcstr);
+                        pOutTest->add_constraint(newcstr);
                     }
                 }
                 
@@ -742,7 +753,8 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
                             nac->add_lhs(1., u_current ,mvp );
                             nac->add_lhs(-1., u_prev ,mvp );
                             nac->set_rhs(make_pair(0.,true));
-                            pRobust->add_constraint(nac);
+                            //pRobust->add_constraint(nac);
+                            pOutTest->add_constraint(nac);
                             
                         }
                         else if (pIn->isObservable(u_it->second->getName()))
@@ -754,8 +766,8 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
                                 nac->add_lhs(1., u_current );
                                 nac->add_lhs(-1., u_prev );
                                 nac->set_rhs(make_pair(0.,true));
-                                pRobust->add_constraint(nac);
-
+                                //pRobust->add_constraint(nac);
+                                pOutTest->add_constraint(nac);
                             }
                         }
                     }
@@ -767,36 +779,44 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
         
         
 
-        ROCPPUncSSOptModel_Ptr pRobust2(convertToUSSOM(pRobust));
+        //ROCPPUncSSOptModel_Ptr pRobust2(convertToUSSOM(pRobust));
         
         //uint tmp (pRobust2->getNumUncertaintySetConstraints());
         //uint tmp2 (pRobust2->getNumConstraints());
         
         // **** robustify the problem ***
+        // MARK: should be moved outside
 
-        ROCPPRobustifyEngine_Ptr m_pRE (new RobustifyEngine(dualvarscnt,elstring));
-
-        ROCPPBilinMISOCP_Ptr pBilinearMISOCP( m_pRE->robustify(pRobust2)  );
-
-        // **** linearize the bilinear terms ****
-
-        ROCPPOptModelIF_Ptr pMISOCP( m_pBTR->linearize(pBilinearMISOCP) );
-
-        // *** add the robustified constraints to the output problem
-
-        for (OptimizationModelIF::constraintIterator cit=pMISOCP->constraintBegin(); cit!=pMISOCP->constraintEnd(); cit++)
-            pBilinearMISOCPout->add_constraint(*cit);
+//        ROCPPRobustifyEngine_Ptr m_pRE (new RobustifyEngine(dualvarscnt,elstring));
+//
+//        ROCPPBilinMISOCP_Ptr pBilinearMISOCP( m_pRE->robustify(pRobust2)  );
+//
+//        // **** linearize the bilinear terms ****
+//
+//         ROCPPOptModelIF_Ptr pMISOCP( m_pBTR->linearize(pBilinearMISOCP) );
+//
+//        // *** add the robustified constraints to the output problem
+//
+//        for (OptimizationModelIF::constraintIterator cit=pMISOCP->constraintBegin(); cit!=pMISOCP->constraintEnd(); cit++)
+//            pBilinearMISOCPout->add_constraint(*cit);
     }
     
     // **** linearize the bilinear terms ****
 
-    ROCPPOptModelIF_Ptr pOutTmp( m_pBTR->linearize(pBilinearMISOCPout) );
+    //ROCPPOptModelIF_Ptr pOutTmp( m_pBTR->linearize(pBilinearMISOCPout) );
 
-    ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp) );
+    //ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp) );
     
     // *** return ***
     
+    ROCPPRobustifyEngine_Ptr m_pRE (new RobustifyEngine());
+    ROCPPBilinMISOCP_Ptr pBilinearMISOCP( m_pRE->robustify(pOutTest) );
+    
+    ROCPPOptModelIF_Ptr pOutTmp( m_pBTR->linearize(pBilinearMISOCP) );
+    ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp) );
+    
     return pOut;
+    //return pBilinearMISOCPout;
 }
 
 ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr pIn)
@@ -805,7 +825,9 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
     // **** initialize the problem ****
     
     ROCPPBilinMISOCP_Ptr pBilinearMISOCPout( new Bilinear_MISOCP());
+    ROCPPUncSSOptModel_Ptr pOutTest( new UncertainSingleStageOptimizationModel(robust));
     
+    // move out, change name to isApplicable
     checkCompatability(pIn);
     
     createVariableAndUncMap(pIn->varsBegin(), pIn->varsEnd(), pIn->uncertaintiesBegin(), pIn->uncertaintiesEnd());
@@ -819,9 +841,9 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
     
     for (OptimizationModelIF::constraintIterator c_it = pIn->constraintBegin(); c_it != pIn->constraintEnd(); c_it++)
     {
-        if ( (*c_it)->isDeterministic())
-        {
-            if ( (*c_it)->getNumAdaptiveVars()!=0 ){
+        // quicker way to do the if-else statement
+        if((*c_it)->getNumAdaptiveVars() != 0){
+            if ( (*c_it)->isDeterministic()){
                 // need to map the variables in this case
                 for ( uint k = 1; k<= m_K; k++ )
                 {
@@ -839,16 +861,54 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                     
                     
                     pBilinearMISOCPout->add_constraint(newcstr);
+                    pOutTest->add_constraint(newcstr);
                 }
             }
-            else{
-                    pBilinearMISOCPout->add_constraint(*c_it);
+            else if(!(*c_it)->definesUncertaintySet()){
+                uncCstr.push_back(*c_it);
+                numUncCstr += 1;
             }
         }
-        else if ( !(*c_it)->definesUncertaintySet() && !(*c_it)->isDeterministic() ){
-            uncCstr.push_back(*c_it);
-            numUncCstr += 1;
+        else{
+            if ( (*c_it)->isDeterministic()){
+                pBilinearMISOCPout->add_constraint(*c_it);
+                pOutTest->add_constraint(*c_it);
+            }
         }
+        
+        
+//        if ( (*c_it)->isDeterministic())
+//        {
+//            if ( (*c_it)->getNumAdaptiveVars()!=0 ){
+//                // need to map the variables in this case
+//                for ( uint k = 1; k<= m_K; k++ )
+//                {
+//                    vector<uint> partition;
+//                    partition.push_back(1); partition.push_back(k);
+//                    string partitionNme = m_pPartitionEncoder->convertPartitionToString(partition);
+//                    // find the submaps that refer to this choice of k
+//                    map< string, map<string, ROCPPVarIF_Ptr > >::const_iterator dvMapit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(partitionNme) ) ;
+//
+//                    if (dvMapit==m_mapPartitionEnc_mapOrigDVtoDVonPartition.end())
+//                        throw MyException("k value not found in one of the maps");
+//
+//                    ROCPPConstraint_Ptr newcstr (  (*c_it)->mapVars(dvMapit->second) );
+//                    newcstr = newcstr->mapVars( dvMapit->second );
+//
+//
+//                    pBilinearMISOCPout->add_constraint(newcstr);
+//                    pOutTest->add_constraint(newcstr);
+//                }
+//            }
+//            else{
+//                pBilinearMISOCPout->add_constraint(*c_it);
+//                pOutTest->add_constraint(*c_it);
+//            }
+//        }
+//        else if ( !(*c_it)->definesUncertaintySet()  && (*c_it)->getNumAdaptiveVars()!=0){
+//            uncCstr.push_back(*c_it);
+//            numUncCstr += 1;
+//        }
     }
     
     // **** create all for possible elements from the set {0,1,...,L}^K where L is the number of constraint with uncertainties *****
@@ -868,6 +928,14 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
     newObjFun->add(1.0, pEpi);
     ROCPPObjectiveIF_Ptr newObj(new SimpleObjective(newObjFun) );
     pBilinearMISOCPout->set_objective(newObj);
+    pOutTest->set_objective(newObj);
+    
+    // Get the decision variables on the first time stage, this is for arbitrary k
+    vector<uint> partition;
+    partition.push_back(1);
+    string partitionNme = m_pPartitionEncoder->convertPartitionToString(partition);
+    
+    map< pair<string,uint>, map<string, ROCPPUnc_Ptr > >::const_iterator uncStatMapit( m_mapPartitionEncandt_mapOrigUnctoUnconPartition.find(make_pair(partitionNme, 1)) );
     
     //for all uncertainty sets
     for (vector<vector<uint> >::const_iterator vit = elements.begin(); vit!=elements.end(); vit++)
@@ -880,6 +948,11 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
         if(elcnt % 10 == 0)
             cout << "Creating K-adaptability problem on uncertainty set " << elcnt << " of " << elements.size() << endl;
         
+        // convert l to string as the name of uncertainty in this set of l
+        stringstream name_l;
+        copy(vit->begin(), vit->end(),ostream_iterator<int>(name_l, ""));
+        
+        
         // at least one l_k = 0
         if(!allPositive(*vit))
         {
@@ -888,11 +961,21 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
             
             string elstring(to_string(elcnt));
             
+            // First map the first time stage decision variables on each partition
+            map<string, ROCPPUnc_Ptr > uncStatMapInl;
+            
+            map<string, ROCPPUnc_Ptr >::const_iterator uStat_it(uncStatMapit->second.begin());
+            for(;uStat_it!=uncStatMapit->second.end();uStat_it++){
+                ROCPPUnc_Ptr uncStatL(new ROCPPUnc( uStat_it->second->getName() + "_(l=" + name_l.str() + ")", 1, uStat_it->second->isObservable()));
+                uncStatMapInl.insert(make_pair(uStat_it->first, uncStatL));
+            }
+            
             for (OptimizationModelIF::constraintIterator c_it = pIn->constraintBegin(); c_it != pIn->constraintEnd(); c_it++)
             {
                 if ( (*c_it)->definesUncertaintySet() && (*c_it)->getNumAdaptiveVars()==0 )
                 {
                     pRobust->add_constraint(*c_it);
+                    pOutTest->add_constraint((*c_it)->mapUnc(uncStatMapInl));
                 }
             }
             
@@ -900,6 +983,12 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
             ROCPPExpr_Ptr lambda( new LHSExpression() );
             // create objective expression
             ROCPPExpr_Ptr obj_l( new LHSExpression() );
+            
+            // create lambda expression
+            ROCPPExpr_Ptr lambda_l( new LHSExpression() );
+            // create objective expression
+            ROCPPExpr_Ptr obj_lnew( new LHSExpression() );
+            
             
             for ( uint k = 1; k <= m_K; k++ )
             {
@@ -914,17 +1003,46 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                 if (dvMapit==m_mapPartitionEnc_mapOrigDVtoDVonPartition.end() || uncMapit==m_mapPartitionEncandt_mapOrigUnctoUnconPartition.end())
                     throw MyException("k value not found in one of the maps");
                 
+                // create map of \xi_k^l for the k-th policy in this partition l
+                map<string, ROCPPUnc_Ptr > uncMapInl;
+                
+                map<string, ROCPPUnc_Ptr >::const_iterator u_it(uncMapit->second.begin());
+                for(;u_it!=uncMapit->second.end();u_it++){
+                    ROCPPUnc_Ptr uncL(new ROCPPUnc( u_it->second->getName() + "_(l=" + name_l.str() + ")", 1, u_it->second->isObservable()));
+                    uncMapInl.insert(make_pair(u_it->first, uncL));
+                }
+                
                 // add the uncertainty set constraints saying that each of the uncertain parameters on the partition must be in the uncertainty set
                 
                 for (OptimizationModelIF::constraintIterator c_it = pIn->constraintBegin(); c_it != pIn->constraintEnd(); c_it++)
                 {
-                    if ( (*c_it)->definesUncertaintySet() )
-                    {
-                        
-                        ROCPPConstraint_Ptr newcstr (  (*c_it)->mapUnc(uncMapit->second) );
-                        newcstr = newcstr->mapVars( dvMapit->second );
-                        
-                        pRobust->add_constraint(newcstr);
+                    if( !(*c_it)->isDeterministic() ){
+                        if ( (*c_it)->definesUncertaintySet())
+                        {
+                            ROCPPConstraint_Ptr newcstr (  (*c_it)->mapVars(dvMapit->second) );
+                            
+                            if((*c_it)->getNumAdaptiveVars() != 0)
+                                pRobust->add_constraint(newcstr);
+                            
+                            newcstr = newcstr->mapUnc( uncMapit->second );
+                            pRobust->add_constraint(newcstr);
+                            
+                            // First only map the decision variables, the first stage uncertainty remains the same
+                            ROCPPConstraint_Ptr newcstrl (  (*c_it)->mapVars(dvMapit->second) );
+                            if((*c_it)->getNumAdaptiveVars() != 0)
+                                pOutTest->add_constraint(newcstrl->mapUnc(uncStatMapInl));
+                            
+                            // Then also map the uncertainty
+                            newcstrl = newcstrl->mapUnc( uncMapInl);
+                            pOutTest->add_constraint(newcstrl);
+                        }
+                        else if((*c_it)->getNumAdaptiveVars()==0){
+                            ROCPPConstraint_Ptr newcstr ( (*c_it)->mapUnc(uncMapit->second) );
+                            pRobust->add_constraint(newcstr);
+                            
+                            ROCPPConstraint_Ptr newcstrl ( (*c_it)->mapUnc(uncMapInl) );
+                            pOutTest->add_constraint(newcstrl);
+                        }
                     }
                 }
                 
@@ -941,31 +1059,56 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                     obj_l->add(1.0, tmp);
                     lambda->add(1.0, lambda_k);
                     
+                    ROCPPExpr_Ptr tmpl ( pIn->getObj()->getObj(1) );
+                    ROCPPVarIF_Ptr lambda_kl (new VariableDouble( "lambda_"+to_string(k)+"_"+elstring+"_(l="+name_l.str()+")", 0., 1.) );
+                    
+                    tmpl = tmpl->mapExprVars(dvMapit->second);
+                    tmpl = tmpl->mapExprUnc(uncMapInl);
+                    *tmpl *= lambda_kl;
+                    
+                    obj_lnew->add(1.0, tmpl);
+                    lambda_l->add(1.0, lambda_kl);
+                    
+                    
                     for(vector<ROCPPConstraint_Ptr >::const_iterator c_it = uncCstr.begin(); c_it != uncCstr.end(); c_it++)
                     {
                         ROCPPConstraint_Ptr newcstr ( (*c_it)->mapUnc(uncMapit->second) );
                         newcstr = newcstr->mapVars( dvMapit->second );
                         newcstr->setParams(true, false);
                         pRobust->add_constraint(newcstr);
+                        
+                        ROCPPConstraint_Ptr newcstrl ( (*c_it)->mapUnc(uncMapInl) );
+                        newcstrl = newcstrl->mapVars( dvMapit->second );
+                        newcstrl->setParams(true, false);
+                        pOutTest->add_constraint(newcstrl);
                     }
                 }
                 
                 // if l_k > 0
                 else{
-                    ROCPPConstraint_Ptr oldCstr ( uncCstr[l_k-1] );
-                    if (!oldCstr->isClassicConstraint()) {
+                    
+                    if (!uncCstr[l_k-1]->isClassicConstraint()) {
                         throw MyException("only deal with classic constrain");
                     }
                     
-                    oldCstr = oldCstr->mapUnc(uncMapit->second);
-                    oldCstr = oldCstr->mapVars(dvMapit->second);
-                    ROCPPClassicConstraint_Ptr Cstr = dynamic_pointer_cast<ClassicConstraintIF>(oldCstr);
-                    ROCPPConstraint_Ptr newCstr(new IneqConstraint(true));
+                    ROCPPClassicConstraint_Ptr Cstr = dynamic_pointer_cast<ClassicConstraintIF>(uncCstr[l_k-1]);
                     
-                    newCstr->add_lhs(-1.0, Cstr->getLHS());
-                    newCstr->add_lhs(Cstr->get_rhs().first);
-                    newCstr->set_rhs(make_pair(-1*m_epsilon, false));
+                    ROCPPConstraint_Ptr oldCstr(new IneqConstraint(true));
+                    oldCstr->add_lhs(-1.0, Cstr->getLHS());
+                    oldCstr->add_lhs(Cstr->get_rhs().first);
+                    oldCstr->set_rhs(make_pair(-1*m_epsilon, false));
+                    
+                    ROCPPConstraint_Ptr newCstr(oldCstr->mapUnc(uncMapit->second));
+                    newCstr = newCstr->mapVars(dvMapit->second);
+                    
                     pRobust->add_constraint(newCstr);
+                    
+                    
+                    ROCPPConstraint_Ptr newCstrl(oldCstr->mapUnc(uncMapInl));
+                    newCstrl = newCstrl->mapVars(dvMapit->second);
+                    
+                    pOutTest->add_constraint(newCstrl);
+                    
                 }
                 
                 for (OptimizationModelIF::uncertaintiesIterator u_it = pIn->uncertaintiesBegin(); u_it != pIn->uncertaintiesEnd(); u_it++)
@@ -974,9 +1117,18 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                     if (pIn->isDDU(u_it->second->getName()))
                     {
                         ROCPPVarIF_Ptr mv ( pIn->getMeasVar(u_it->second->getName(), 1));
-                        map<string, ROCPPUnc_Ptr >::const_iterator u_it_k ( uncMapit->second.find(u_it->second->getName()) );
                         
+                        map<string, ROCPPUnc_Ptr >::const_iterator u_it_k ( uncMapit->second.find(u_it->second->getName()) );
                         if (u_it_k==uncMapit->second.end())
+                            throw MyException("Uncertain parameter not found");
+                        
+                        
+                        
+                        map<string, ROCPPUnc_Ptr >::const_iterator u_it_kl ( uncMapInl.find(u_it->second->getName()) );
+                        if (u_it_kl==uncMapInl.end())
+                            throw MyException("Uncertain parameter not found");
+                        map<string, ROCPPUnc_Ptr >::const_iterator u_it_statl ( uncStatMapInl.find(u_it->second->getName()) );
+                        if (u_it_statl==uncStatMapInl.end())
                             throw MyException("Uncertain parameter not found");
                         
                         ROCPPConstraint_Ptr nac (  new EqConstraint(true,false) );
@@ -984,14 +1136,26 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                         nac->add_lhs(-1., u_it_k->second ,mv );
                         nac->set_rhs(make_pair(0.,true));
                         pRobust->add_constraint(nac);
+                        
+                        ROCPPConstraint_Ptr nacl ( new EqConstraint(true,false) );
+                        nacl->add_lhs(1., u_it_statl->second ,mv );
+                        nacl->add_lhs(-1., u_it_kl->second ,mv );
+                        nacl->set_rhs(make_pair(0.,true));
+                        pOutTest->add_constraint(nacl);
                     }
                     else
                     {
                         if (pIn->isObservable(u_it->second->getName()))
                         {
                             map<string, ROCPPUnc_Ptr >::const_iterator u_it_k ( uncMapit->second.find(u_it->second->getName()) );
-                            
                             if (u_it_k==uncMapit->second.end())
+                                throw MyException("Uncertain parameter not found");
+                            
+                            map<string, ROCPPUnc_Ptr >::const_iterator u_it_kl ( uncMapInl.find(u_it->second->getName()) );
+                            if (u_it_kl==uncMapInl.end())
+                                throw MyException("Uncertain parameter not found");
+                            map<string, ROCPPUnc_Ptr >::const_iterator u_it_statl ( uncStatMapInl.find(u_it->second->getName()) );
+                            if (u_it_statl==uncStatMapInl.end())
                                 throw MyException("Uncertain parameter not found");
                             
                             ROCPPConstraint_Ptr nac (  new EqConstraint(true,false) );
@@ -999,6 +1163,14 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                             nac->add_lhs(-1., u_it_k->second );
                             nac->set_rhs(make_pair(0.,true));
                             pRobust->add_constraint(nac);
+                            
+                            
+                            
+                            ROCPPConstraint_Ptr nacl (  new EqConstraint(true,false) );
+                            nacl->add_lhs(1., u_it_statl->second );
+                            nacl->add_lhs(-1., u_it_kl->second );
+                            nacl->set_rhs(make_pair(0.,true));
+                            pOutTest->add_constraint(nacl);
                         }
                     }
                 }
@@ -1012,6 +1184,14 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
             
             pRobust->add_constraint(pcstr);
             
+            // eipigrah for the objective function for each l
+            ROCPPConstraint_Ptr pcstrl ( new IneqConstraint() );
+            pcstrl->add_lhs(obj_lnew);
+            pcstrl->add_lhs(-1.0, pEpi);
+            pcstrl->set_rhs(make_pair(0.,true));
+            
+            pOutTest->add_constraint(pcstrl);
+            
             //constraint for lambda
             ROCPPConstraint_Ptr lcstr ( new EqConstraint(false, false) );
             lcstr->add_lhs(lambda);
@@ -1019,25 +1199,32 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
             
             pRobust->add_constraint(lcstr);
             
-            //convert to bilinear term and discrete it
-            ROCPPOptModelIF_Ptr pMISOCP( m_pBTR->linearize(pRobust) );
+            //constraint for lambda for each l
+            ROCPPConstraint_Ptr lcstrl ( new EqConstraint(false, false) );
+            lcstrl->add_lhs(lambda_l);
+            lcstrl->set_rhs(make_pair(1.,false));
             
-            pRobust = convertToUSSOM(pMISOCP);
+            pOutTest->add_constraint(lcstrl);
             
+            //pRobust->WriteToFile("/Users/lynn/Desktop", "testRobust"+elstring);
             //robustify the problem
             ROCPPRobustifyEngine_Ptr m_pRE (new RobustifyEngine(dualvarscnt,elstring) );
             
             ROCPPBilinMISOCP_Ptr pBilinearMISOCP( m_pRE->robustify(pRobust) );
             
+            // **** linearize the bilinear terms ****
+            ROCPPOptModelIF_Ptr pMISOCP( m_pBTR->linearize(pBilinearMISOCP) );
+            
             // *** add the robustified constraints to the output problem
             
-            for (OptimizationModelIF::constraintIterator cit=pBilinearMISOCP->constraintBegin(); cit!=pBilinearMISOCP->constraintEnd(); cit++)
+            for (OptimizationModelIF::constraintIterator cit=pMISOCP->constraintBegin(); cit!=pMISOCP->constraintEnd(); cit++)
                 pBilinearMISOCPout->add_constraint(*cit);
             
         }
         
         // all l_k > 0
         else{
+            
             // **** first, we are going to write the problem as a single stage robut problem with decision-dependent uncertainty set ****
             ROCPPUncSSOptModel_Ptr pRobust ( new UncertainSingleStageOptimizationModel(robust) );
             
@@ -1077,16 +1264,18 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                     if ( (*c_it)->definesUncertaintySet() )
                     {
                         
-                        ROCPPConstraint_Ptr newcstr (  (*c_it)->mapUnc(uncMapit->second) );
-                        newcstr = newcstr->mapVars( dvMapit->second );
+                        ROCPPConstraint_Ptr newcstr (  (*c_it)->mapVars( dvMapit->second ) );
+                        if(((*c_it)->getNumAdaptiveVars()!=0))
+                            pRobust->add_constraint(newcstr);
                         
+                        newcstr = newcstr->mapUnc(uncMapit->second);
                         pRobust->add_constraint(newcstr);
                     }
                 }
                 
                 ROCPPConstraint_Ptr oldCstr ( uncCstr[ (*vit)[k-1] - 2 ] );
                 if (!oldCstr->isClassicConstraint()) {
-                    throw MyException("only deal with classic constrain");
+                    throw MyException("only deal with classic constraint");
                 }
                 
                 ROCPPClassicConstraint_Ptr Cstr = dynamic_pointer_cast<ClassicConstraintIF>(oldCstr);
@@ -1146,18 +1335,30 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
             
             // *** add the robustified constraints to the output problem
             
-            for (OptimizationModelIF::constraintIterator cit=pBilinearMISOCP->constraintBegin(); cit!=pBilinearMISOCP->constraintEnd(); cit++)
+            for (OptimizationModelIF::constraintIterator cit=pBilinearMISOCP->constraintBegin(); cit!=pBilinearMISOCP->constraintEnd(); cit++){
                 pBilinearMISOCPout->add_constraint(*cit);
+                pOutTest->add_constraint(*cit);
+            }
         }
     }
     
     // **** linearize the bilinear terms ****
     
-    ROCPPOptModelIF_Ptr pOutTmp( m_pBTR->linearize(pBilinearMISOCPout) );
-    
-    ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp) );
+//    ROCPPOptModelIF_Ptr pOutTmp( m_pBTR->linearize(pBilinearMISOCPout) );
+//
+//    ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp) );
     
     // *** return ***
+    //pOutTest->WriteToFile("/Users/lynn/Desktop", "testCstrUncSmall");
+
+
+    ROCPPRobustifyEngine_Ptr m_pRE (new RobustifyEngine());
+    ROCPPBilinMISOCP_Ptr pBilinearMISOCP( m_pRE->robustify(pOutTest) );
+
+    //pBilinearMISOCP->WriteToFile("/Users/lynn/Desktop", "testCstrBiliner");
+
+    ROCPPOptModelIF_Ptr pOutTmp( m_pBTR->linearize(pBilinearMISOCP) );
+    ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp) );
     
     return pOut;
 }

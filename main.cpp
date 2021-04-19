@@ -14,10 +14,215 @@
 #include <iostream>
 #include <iomanip>
 
+double mrounddec(double x)
+{
+    return round(x * 100) / 100;
+}
 
+pair<pair<double,map<uint, map<uint, double>>>, pair<map<uint, double>,map<uint, double> >> data(uint p, uint r, uint seed)
+{
+    map<uint, map<uint, double> > loading;
+    pair<map<uint, double>,map<uint, double> > nominal;
+    
+    double cost=0.0;
+    
+    srand(seed);
+    for (uint i = 1; i <= p; i++){
+        nominal.first[i] = mrounddec(rand()%100/(double)101)*10.0;
+    }
+    
+    for (uint i = 1; i <= p; i++){
+        nominal.second[i] = mrounddec(rand()%100/(double)101);
+        cost += nominal.second[i];
+    }
+    
+    for (uint i = 1; i <= p; i++){
+        for (uint j = 1; j <= r; j++){
+            loading[i][j] = mrounddec((rand()%100/(double)101)*2.0 - 1.0);
+        }
+    }
+    
+    /*
+    for (uint i = 1; i <= r; i++){
+        if (i == 1)
+            writeCSV("/Users/lynn/Desktop/research/DRO", "capital_data_loading", loading[i]);
+        else
+            writeCSV("/Users/lynn/Desktop/research/DRO", "capital_data_loading", loading[i], false);
+    }
+    
+    writeCSV("/Users/lynn/Desktop/research/DRO", "capital_data_cost", nominal.second);
+    writeCSV("/Users/lynn/Desktop/research/DRO", "capital_data_prize", nominal.first);
+    */
+    
+    return make_pair(make_pair(cost/2.0, loading), nominal);
+}
+
+shared_ptr<OptimizationModelIF> capital(uint p, uint r, uint seed)
+{
+    
+    pair<pair<double,map<uint, map<uint, double>>>, pair<map<uint, double>,map<uint, double> >> para = data(p, r, seed);
+    
+    double budget(para.first.first);
+    cout << budget << endl;
+    map<uint, map<uint, double> > RiskCoeff(para.first.second);
+    map<uint, double> nomProfit(para.second.first);
+    map<uint, double> nomCost(para.second.second);
+    
+    
+    map<uint, map<uint, double> > RiskCoeff_cost = {
+        {1, {{1, -0.20407662},{2, -0.53805899},{3, 0.69847981},{4, 0.00158503}}},
+        {2, {{1, -0.92785631},{2, -0.29075393},{3, 0.64231386},{4, -0.57501061}}},
+        {3, {{1, 0.79295036},{2, -0.8561076},{3, 0.77740757},{4, -0.78551214}}},
+        {4, {{1, -0.94637856},{2, 0.93320624},{3, -0.66767791},{4, -0.78880142}}},
+        {5, {{1, -0.05774427},{2, -0.33552908},{3, 0.82819707},{4, 0.89897707}}}
+    };
+    
+    vector<double> result;
+    
+    double theta = 0.8;
+    
+    map<uint, map<uint, double> > obsCost;
+    
+    for (uint i = 1; i <= p; i++)
+    {
+        for (uint t = 1; t <= 2; t++){
+            obsCost[i].insert(make_pair(t, 0.0));
+        }
+    }
+    
+    ROCPPOptModelIF_Ptr model_capital(new ROCPPDDUOptModel(2, robust));
+    
+    map<uint,ROCPPUnc_Ptr> risks, value, expend;
+    map<uint,ROCPPVarIF_Ptr> investSecond;
+    
+    for(uint i=1; i<=r; i++){
+        risks[i] = ROCPPUnc_Ptr(new ROCPPUnc("risk_"+to_string(i), 1, false));
+        model_capital->add_constraint_uncset(risks[i] <= 1.0);
+        model_capital->add_constraint_uncset(risks[i] >= -1.0);
+    }
+    
+    for (uint i = 1; i <= p; i++){
+        value[i] = ROCPPUnc_Ptr(new ROCPPUnc("value_"+to_string(i)));
+        expend[i] = ROCPPUnc_Ptr(new ROCPPUnc("expend_"+to_string(i)));
+        model_capital->add_ddu(value[i], 1, 2, obsCost[i]);
+        model_capital->add_ddu(expend[i], 1, 2, obsCost[i]);
+        model_capital->add_constraint(model_capital->getMeasVar("value_"+to_string(i), 1) - model_capital->getMeasVar("expend_"+to_string(i), 1) == 0);
+    }
+    
+    for (uint i = 1; i <= p; i++) {
+        ROCPPExpr_Ptr ValueExpr(new ROCPPExpr());
+        ROCPPExpr_Ptr ExpendExpr(new ROCPPExpr());
+        for (uint m = 1; m <= r; m++){
+            ValueExpr = ValueExpr + RiskCoeff[i][m]*risks[m];
+            ExpendExpr = ExpendExpr + RiskCoeff_cost[i][m]*risks[m];
+        }
+        
+        model_capital->add_constraint_uncset(  value[i] == (1.+0.5*ValueExpr) * nomProfit[i] );
+        model_capital->add_constraint_uncset(  expend[i] == (1.+0.5*ExpendExpr) * nomCost[i] );
+    }
+    
+    map<uint, ROCPPVarIF_Ptr> first, second;
+    ROCPPExpr_Ptr cost(new ROCPPExpr());
+    ROCPPExpr_Ptr profit(new ROCPPExpr());
+    for (uint i = 1; i <= p; i++) {
+        first[i] = model_capital->getMeasVar(value[i]->getName(), 1);
+        second[i] = ROCPPVarIF_Ptr(new ROCPPAdaptVarBool("second_"+to_string(i), 2));
+        model_capital->add_constraint(first[i] + second[i] <= 1);
+        cost = cost + expend[i] * (first[i] + second[i]);
+        profit = profit + value[i] * (first[i] + theta * second[i]);
+    }
+
+    model_capital->add_constraint(cost <= budget);
+    
+    model_capital->set_objective(-1.0 * profit);
+    
+    return model_capital;
+}
 
 int main()
-{ return 0;}
+{
+    ROCPPOptModelIF_Ptr model(new ROCPPUncOptModel(2));
+
+    ROCPPVarIF_Ptr x(new ROCPPStaticVarBool("x"));
+    ROCPPVarIF_Ptr y1(new ROCPPAdaptVarBool("y1", 2));
+    ROCPPVarIF_Ptr y2(new ROCPPAdaptVarBool("y2", 2));
+    
+//    ROCPPConstraint_Ptr a(x + y1 - y2 ==0);
+//    ROCPPConstraint_Ptr b(x + y2 - y1 ==0);
+//
+//    cout << b << endl;
+//
+//    ROCPPClassicConstraint_Ptr c ( static_pointer_cast<ClassicConstraintIF>(b) );
+//
+//    cout << c << endl;
+//
+//    vector<ROCPPConstraint_Ptr> test1{a, b};
+//    vector<ROCPPConstraint_Ptr> test2{a, c};
+//
+//    bool ok = equal(test1.begin(), test1.end(), test2.begin());
+//    cout << ok ;
+    map<uint, double> obsCost;
+    for (uint t = 1; t <= 2; t++){
+        obsCost.insert(make_pair(t, 1.));
+    }
+
+    ROCPPUnc_Ptr xi1(new ROCPPUnc("xi1"));
+//    model->add_ddu(xi1, 1, 2, obsCost);
+//
+//    ROCPPUnc_Ptr xi2(new ROCPPUnc("xi2"));
+//    model->add_ddu(xi2, 1, 2, obsCost);
+//
+//    ROCPPUnc_Ptr xi3(new ROCPPUnc("xi3"));
+//    model->add_ddu(xi3, 1, 2, obsCost);
+
+    model->add_constraint_uncset(xi1 >= 0);
+    //model->add_constraint_uncset(xi2 >= 0);
+    //model->add_constraint_uncset(xi3 >= 0);
+    model->add_constraint_uncset(xi1 <= 1.5);
+
+    model->add_constraint(x + y1 + y2 <= 2);
+    //model->add_constraint(x + xi1 + xi2 <= 1);
+    model->add_constraint(y1 + xi1 <= 2.0);
+    // model->add_constraint(y1 + xi1*y2<= 2.5);
+
+//    ROCPPExpr_Ptr obj(new ROCPPExpr());
+//    obj = obj + 0.0;
+
+    model->set_objective(x*xi1 - y1 + y2);
+
+    //shared_ptr<OptimizationModelIF> model = capital(1, 1, 1);
+
+    ROCPPApproximator_Ptr pKAdaptaApprox(new ROCPPKadaptApprox(model, 2));
+    ROCPPMISOCP_Ptr ModelKAdapt(pKAdaptaApprox->approximate(model));
+
+    SolverParams sparams = SolverParams();
+#ifdef USE_GUROBI
+    ROCPPSolver_Ptr pSolver(new GurobiModeller(sparams, false) );
+#elif defined(USE_SCIP)
+    ROCPPSolver_Ptr pSolver(new SCIPModeller(sparams, false) );
+#else
+                throw MyException("Can not find your solver.");
+#endif
+
+    // Solve the problem
+//    string name = "dual_";
+//    for(int i = 11; i <= 30; i++){
+//        ModelKAdapt->add_constraint(ModelKAdapt->getVar(name+to_string(i)) == 0);
+//    }
+//    for(int i = 31; i <= 40; i++){
+//        ModelKAdapt->add_constraint(ModelKAdapt->getVar(name+to_string(i)) == 0);
+//    }
+//    for(int i = 51; i <= 60; i++){
+//        ModelKAdapt->add_constraint(ModelKAdapt->getVar(name+to_string(i)) == 0);
+//    }
+//    for(int i = 61; i <= 80; i++){
+//        ModelKAdapt->add_constraint(ModelKAdapt->getVar(name+to_string(i)) == 0);
+//    }
+    pSolver->solve(ModelKAdapt);
+
+    return 0;
+}
+
 /*
 {
     // Create an empty robust model with T + 1 periods for the RSFC problem
