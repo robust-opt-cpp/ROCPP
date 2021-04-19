@@ -47,7 +47,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    ROCPPOptModelIF_Ptr uncToVar(ROCPPOptModelIF_Ptr pIn, bool resetAndSave=false);
+    ROCPPOptModelIF_Ptr convert(ROCPPOptModelIF_Ptr pIn, bool resetAndSave=false);
     
     virtual void findUncsToTranslate(ROCPPOptModelIF_Ptr pIn, uncContainer &container) = 0;
     
@@ -81,12 +81,44 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    ROCPPConstraint_Ptr uncToVar(ROCPPConstraint_Ptr pCstr) const;
+    ROCPPConstraint_Ptr convert(ROCPPConstraint_Ptr pCstr) const;
     
     void findUncsToTranslate(ROCPPOptModelIF_Ptr pIn, uncContainer &container);
     
     void createTranslationMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pOut, const uncContainer &tmpContainer, map<string,ROCPPExpr_Ptr > &translationMap) const;
 };
+
+
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%% UNCERTAINTY TO UNCERTAINTY CONVERTER %%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+class UncToUncConverter : public UncertaintyConverterIF
+{
+public:
+    
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    UncToUncConverter(const map<string,ROCPPUnc_Ptr>  &translationMap);
+    
+    ~UncToUncConverter(){}
+    
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    ROCPPConstraint_Ptr convert(ROCPPConstraint_Ptr pCstr) const;
+    
+    void findUncsToTranslate(ROCPPOptModelIF_Ptr pIn, uncContainer &container);
+    
+    void createTranslationMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pOut, const uncContainer &tmpContainer, map<string,ROCPPExpr_Ptr > &translationMap) const;
+};
+
 
 
 #endif /* UncertaintyConverter_hpp */

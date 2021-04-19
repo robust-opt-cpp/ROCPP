@@ -111,7 +111,7 @@ public:
     typedef dvMapType::const_iterator varsIterator;
     
     /// Constant iterator for optimization model uncertain parameter map
-    typedef map<string, ROCPPUnc_Ptr >::const_iterator uncertaintiesIterator;
+    typedef map<string, ROCPPUnc_Ptr>::const_iterator uncertaintiesIterator;
     
     /// Return a constant iterator pointing to the beginning of the constraint vector
     constraintIterator constraintBegin() const {return m_constraints.begin();}
@@ -132,6 +132,13 @@ public:
     /// Return a constant iterator pointing to the end of the uncertain parameter map (m_pUncContainer)
     /// @warning Not valid in deterministic model
     virtual uncertaintiesIterator uncertaintiesEnd() const;
+    
+    /// Return a constant iterator pointing to the begining of the block map
+    map<string, vector<ROCPPConstraint_Ptr> >::const_iterator blockMapBegin() const {return m_mapBlockConstraints.begin();}
+    
+    /// Return a constant iterator pointing to the end of the block map
+    map<string, vector<ROCPPConstraint_Ptr> >::const_iterator blockMapEnd() const {return m_mapBlockConstraints.end();}
+    
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
@@ -154,18 +161,19 @@ public:
     /// Add a constraint into the optimization model after setting the constraint attributes
     /// @note We first map all the variables and uncertainties to make sure they are not used in any other model and then add the new constraint to the model
     /// @see ConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr >), ConstraintIF::mapUnc(), OptimizationModelIF::createVarMap(ROCPPConstraint_Ptr), OptimizationModelIF::createUncMap(ROCPPConstraint_Ptr), OptimizationModelIF::push_constraint()
-    void add_constraint(ROCPPConstraint_Ptr pConstraint);
+    /// blockNme allows to add a constraint
+    void add_constraint(ROCPPConstraint_Ptr pConstraint, string blockNme = "main");
     
     /// Add a soc constraint into the optimization model
     /// @param coneHead Cone head decision variable
     /// @param otherVars Other variables
-    void add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr > &otherVars);
+    void add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr > &otherVars, string blockNme = "main");
     
     /// Add constraints into the optimization model
-    void add_constraints(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last);
+    void add_constraints(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, string blockNme = "main");
     
     /// Add a constraint defining the uncertainty set into the model
-    void add_constraint_uncset(ROCPPConstraint_Ptr pUncCstr);
+    void add_constraint_uncset(ROCPPConstraint_Ptr pUncCstr, string blockNme = "main");
     
     /// Add an epipragh variable as the objective function and an epigraph constraint into this model
     void add_epigraph();
@@ -331,6 +339,10 @@ public:
     /// Return true if the problem has rectangular uncertainty set
     virtual bool hasRectangularUncertaintySet() const;
     
+    bool hasRealVarsInUncertaintySet() const {throw MyException("Problems that are not uncertain do not have an uncertainty set");}
+    
+    bool hasDecisionDependentUncertaintySet() const {throw MyException("Problems that are not uncertain do not have an uncertainty set");}
+    
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -378,6 +390,9 @@ protected:
     /// Push the constraint back into the vector of constraints of this model
     void push_constraint(ROCPPConstraint_Ptr pConstraint);
     
+    /// Get index of the given constraint in the m_mapCstrIdxToUncertaintySet map
+    ptrdiff_t getConstraintIdx(constraintIterator pConstraintIt) const;
+    
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Protected Members %%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -386,7 +401,7 @@ protected:
     uint m_numTimeStages;
     
     /// Vector collecting the uncertainty set constraints of this model
-    vector<ROCPPConstraint_Ptr > m_uncertaintySet;
+    vector<ROCPPConstraint_Ptr> m_uncertaintySet;
     
     /// Uncertain parameter container of this model
     ROCPPuncContainer_Ptr m_pUncContainer;
@@ -405,6 +420,12 @@ protected:
     
     /// Map from name of the uncertain parameter to the first and last times when it can be observed
     map<string, pair<uint,uint> > m_dduStagesObs;
+    
+    /// Map from block name to vector of problem constraint indices
+    map<string, vector<ROCPPConstraint_Ptr> > m_mapBlockConstraints;
+    
+    // /// number of uncertainty set constraints in m_mapCstrIdxToUncertaintySet
+    // uint m_numIndividualUSconstraints;
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -475,7 +496,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Const iterator in the uncertainty set constraints of this model
-    typedef vector<ROCPPConstraint_Ptr >::const_iterator uncertaintySetIterator;
+    typedef vector<ROCPPConstraint_Ptr>::const_iterator uncertaintySetIterator;
     
     /// Return a constant iterator pointing to the beginning of the uncertain parameter container
     uncertaintiesIterator uncertaintiesBegin() const;
@@ -488,6 +509,14 @@ public:
     
     /// Return a constant iterator pointing to the end of the uncertainty set
     uncertaintySetIterator uncertaintySetEnd() const {return m_uncertaintySet.end();}
+    
+    /// Return a constant iterator pointing to the beginning of the uncertainty set for this constraint
+    /// if the constraint does not have its own uncertainty set, return a pointer to the beginning of the overall uncertainty set
+    uncertaintySetIterator uncertaintySetBegin(string blockNme) const;
+    
+    /// Return a constant iterator pointing to the end of the uncertainty set for this constraint
+    /// if the constraint does not have its own uncertainty set, return a pointer to the end of the overall uncertainty set
+    uncertaintySetIterator uncertaintySetEnd(string blockNme) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
@@ -551,11 +580,18 @@ public:
     bool isObservable(string uncName) const;
     bool hasRectangularUncertaintySet() const;
     
+    bool hasRealVarsInUncertaintySet() const;
+    
+    bool hasDecisionDependentUncertaintySet() const;
+    
     virtual problemType getType() const {return uncertainType;}
     uncOptModelObjType getObjType() const {return m_objType;}
     ROCPPUnc_Ptr getUnc(string uncName) const;
     ROCPPuncContainer_Ptr getUncContainer() const {return m_pUncContainer; }
     ROCPPuncContainer_Ptr getObsUncContainer() const;
+    
+    //ROCPPOptModelIF_Ptr Clone() const;
+    
     
 protected:
     

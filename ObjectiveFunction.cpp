@@ -373,7 +373,7 @@ uint MaxObjective::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr 
     return out;
 }
 
-vector<ROCPPExpr_Ptr > MaxObjective::getObj() const
+vector<ROCPPExpr_Ptr> MaxObjective::getObj() const
 {
     return m_pObjFuns;
 }

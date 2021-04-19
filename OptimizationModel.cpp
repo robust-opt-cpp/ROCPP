@@ -88,7 +88,7 @@ void OptimizationModelIF::checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void OptimizationModelIF::add_constraint(ROCPPConstraint_Ptr pConstraint)
+void OptimizationModelIF::add_constraint(ROCPPConstraint_Ptr pConstraint, string blockNme)
 {
     if ( !pConstraint->isWellDefined() )
         throw MyException( "attempted to add a badly defined constraint to optimization model");
@@ -108,7 +108,7 @@ void OptimizationModelIF::add_constraint(ROCPPConstraint_Ptr pConstraint)
     
     checkCompatibility(pConstraint);
     
-    map<string, ROCPPVarIF_Ptr > varMap = createVarMap(pConstraint);
+    map<string, ROCPPVarIF_Ptr> varMap = createVarMap(pConstraint);
     ROCPPConstraint_Ptr tempConstraint = pConstraint->mapVars(varMap);
     
     map<string, ROCPPUnc_Ptr > uncMap = createUncMap(pConstraint);
@@ -125,9 +125,24 @@ void OptimizationModelIF::add_constraint(ROCPPConstraint_Ptr pConstraint)
     push_constraint(newConstraint);
     if(newConstraint->definesUncertaintySet() )
         m_uncertaintySet.push_back(newConstraint);
+    
+    
+    // find this block and add to it or create it if it does not exist
+    map<string, vector<ROCPPConstraint_Ptr> >::iterator mit = m_mapBlockConstraints.find(blockNme);
+    
+    if (mit == m_mapBlockConstraints.end())
+    {
+        vector<ROCPPConstraint_Ptr> usvec;
+        usvec.push_back(newConstraint);
+        m_mapBlockConstraints.insert(make_pair(blockNme, usvec));
+    }
+    else
+    {
+        mit->second.push_back(newConstraint);
+    }
 }
 
-void OptimizationModelIF::add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr > &otherVars)
+void OptimizationModelIF::add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr > &otherVars, string blockNme)
 {
     ROCPPClassicConstraint_Ptr cstr( new IneqConstraint() );
     
@@ -155,18 +170,32 @@ void OptimizationModelIF::add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vect
     
     cstr->add_lhs(-1.,coneHead);
     cstr->set_rhs(make_pair(0.,true));
-    add_constraint(cstr);
+    add_constraint(cstr, blockNme);
+    
 }
 
-void OptimizationModelIF::add_constraints(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last)
+void OptimizationModelIF::add_constraints(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, string blockNme)
 {
     for (vector<ROCPPConstraint_Ptr >::const_iterator it = first; it != last; it++)
-        add_constraint(*it);
+        add_constraint(*it, blockNme);
 }
 
 void OptimizationModelIF::add_epigraph()
 {
-    ROCPPVarIF_Ptr pEpi(new VariableDouble("epigraph") );
+    
+    // no need to write in epigraph form if objective function is linear and stochastic
+    if ( (getObjType() == stochastic) && (getObj()->getObj().size() <= 1) )
+        return;
+    
+    // else, write in epigraph form; epigraph should be adaptive variable if the problem is stochastic
+    ROCPPVarIF_Ptr pEpi;
+    if (getObjType() == robust)
+        pEpi = shared_ptr<DecisionVariableIF>( new VariableDouble("epigraph") );
+    else if (getObjType() == stochastic)
+        pEpi = shared_ptr<DecisionVariableIF>( new AdaptVarDouble("epigraph", getNumTimeStages()) );
+    else
+        throw MyException("unknown objective type");
+    
     for (auto& lhs : getObj()->getObj() ){
         ROCPPConstraint_Ptr pCstr(new IneqConstraint() );
         pCstr->add_lhs(lhs);
@@ -179,6 +208,38 @@ void OptimizationModelIF::add_epigraph()
     ROCPPObjectiveIF_Ptr newObj(new SimpleObjective(newObjFun) );
     set_objective(newObj);
 }
+
+//void OptimizationModelIF::add_constraint(ROCPPConstraint_Ptr pConstraint, vector<ROCPPConstraint_Ptr> pUncertaintySet)
+//{
+//    // check that pConstraint is a regular constraint (does not define uncertainty set)
+//    if (pConstraint->definesUncertaintySet())
+//        throw MyException("The constraint being added cannot define the uncertainty set");
+//    
+//    // add this constraint to the problem and return it (assumes it's the last constraint in the problem)
+//    add_constraint(pConstraint);
+//    ROCPPConstraint_Ptr pConstraintNew( (*(m_constraints.end()--)) );
+//    
+//    // first identify the index of this constraint
+//    size_t idx(getNumConstraints());
+//    
+//    vector<ROCPPConstraint_Ptr> pUSNew;
+//    
+//    // iterate through all the constraints in the uncertainty set, add them to the problem, and add them to the uncertainty set vector for this constraint
+//    for (vector<ROCPPConstraint_Ptr>::const_iterator vus_it = pUncertaintySet.begin(); vus_it != pUncertaintySet.end(); vus_it++)
+//    {
+//        add_constraint_uncset(*vus_it);
+//        pUSNew.push_back( (*(m_constraints.end()--)) );
+//    }
+//    
+//    // add the pair with the constraint index and associated uncertainty set constraints to the appropriate map
+//    m_mapCstrIdxToUncertaintySet.insert(make_pair(idx, pUSNew));
+//    
+//    m_numIndividualUSconstraints += pUSNew.size();
+//    
+//    if ( (m_numIndividualUSconstraints!=m_uncertaintySet.size()) && (m_numIndividualUSconstraints!=0) )
+//        throw MyException("Not allowable to add both joint and individual uncertainty set constraints");
+//    
+//}
 
 void OptimizationModelIF::add_ddu(ROCPPUnc_Ptr pUncertainty, uint firstTimeStageObservable, uint lastTimeStageObservable, const map<uint, double> &obsCosts)
 {
@@ -203,11 +264,11 @@ void OptimizationModelIF::pair_uncertainties(ROCPPUnc_Ptr u1, ROCPPUnc_Ptr u2)
     throw MyException("No ddu in the non ddu type model");
 }
 
-void OptimizationModelIF::add_constraint_uncset(ROCPPConstraint_Ptr pUncCstr)
+void OptimizationModelIF::add_constraint_uncset(ROCPPConstraint_Ptr pUncCstr, string blockNme)
 {
     pUncCstr->setParams(true, false);
     
-    add_constraint(pUncCstr);
+    add_constraint(pUncCstr, blockNme);
 }
 
 void OptimizationModelIF::set_objective(ROCPPObjectiveIF_Ptr pObj)
@@ -450,6 +511,8 @@ bool OptimizationModelIF::hasRectangularUncertaintySet() const
     throw MyException("This model doesn't have uncertainty set");
 }
 
+
+
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -462,8 +525,14 @@ ROCPPOptModelIF_Ptr OptimizationModelIF::Clone() const
     else
         pOut = InstanciateModel(getType(),getNumTimeStages(),robust);
     
-    for (OptimizationModelIF::constraintIterator cit = constraintBegin(); cit != constraintEnd(); cit++)
-        pOut->add_constraint( (*cit)->Clone() );
+    // to add the constraints, sufficient to iterate over the map from block name to constraints
+    for (map<string, vector<ROCPPConstraint_Ptr> >::const_iterator mit = m_mapBlockConstraints.begin(); mit != m_mapBlockConstraints.end(); mit++)
+    {
+        for (vector<ROCPPConstraint_Ptr>::const_iterator vit = mit->second.begin(); vit != mit->second.end(); vit++)
+        {
+            pOut->add_constraint(*vit,mit->first);
+        }
+    }
     
     pOut->set_objective(getObj());
      
@@ -608,6 +677,15 @@ void OptimizationModelIF::push_constraint(ROCPPConstraint_Ptr pConstraint)
 {
     m_constraints.push_back(pConstraint);
 }
+
+ptrdiff_t OptimizationModelIF::getConstraintIdx(constraintIterator pConstraintIt) const
+{
+    // pConstraintIt must be an iterator in m_constraints
+    return ( pConstraintIt - m_constraints.begin() + 1 );
+}
+
+
+
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -849,6 +927,28 @@ bool UncertainOptimizationModel::hasRectangularUncertaintySet() const
     return out;
 }
 
+bool UncertainOptimizationModel::hasRealVarsInUncertaintySet() const
+{
+    for (uncertaintySetIterator us_it = uncertaintySetBegin(); us_it != uncertaintySetEnd(); us_it++)
+    {
+        size_t nu((*us_it)->getNumAdaptiveContVars() + (*us_it)->getNumContVars());
+        if (nu > 1)
+            return true;
+    }
+    return false;
+}
+
+bool UncertainOptimizationModel::hasDecisionDependentUncertaintySet() const
+{
+    for (uncertaintySetIterator us_it = uncertaintySetBegin(); us_it != uncertaintySetEnd(); us_it++)
+    {
+        size_t nu((*us_it)->getNumIntVars() + (*us_it)->getNumBoolVars() + (*us_it)->getNumContVars() + (*us_it)->getNumAdaptiveVars() );
+        if (nu > 1)
+            return true;
+    }
+    return false;
+}
+
 ROCPPUnc_Ptr UncertainOptimizationModel::getUnc(string uncName) const
 {
     return ( m_pUncContainer->findthrow(uncName)->second );
@@ -867,6 +967,72 @@ ROCPPuncContainer_Ptr UncertainOptimizationModel::getObsUncContainer() const
     
     return out;
     
+}
+
+UncertainOptimizationModel::uncertaintySetIterator UncertainOptimizationModel::uncertaintySetBegin(string blockNme) const
+{
+    map<string, vector<ROCPPConstraint_Ptr> >::const_iterator mit = m_mapBlockConstraints.find(blockNme);
+    
+    if (mit==m_mapBlockConstraints.end())
+        throw MyException("block name not found");
+    
+    return (mit->second.begin());
+
+}
+
+
+
+//ROCPPOptModelIF_Ptr UncertainOptimizationModel::Clone() const
+//{
+//    ROCPPOptModelIF_Ptr pOut = OptimizationModelIF::Clone();
+//    
+//    // if some constraints have their own uncertainty set, add only the constraints that do not define the uncertainty set and then add the uncertainty set for each constraint
+//    if (m_mapCstrIdxToUncertaintySet.size()!=0)
+//    {
+//        for (OptimizationModelIF::constraintIterator cit = constraintBegin(); cit != constraintEnd(); cit++)
+//        {
+//            if ((*cit)->isDeterministic())
+//            {
+//                pOut->add_constraint(*cit);
+//            }
+//            else
+//            {
+//                if (!(*cit)->definesUncertaintySet())
+//                {
+//                    // find the idx of the constraint in map and return the vector of uncertainty set constraints
+//                    ptrdiff_t idx = getConstraintIdx(cit);
+//                    
+//                    map<ptrdiff_t, vector<ROCPPConstraint_Ptr> >::const_iterator mit = m_mapCstrIdxToUncertaintySet.find(idx);
+//                    
+//                    if (mit==m_mapCstrIdxToUncertaintySet.end())
+//                        throw MyException("Constraint index not found in m_mapCstrIdxToUncertaintySet");
+//                    
+//                    pOut->add_constraint(*cit, mit->second);
+//                    
+//                }
+//            }
+//        }
+//    }
+//    
+//    // check that we have the right number of constraints (if not, we had uncertainty set constraints that were imposed over individual constraints and over all constraints at the same time
+//    
+//    if (getNumConstraints()!=pOut->getNumConstraints())
+//        throw MyException("Clone operation failed");
+//    
+//     
+//    return pOut;
+//}
+
+
+UncertainOptimizationModel::uncertaintySetIterator UncertainOptimizationModel::uncertaintySetEnd(string blockNme) const
+{
+    map<string, vector<ROCPPConstraint_Ptr> >::const_iterator mit = m_mapBlockConstraints.find(blockNme);
+    
+    if (mit==m_mapBlockConstraints.end())
+        throw MyException("block name not found");
+    
+    return (mit->second.end());
+
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1663,16 +1829,19 @@ void DDUOptimizationModel::WriteToFile(string folderName, string fileName) const
 
 ROCPPOptModelIF_Ptr DDUOptimizationModel::Clone() const
 {
-    ROCPPOptModelIF_Ptr pOut;
-    if (isUncertainOptimizationModel())
-        pOut = InstanciateModel(getType(),getNumTimeStages(),getObjType());
-    else
-        pOut = InstanciateModel(getType(),getNumTimeStages(),robust);
+//    ROCPPOptModelIF_Ptr pOut;
+//    if (isUncertainOptimizationModel())
+//        pOut = InstanciateModel(getType(),getNumTimeStages(),getObjType());
+//    else
+//        pOut = InstanciateModel(getType(),getNumTimeStages(),robust);
+//
+//    for (OptimizationModelIF::constraintIterator cit = constraintBegin(); cit != constraintEnd(); cit++)
+//        pOut->add_constraint( (*cit)->Clone() );
+//
+//    pOut->set_objective(getObj());
     
-    for (OptimizationModelIF::constraintIterator cit = constraintBegin(); cit != constraintEnd(); cit++)
-        pOut->add_constraint( (*cit)->Clone() );
+    ROCPPOptModelIF_Ptr pOut = UncertainOptimizationModel::Clone();
     
-    pOut->set_objective(getObj());
     pOut->set_ddu(getDDUToMeasMap(), getdduStagesObs());
     
     return pOut;

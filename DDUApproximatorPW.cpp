@@ -19,6 +19,7 @@
 #include "RobustifyEngine.hpp"
 #include "helpersOpt.hpp"
 #include "DecisionRule.hpp"
+#include "PWDecisionRule.hpp"
 #include "FileRelations.hpp"
 #include "DDUApproximator.hpp"
 #include "DDUApproximatorPW.hpp"
@@ -280,7 +281,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
     else
     {
         if( ! pIn->hasRectangularUncertaintySet())
-            throw MyException("Stochastice model must have rectanular uncertainty set");
+            throw MyException("Stochastic model must have rectangular uncertainty set");
         
         vector<ROCPPExpr_Ptr > objs(pIn->getObj()->getObj());
         
@@ -289,7 +290,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
         for(; obj != objs.end(); obj++)
         {
             if((*obj)->hasProdsUncertainties())
-                throw MyException("Can not deal with products of uncertainties at this time");
+                throw MyException("Cannot deal with products of uncertainties at this time");
         }
     }
     

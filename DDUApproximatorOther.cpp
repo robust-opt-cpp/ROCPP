@@ -1037,7 +1037,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
         }
         
         // all l_k > 0
-        else{
+        else {
             // **** first, we are going to write the problem as a single stage robut problem with decision-dependent uncertainty set ****
             ROCPPUncSSOptModel_Ptr pRobust ( new UncertainSingleStageOptimizationModel(robust) );
             
@@ -1626,7 +1626,7 @@ ROCPPMISOCP_Ptr LDRCDRApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
     else
     {
         if( ! pIn->hasRectangularUncertaintySet())
-            throw MyException("Stochastice model must have rectanular uncertainty set");
+            throw MyException("Stochastic model must have rectangular uncertainty set");
         
         vector<ROCPPExpr_Ptr > objs(pIn->getObj()->getObj());
         
