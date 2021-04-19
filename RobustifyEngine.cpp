@@ -20,37 +20,50 @@
 ROCPPBilinMISOCP_Ptr RobustifyEngine::robustify(ROCPPUncSSOptModel_Ptr pIn, bool feasible)
 {
     ROCPPBilinMISOCP_Ptr pOut( new Bilinear_MISOCP() );
-    calculateUncertaintySetMatrices(pIn);
     
-    // iterate through constraints of pModelIn
-    OptimizationModelIF::constraintIterator c_it(pIn->constraintBegin() );
-    uint ccnt(1);
     size_t numCstr(pIn->getNumProblemConstraints());
-    
     uint ratio((uint)numCstr/10);
     
-    ratio = ratio>1 ? ratio : 1;
+    map<string, vector<ROCPPConstraint_Ptr>>::const_iterator blockIt(pIn->blockMapBegin());
     
-    for (; c_it!=pIn->constraintEnd(); c_it++)
-    {
-        if((*c_it)->definesUncertaintySet())
-            continue;
+    for(; blockIt != pIn->blockMapEnd(); blockIt++){
+        ROCPPUncSSOptModel_Ptr pRobust(new ROCPPUncSSOptModel());
+        OptimizationModelIF::constraintIterator bc_it(blockIt->second.begin() );
         
-        if (ccnt % ratio == 0)
-            cout << ccnt << " of " << pIn->getNumProblemConstraints() << " constraints robustified" << endl;
+        for(; bc_it != blockIt->second.end(); bc_it++){
+            pRobust->add_constraint(*(bc_it));
+        }
         
-        robustifyConstraint(*c_it,pIn,pOut,feasible);
-        ccnt++;
-    }
+        calculateUncertaintySetMatrices(pRobust);
+        
+        // iterate through constraints of pModelIn
+        OptimizationModelIF::constraintIterator c_it(pRobust->constraintBegin() );
+        uint ccnt(1);
+        
+        ratio = ratio>1 ? ratio : 1;
+        
+        for (; c_it!=pRobust->constraintEnd(); c_it++)
+        {
+            if((*c_it)->definesUncertaintySet())
+                continue;
+            
+            if (ccnt % ratio == 0)
+                cout << ccnt << " of " << pIn->getNumProblemConstraints() << " constraints robustified" << endl;
+            
+            robustifyConstraint(*c_it,pRobust,pOut,feasible);
+            ccnt++;
+        }
     
     if (pIn->getObj()->isDeterministic())
         pOut->set_objective(pIn->getObj() );
-    
+    }
     return pOut;
 }
 
 void RobustifyEngine::calculateUncertaintySetMatrices(ROCPPUncSSOptModel_Ptr const pIn)
 {
+    m_EMvec.clear();
+    m_EVvec.clear();
     
     size_t l (pIn->getNumUncertaintySetConstraints() );
     vector<vector<vector< pair<bool, ROCPPExpr_Ptr > > > > EMvec;
