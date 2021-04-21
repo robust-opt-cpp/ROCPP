@@ -424,8 +424,6 @@ protected:
     /// Map from block name to vector of problem constraint indices
     map<string, vector<ROCPPConstraint_Ptr> > m_mapBlockConstraints;
     
-    // /// number of uncertainty set constraints in m_mapCstrIdxToUncertaintySet
-    // uint m_numIndividualUSconstraints;
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -574,48 +574,63 @@ void OptimizationModelIF::WriteToFile(string folderName, string fileName) const
     ofs << endl;
     ofs << endl;
     
-    // write constraints
+    // write constraints (by block)
     
     ofs << "Constraints:" << endl;
+    ofs << endl;
     uint ccnt(0);
-    for (constraintIterator c_it = constraintBegin(); c_it != constraintEnd(); c_it++)
-    {
-        if ( !(*c_it)->definesUncertaintySet() )
-        {
-            if ( (*c_it)->isClassicConstraint() )
-                (*c_it)->WriteToStream(ofs,ccnt++);
-        }
-    }
     
-    ccnt=0;
-    for (constraintIterator c_it = constraintBegin(); c_it != constraintEnd(); c_it++)
+    for (map<string, vector<ROCPPConstraint_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
     {
-        if ( !(*c_it)->definesUncertaintySet() )
+        if (bit->second.size() > 0)
         {
-            if ( !(*c_it)->isClassicConstraint() )
-                (*c_it)->WriteToStream(ofs,ccnt++);
+            
+            for (vector<ROCPPConstraint_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
+            {
+                if ( !(*cit)->definesUncertaintySet() )
+                {
+                    if (ccnt == 0)
+                        ofs << "Subset " << bit->first << ":" << endl;
+                    
+                    (*cit)->WriteToStream(ofs,ccnt++);
+                        
+                }
+            }
         }
     }
     
     ofs << endl;
+    ofs << endl;
     
-    if(isUncertainOptimizationModel())
+    if (isUncertainOptimizationModel())
     {
         ofs << "Uncertainty Set:" << endl;
+        ofs << endl;
         
         ccnt=0;
-        for (constraintIterator c_it = constraintBegin(); c_it != constraintEnd(); c_it++)
+        
+        for (map<string, vector<ROCPPConstraint_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
         {
-            if ( (*c_it)->definesUncertaintySet() )
+                
+            for (vector<ROCPPConstraint_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
             {
-                (*c_it)->WriteToStream(ofs,ccnt++);
+                if ( (*cit)->definesUncertaintySet() )
+                {
+                    if (ccnt == 0)
+                        ofs << "Subset " << bit->first << ":" << endl;
+                    
+                    (*cit)->WriteToStream(ofs,ccnt++);
+                        
+                }
             }
         }
-        
-        ofs << endl;
     }
     
+    ofs << endl;
+    ofs << endl;
+    
     ofs << "Decision Variables:" << endl;
+    ofs << endl;
     
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++)
     {
@@ -627,6 +642,7 @@ void OptimizationModelIF::WriteToFile(string folderName, string fileName) const
     
     ofs << endl;
     ofs << "Bounds:" << endl;
+    ofs << endl;
     
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++)
     {
@@ -640,6 +656,7 @@ void OptimizationModelIF::WriteToFile(string folderName, string fileName) const
         
         ofs << endl;
         ofs << "Uncertainties:" << endl;
+        ofs << endl;
         
         for (UncertainOptimizationModel::uncertaintiesIterator u_it = pModelUnc->uncertaintiesBegin(); u_it != pModelUnc->uncertaintiesEnd(); u_it++)
         {
@@ -1736,43 +1753,64 @@ void DDUOptimizationModel::WriteToFile(string folderName, string fileName) const
     ofs << endl;
     ofs << endl;
     
-    // write constraints
+    // write constraints (by block)
     
-    ofs << "Constraints" << endl;
+    ofs << "Constraints:" << endl;
+    ofs << endl;
+    
     uint ccnt(0);
-    for (constraintIterator c_it = constraintBegin(); c_it != constraintEnd(); c_it++)
-    {
-        if ( !(*c_it)->definesUncertaintySet() )
-        {
-            if ( (*c_it)->isClassicConstraint() )
-                (*c_it)->WriteToStream(ofs,ccnt++);
-        }
-    }
     
-    ccnt=0;
-    for (constraintIterator c_it = constraintBegin(); c_it != constraintEnd(); c_it++)
+    for (map<string, vector<ROCPPConstraint_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
     {
-        if ( !(*c_it)->definesUncertaintySet() )
+        if (bit->second.size() > 0)
         {
-            if ( !(*c_it)->isClassicConstraint() )
-                (*c_it)->WriteToStream(ofs,ccnt++);
-        }
-    }
-    
-    ofs << endl;
-    ofs << "Uncertainty Set:" << endl;
-    
-    ccnt=0;
-    for (constraintIterator c_it = constraintBegin(); c_it != constraintEnd(); c_it++)
-    {
-        if ( (*c_it)->definesUncertaintySet() )
-        {
-            (*c_it)->WriteToStream(ofs,ccnt++);
+            
+            for (vector<ROCPPConstraint_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
+            {
+                if ( !(*cit)->definesUncertaintySet() )
+                {
+                    if (ccnt == 0)
+                        ofs << "Subset " << bit->first << ":" << endl;
+                    
+                    (*cit)->WriteToStream(ofs,ccnt++);
+                        
+                }
+            }
         }
     }
     
     ofs << endl;
+    ofs << endl;
+    
+    if (isUncertainOptimizationModel())
+    {
+        ofs << "Uncertainty Set:" << endl;
+        ofs << endl;
+        
+        ccnt=0;
+        
+        for (map<string, vector<ROCPPConstraint_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
+        {
+                
+            for (vector<ROCPPConstraint_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
+            {
+                if ( (*cit)->definesUncertaintySet() )
+                {
+                    if (ccnt == 0)
+                        ofs << "Subset " << bit->first << ":" << endl;
+                    
+                    (*cit)->WriteToStream(ofs,ccnt++);
+                        
+                }
+            }
+        }
+    }
+    
+    ofs << endl;
+    ofs << endl;
+    
     ofs << "Decision Variables:" << endl;
+    ofs << endl;
     
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++)
     {
@@ -1793,6 +1831,7 @@ void DDUOptimizationModel::WriteToFile(string folderName, string fileName) const
     
     ofs << endl;
     ofs << "Bounds:" << endl;
+    ofs << endl;
     
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++)
     {
@@ -1806,6 +1845,7 @@ void DDUOptimizationModel::WriteToFile(string folderName, string fileName) const
         
         ofs << endl;
         ofs << "Uncertainties:" << endl;
+        ofs << endl;
         
         for (UncertainOptimizationModel::uncertaintiesIterator u_it = m_nondduContainer->begin(); u_it != m_nondduContainer->end(); u_it++)
         {

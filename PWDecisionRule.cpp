@@ -153,20 +153,20 @@ void PartitionConstructorIF::getReady(ROCPPOptModelIF_Ptr pIn, ROCPPParConverter
     
     ROCPPconstUncOptModel_Ptr pInUnc = static_pointer_cast<const UncertainOptimizationModel>(pIn);
     
-    // phebe added 2021/04/03
-    // for each subset of the partition, for each uncertain parameter, create one uncertain parameter for that subset
-    for (map<string, map<string,uint> >::const_iterator pm_it=m_partitionsMap.begin(); pm_it!=m_partitionsMap.end(); pm_it++)
-    {
-        map<string, shared_ptr<UncertaintyIF> > tmp;
-        for (OptimizationModelIF::uncertaintiesIterator unc_it = pIn->uncertaintiesBegin(); unc_it != pIn->uncertaintiesEnd(); unc_it++)
-        {
-            shared_ptr<UncertaintyIF> unc( new UncertaintyIF( unc_it->second->getName() + "_" + pm_it->first ) );
-            
-            tmp.insert(make_pair(unc_it->second->getName(), unc));
-        }
-        
-        m_UncMap.insert(make_pair(pm_it->first, tmp));
-    }
+//    // phebe added 2021/04/03
+//    // for each subset of the partition, for each uncertain parameter, create one uncertain parameter for that subset
+//    for (map<string, map<string,uint> >::const_iterator pm_it=m_partitionsMap.begin(); pm_it!=m_partitionsMap.end(); pm_it++)
+//    {
+//        map<string, shared_ptr<UncertaintyIF> > tmp;
+//        for (OptimizationModelIF::uncertaintiesIterator unc_it = pIn->uncertaintiesBegin(); unc_it != pIn->uncertaintiesEnd(); unc_it++)
+//        {
+//            shared_ptr<UncertaintyIF> unc( new UncertaintyIF( unc_it->second->getName() + "_" + pm_it->first ) );
+//
+//            tmp.insert(make_pair(unc_it->second->getName(), unc));
+//        }
+//
+//        m_UncMap.insert(make_pair(pm_it->first, tmp));
+//    }
     
     
     // end phebe added 2021/04/03
@@ -277,22 +277,22 @@ ROCPPExpr_Ptr PartitionConstructorIF::getBp(pair<string, uint> uncOnPartition) c
 //%%%%%%%%%%%%%%%%%%%%%% Protected Function %%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPUnc_Ptr PartitionConstructorIF::getUncOnPartition(string partition, string origUncName) const
-{
-    // map<string, map<string,ROCPPUnc_Ptr > > m_UncMap;
-    
-    map<string, map<string,ROCPPUnc_Ptr > >::const_iterator subset_it = m_UncMap.find(partition);
-    
-    if (subset_it==m_UncMap.end())
-        throw MyException("Partition subset not found");
-    
-    map<string,ROCPPUnc_Ptr>::const_iterator unc_it = subset_it->second.find(origUncName);
-    
-    if (unc_it==subset_it->second.end())
-        throw MyException("Uncertain parameter not found");
-    
-    return unc_it->second;
-}
+//ROCPPUnc_Ptr PartitionConstructorIF::getUncOnPartition(string partition, string origUncName) const
+//{
+//    // map<string, map<string,ROCPPUnc_Ptr > > m_UncMap;
+//
+//    map<string, map<string,ROCPPUnc_Ptr > >::const_iterator subset_it = m_UncMap.find(partition);
+//
+//    if (subset_it==m_UncMap.end())
+//        throw MyException("Partition subset not found");
+//
+//    map<string,ROCPPUnc_Ptr>::const_iterator unc_it = subset_it->second.find(origUncName);
+//
+//    if (unc_it==subset_it->second.end())
+//        throw MyException("Uncertain parameter not found");
+//
+//    return unc_it->second;
+//}
 
 void PartitionConstructorIF::constructPartitionsMap(ROCPPOptModelIF_Ptr pIn, ROCPPParConverter_Ptr pPartConverter)
 {
@@ -393,14 +393,14 @@ void PartitionConstructorIF::constructPartitionsMap(ROCPPOptModelIF_Ptr pIn, ROC
 }
 
 
-map<string,ROCPPUnc_Ptr> PartitionConstructorIF::getMapFromOriginalUncToSubsetUnc(string subset) const
-{
-    map<string, map<string,ROCPPUnc_Ptr> >::const_iterator mit(m_UncMap.find(subset));
-    if (mit==m_UncMap.end())
-        throw MyException("Uncertain parameter not found in m_UncMap");
-    
-    return (mit->second);
-}
+//map<string,ROCPPUnc_Ptr> PartitionConstructorIF::getMapFromOriginalUncToSubsetUnc(string subset) const
+//{
+//    map<string, map<string,ROCPPUnc_Ptr> >::const_iterator mit(m_UncMap.find(subset));
+//    if (mit==m_UncMap.end())
+//        throw MyException("Uncertain parameter not found in m_UncMap");
+//
+//    return (mit->second);
+//}
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -537,6 +537,7 @@ void PiecewiseDecisionRule::initialize(ROCPPOptModelIF_Ptr pIn)
             numMap.insert(pair<string,uint>(u_it->first,1));
     }
     
+    m_numPartitionsMap = numMap;
     m_pPartConstructor = ROCPPParConstructor_Ptr(new StaticPartitionConstructor(numMap));
     
     // decision rule approximators
@@ -630,7 +631,7 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
     pModel->add_epigraph();
     
     // Create output model
-    ROCPPOptModelIF_Ptr pOut( InstanciateModel(pModel->getType()) );
+    ROCPPOptModelIF_Ptr pOut( new ROCPPUncSSOptModel() );
     
     // do linear decision rule
     ROCPPOptModelIF_Ptr pLDRModel( m_pCVA->convertVar(pModel, true) );
@@ -685,13 +686,13 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
         allArea = calculateArea(allMap);
     }
     
-//    // add to the problem all deterministic constraints
-//    for (OptimizationModelIF::constraintIterator cit = pMiddle->constraintBegin(); cit != pMiddle->constraintEnd(); cit++)
-//    {
-//            if ( (*cit)->isDeterministic() )
-//                pOut->add_constraint(*cit);
-//    }
-//
+    // add to the problem all deterministic constraints
+    for (OptimizationModelIF::constraintIterator cit = pMiddle->constraintBegin(); cit != pMiddle->constraintEnd(); cit++)
+    {
+            if ( (*cit)->isDeterministic() )
+                pOut->add_constraint(*cit);
+    }
+
     
     
     // add the constraints assossiated with each subset of the partition
@@ -704,17 +705,18 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
         map<string,ROCPPVarIF_Ptr> mapFromOldToNewVar(m_VariableMap[ (*pit).first ]);
         
         // get the uncertainty converter
-        map<string,ROCPPUnc_Ptr> mapFromOldToNewUnc(m_pPartConstructor->getMapFromOriginalUncToSubsetUnc((*pit).first));
+        //map<string,ROCPPUnc_Ptr> mapFromOldToNewUnc(m_pPartConstructor->getMapFromOriginalUncToSubsetUnc((*pit).first));
         
         // add to it the uncertain constraints of pMiddle after mapping the variables and the uncertain parameters
         for (OptimizationModelIF::constraintIterator cit = pMiddle->constraintBegin(); cit != pMiddle->constraintEnd(); cit++)
         {
-            pOut->add_constraint( (*cit)->mapUnc(mapFromOldToNewUnc)->mapVars(mapFromOldToNewVar));
+            if ( !(*cit)->isDeterministic() )
+            pOut->add_constraint( (*cit)->mapVars(mapFromOldToNewVar), pit->first);
         }
         
         // add to the problem the constraints specific to this partition (mapping the breakpoint variables)
         for (PartitionConstructorIF::usconstraints_iterator cit = m_pPartConstructor->USCbegin( (*pit).first ); cit != m_pPartConstructor->USCend((*pit).first ); cit++)
-            pOut->add_constraint( (*cit)->mapUnc(mapFromOldToNewUnc)->mapVars(mapFromOldToNewVar) );
+            pOut->add_constraint( (*cit)->mapVars(mapFromOldToNewVar), pit->first );
         
         
         // map the variables to variables over this partition
@@ -731,8 +733,8 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
         
         if (pIn->getObjType() == stochastic)
         {
-            ROCPPObjectiveIF_Ptr oldObj(pModel->getObj());
-            pair<double, map<string, ROCPPExpr_Ptr> > meanAndProb(calculateMeanAndProb(pModel, pit->first, allMap, allArea));
+            ROCPPObjectiveIF_Ptr oldObj(pMiddle->getObj());
+            pair<double, map<string, ROCPPExpr_Ptr> > meanAndProb(calculateMeanAndProb(pMiddle, pit->first, allMap, allArea));
             getStochasticObj(meanAndProb, oldObj, newObj);
         }
         

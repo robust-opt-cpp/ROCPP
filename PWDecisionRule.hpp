@@ -153,7 +153,7 @@ public:
     
     map<string,uint> getNumPartitionsMap() const {return m_numPartitionsMap;}
     
-    map<string,ROCPPUnc_Ptr> getMapFromOriginalUncToSubsetUnc(string subset) const;
+    //map<string,ROCPPUnc_Ptr> getMapFromOriginalUncToSubsetUnc(string subset) const;
     
 protected:
     
@@ -182,7 +182,7 @@ protected:
     ROCPPdvContainer_Ptr m_bpdvs;
     
     /// Map from subset of partition to map from uncertain parameter in original problem to uncertainty on partition
-    map<string, map<string,ROCPPUnc_Ptr> > m_UncMap;
+    //map<string, map<string,ROCPPUnc_Ptr> > m_UncMap;
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
