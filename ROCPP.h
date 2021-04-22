@@ -24,6 +24,8 @@
 #include "FileRelations.hpp"
 #include "DDUApproximator.hpp"
 #include "DDUApproximatorPW.hpp"
+#include "PWDecisionRule.hpp"
+#include "KADecisionRule.hpp"
 #include "DDUApproximatorOther.hpp"
 #include "SolverModeller.hpp"
 #include "GurobiModeller.hpp"

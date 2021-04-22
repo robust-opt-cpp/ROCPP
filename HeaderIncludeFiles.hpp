@@ -232,6 +232,10 @@ typedef shared_ptr<OneToExprVariableConverterIF> ROCPPO2EVarConverterIF_Ptr;
 //%%%%%%%%%%%%%%%%%%%%% DECISION RULE TYPE DEFS %%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+class DecisionRuleIF;
+typedef DecisionRuleIF ROCPPDRIF;
+typedef shared_ptr<ROCPPDRIF> ROCPPROCPPDRIF_Ptr;
+
 class ContinuousVarsDRIF;
 typedef shared_ptr<ContinuousVarsDRIF> ROCPPContinuousVarsDR_Ptr;
 
@@ -245,6 +249,10 @@ typedef shared_ptr<DiscreteVarsDRIF> ROCPPDiscreteVarsDR_Ptr;
 class ConstantDecisionRule;
 typedef ConstantDecisionRule ROCPPConstantDR;
 typedef shared_ptr<ROCPPConstantDR> ROCPPConstantDR_Ptr;
+
+class KadaptabilityDecisionRule;
+typedef KadaptabilityDecisionRule ROCPPKADR;
+typedef shared_ptr<ROCPPKADR> ROCPPKADR_Ptr;
 
 class PartitionConstructorIF;
 typedef shared_ptr<PartitionConstructorIF> ROCPPParConstructor_Ptr;
