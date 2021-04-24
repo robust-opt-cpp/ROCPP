@@ -253,7 +253,7 @@ ROCPPVarIF_Ptr AdaptVarDouble::Clone()
 void dvContainer::operator+=(const dvContainer &a)
 {
     // iterate through the decision variables in a
-    for (map<string, ROCPPVarIF_Ptr >::const_iterator dv_it = a.m_DVMap.begin(); dv_it != a.m_DVMap.end(); dv_it++)
+    for (map<string, ROCPPVarIF_Ptr>::const_iterator dv_it = a.m_DVMap.begin(); dv_it != a.m_DVMap.end(); dv_it++)
         *this += dv_it->second;
 }
 

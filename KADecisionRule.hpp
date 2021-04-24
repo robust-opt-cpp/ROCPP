@@ -261,13 +261,13 @@ protected:
     ROCPPKadaptEncoder_Ptr m_pPartitionEncoder;
     
     /// Map from original decision variable name to partition string to new decision variable
-    map<string, map<string, ROCPPVarIF_Ptr > > m_DVmap; // map from original decision variable name to partition string to new decision variable
+    map<string, map<string, ROCPPVarIF_Ptr> > m_DVmap; // map from original decision variable name to partition string to new decision variable
     
     /// Map from partition to map from original variable name to new variable on that partition
-    map< string, map<string, ROCPPVarIF_Ptr > > m_mapPartitionEnc_mapOrigDVtoDVonPartition;
+    map< string, map<string, ROCPPVarIF_Ptr> > m_mapPartitionEnc_mapOrigDVtoDVonPartition;
     
     /// Map from pair of partition and time stage to the map from uncertainty name to the uncertainty on that partition at specific time stage
-    map< pair<string,uint> , map<string, ROCPPUnc_Ptr > > m_mapPartitionEncandt_mapOrigUnctoUnconPartition;
+    map< pair<string,uint> , map<string, ROCPPUnc_Ptr> > m_mapPartitionEncandt_mapOrigUnctoUnconPartition;
     
     ROCPPBilinearReform_Ptr m_pBTR;
     

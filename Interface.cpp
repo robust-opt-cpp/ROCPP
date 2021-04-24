@@ -543,7 +543,7 @@ ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr, double real)
     return newConst;
 }
 
-// expr >= real
+// expr>= real
 ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr, double real)
 {
     if (expr->hasNormTerm())
@@ -602,7 +602,7 @@ ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var, double real)
     return newConst;
 }
 
-// var >= real
+// var>= real
 ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var, double real)
 {
     return ( -1.*var <= -1.*real );
@@ -629,7 +629,7 @@ ROCPPConstraint_Ptr operator<=(double real, ROCPPVarIF_Ptr var)
 // real >= var
 ROCPPConstraint_Ptr operator>=(double real, ROCPPVarIF_Ptr var)
 {
-    return (-1.*var >= -1.*real);
+    return (-1.*var>= -1.*real);
 }
 
 // real == var
@@ -754,13 +754,13 @@ ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var)
     return (expr-var <= 0.);
 }
 
-// expr >= var
+// expr>= var
 ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var)
 {
     if (expr->hasNormTerm())
         throw MyException("constraint is non-convex");
     
-    return (expr-var >=0.);
+    return (expr-var>=0.);
 }
 
 // expr == var
@@ -781,7 +781,7 @@ ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var, ROCPPExpr_Ptr expr)
     return (var-expr <=0.);
 }
 
-// var >= expr
+// var>= expr
 ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var, ROCPPExpr_Ptr expr)
 {
     return ( expr - var <= 0.);
@@ -804,7 +804,7 @@ ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr, ROCPPUnc_Ptr unc)
     return (expr-unc <= 0.);
 }
 
-// expr >= unc
+// expr>= unc
 ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr, ROCPPUnc_Ptr unc)
 {
     if (expr->hasNormTerm())
@@ -858,7 +858,7 @@ ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr1, ROCPPExpr_Ptr expr2)
     return (expr1-expr2 <= 0.);
 }
 
-// expr >= expr
+// expr>= expr
 ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr1, ROCPPExpr_Ptr expr2)
 {
     if (expr1->hasNormTerm())
@@ -892,7 +892,7 @@ ROCPPConstraint_Ptr operator>=(ROCPPCstrTerm_Ptr term, ROCPPExpr_Ptr expr)
     if (term->isNormTerm())
         throw MyException("constraint is non-convex");
     
-    return (term -expr >=0.);
+    return (term -expr>=0.);
 }
 
 // term == expr
@@ -913,7 +913,7 @@ ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr, ROCPPCstrTerm_Ptr term)
     return (expr-term <=0.);
 }
 
-// expr >= term
+// expr>= term
 ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr, ROCPPCstrTerm_Ptr term)
 {
     if (expr->hasNormTerm())
@@ -944,7 +944,7 @@ ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var1, ROCPPVarIF_Ptr var2)
     return (var1-var2 <=0.);
 }
 
-// var >= var
+// var>= var
 ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var1, ROCPPVarIF_Ptr var2)
 {
     return (var1-var2 >=0.);
@@ -962,7 +962,7 @@ ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc)
     return (var-unc <=0.);
 }
 
-// var >= unc
+// var>= unc
 ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc)
 {
     return (var-unc>=0.);
@@ -1006,7 +1006,7 @@ ROCPPConstraint_Ptr operator>=(ROCPPCstrTerm_Ptr term, ROCPPVarIF_Ptr var)
     if (term->isNormTerm())
         throw MyException("constraint is non-convex");
     
-    return (term-var >=0.);
+    return (term-var>=0.);
 }
 
 // term == var
@@ -1027,7 +1027,7 @@ ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var, ROCPPCstrTerm_Ptr term)
     return (var-term <=0.);
 }
 
-// var >= term
+// var>= term
 ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var, ROCPPCstrTerm_Ptr term)
 {
     return ( term - var <=0.);

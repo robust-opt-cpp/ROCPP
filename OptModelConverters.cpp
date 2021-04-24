@@ -53,9 +53,9 @@ ROCPPOptModelIF_Ptr BilinearTermReformulatorIF::linearize(ROCPPOptModelIF_Ptr pI
         pOut = InstanciateModel(pIn->getType(), pIn->getNumTimeStages(),robust);
     
     map<string,pair<double,double> > variableBoundsCopy = variableBounds;
-    vector<ROCPPConstraint_Ptr > cstrsToAdd;
+    vector<ROCPPConstraint_Ptr> cstrsToAdd;
     
-    map<pair<string,string>, ROCPPVarIF_Ptr > allTerm;
+    map<pair<string,string>, ROCPPVarIF_Ptr> allTerm;
     uint count = 0;
     
     for(OptimizationModelIF::constraintIterator cit = pIn->constraintBegin(); cit != pIn->constraintEnd(); cit++)
@@ -68,7 +68,7 @@ ROCPPOptModelIF_Ptr BilinearTermReformulatorIF::linearize(ROCPPOptModelIF_Ptr pI
         }
     }
     
-    map<pair<string,string>, ROCPPVarIF_Ptr >::const_iterator term = allTerm.begin();
+    map<pair<string,string>, ROCPPVarIF_Ptr>::const_iterator term = allTerm.begin();
     for(;term != allTerm.end(); term++)
     {
         ROCPPVarIF_Ptr bindv = pIn->getVar(term->first.first);
@@ -77,7 +77,7 @@ ROCPPOptModelIF_Ptr BilinearTermReformulatorIF::linearize(ROCPPOptModelIF_Ptr pI
         getlinearCstr(bindv, otherdv, newdv, cstrsToAdd, variableBoundsCopy);
     }
     
-    for (vector<ROCPPConstraint_Ptr >::const_iterator it = cstrsToAdd.begin(); it != cstrsToAdd.end(); it++)
+    for (vector<ROCPPConstraint_Ptr>::const_iterator it = cstrsToAdd.begin(); it != cstrsToAdd.end(); it++)
         pOut->add_constraint(*it);
     
     pOut->set_objective(pIn->getObj());
@@ -93,7 +93,7 @@ ROCPPOptModelIF_Ptr BilinearTermReformulatorIF::linearize(ROCPPOptModelIF_Ptr pI
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void BTR_bigM::getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr  newdv, vector<ROCPPConstraint_Ptr >& cstrvec, map<string,pair<double,double> >& variableBounds)
+void BTR_bigM::getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr  newdv, vector<ROCPPConstraint_Ptr>& cstrvec, map<string,pair<double,double> >& variableBounds)
 {
     
     double M_ub(m_M);

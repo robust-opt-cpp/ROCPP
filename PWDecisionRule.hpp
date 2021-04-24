@@ -112,7 +112,7 @@ public:
     ROCPPUnc_Ptr getUncOnPartition(string partition, string origUncName) const;
     
     /// Constant iterator of the vector of additional constraints
-    typedef vector< ROCPPConstraint_Ptr >::const_iterator addconstraints_iterator;
+    typedef vector< ROCPPConstraint_Ptr>::const_iterator addconstraints_iterator;
     
     /// Return a constant iterator pointing to the beginning of m_additionalConstraints
     addconstraints_iterator ACbegin() const {return m_additionalConstraints.begin();}
@@ -170,13 +170,13 @@ protected:
     map<string, map<string,uint> > m_partitionsMap; // map from partition_name to map from unc name to element of parition associated with this uncertainty
     
     /// Map from partition name to the vector of constraints specific to this partition
-    map< string, vector< ROCPPConstraint_Ptr > > m_partitionUSconstraints; // uncertainty set on this partition: constraints specific to this partition
+    map< string, vector< ROCPPConstraint_Ptr> > m_partitionUSconstraints; // uncertainty set on this partition: constraints specific to this partition
     
     /// Map from pair<unc name,breakpoint number> to dv modeling the breakpoint
-    map< pair<string,uint>, ROCPPExpr_Ptr > m_uncToBreakpointMap; // map from pair<unc name,breakpoint number> to dv modeling the breakpoint
+    map< pair<string,uint>, ROCPPExpr_Ptr> m_uncToBreakpointMap; // map from pair<unc name,breakpoint number> to dv modeling the breakpoint
     
     /// Vector of additional constraints
-    vector<ROCPPConstraint_Ptr > m_additionalConstraints;
+    vector<ROCPPConstraint_Ptr> m_additionalConstraints;
     
     /// Container of breakpoint variables
     ROCPPdvContainer_Ptr m_bpdvs;
@@ -304,7 +304,7 @@ public:
     string getSolutionApproachParameters(string delimiter) const;
     
     /// Find the variable that new decision variable originated from after LDR and CDR
-    pair<bool,ROCPPVarIF_Ptr > findOrigVariable(ROCPPVarIF_Ptr newdv) const; // find the time stage of the variable that newdv originated from after LDR and CDR
+    pair<bool,ROCPPVarIF_Ptr> findOrigVariable(ROCPPVarIF_Ptr newdv) const; // find the time stage of the variable that newdv originated from after LDR and CDR
     
     /// Get the decision variable on the the given subset of the partition for the given original variable
     ROCPPVarIF_Ptr getVarOnPartition(string partition, string origVarName) const;
@@ -364,7 +364,7 @@ private:
     ROCPPParConverter_Ptr m_pPartConverter;
     
     /// Map from subset of partition to map from variable in original problem to variable on subset of the partition
-    map<string, map<string,ROCPPVarIF_Ptr > > m_VariableMap;  // m_VariableMap: map from partition to map from dv in original problem to dv on partition
+    map<string, map<string,ROCPPVarIF_Ptr> > m_VariableMap;  // m_VariableMap: map from partition to map from dv in original problem to dv on partition
 
     
     /// Use constraints to describe the non anticipativity constraints
@@ -390,16 +390,16 @@ private:
     
     
     /// Create the map from partition to map from variable in original problem to variable on partition
-    void createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraint_Ptr >& vecNACs);
+    void createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraint_Ptr>& vecNACs);
     
     /// Create the map from partition to map from uncertain parameter in original problem to uncertainty on partition
     void createUncertaintyMap(ROCPPOptModelIF_Ptr pIn);
     
     /// Calculate the probability of the given subset of the partition and the means of the uncertain parameters on it
-    pair<double, map<string, ROCPPExpr_Ptr > > calculateMeanAndProb(const ROCPPOptModelIF_Ptr pModel, string partition, const map<string,pair<double,double> > &allMap, double allArea);
+    pair<double, map<string, ROCPPExpr_Ptr> > calculateMeanAndProb(ROCPPOptModelIF_Ptr pModel, string partition, const map<string,pair<double,double> > &allMap, double allArea);
     
     /// Calculate the value of the objective on the given subset of the partition
-    void getStochasticObj(const pair<double, map<string, ROCPPExpr_Ptr > > meanAndProb, const ROCPPObjectiveIF_Ptr oldObj, vector<ROCPPExpr_Ptr > &newObj);
+    ROCPPExpr_Ptr getStochasticObj(const pair<double, map<string, ROCPPExpr_Ptr> > &meanAndProb, const ROCPPObjectiveIF_Ptr oldObj, string partitionSubsetNme);
     
     
 };

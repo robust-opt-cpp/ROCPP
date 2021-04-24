@@ -103,7 +103,7 @@ void KadaptabilityApproximatorMS::createVariableAndUncMap(dvContainer::const_ite
         cout << "Mapping decision variables for contingency plan " << numPart << " of total " << totalPart << " plans." << endl;
         numPart++;
         
-        map<string, ROCPPVarIF_Ptr > subMap;
+        map<string, ROCPPVarIF_Ptr> subMap;
         
         for (dvContainer::const_iterator v_it = varsBegin; v_it != varsEnd; v_it++)
         {
@@ -138,7 +138,7 @@ void KadaptabilityApproximatorMS::createVariableAndUncMap(dvContainer::const_ite
 //
 //        uint Kt(m_pPartitionEncoder->getKt(t));
 //
-//        map<uint, ROCPPVarIF_Ptr > subDVmap;
+//        map<uint, ROCPPVarIF_Ptr> subDVmap;
 //
 //        // for each value of k_t associated with the time-stage t of the decision variable, create a decision variable
 //        for (uint kt = 1; kt <= Kt; kt++)
@@ -163,7 +163,7 @@ void KadaptabilityApproximatorMS::createVariableAndUncMap(dvContainer::const_ite
 //         kmit != m_pPartitionEncoder->Kmap_iteratorEnd(); kmit++)
 //    {
 //
-//        map<string, ROCPPVarIF_Ptr > subMap;
+//        map<string, ROCPPVarIF_Ptr> subMap;
 //
 //        for (dvContainer::const_iterator v_it = varsBegin; v_it != varsEnd; v_it++)
 //        {
@@ -179,14 +179,14 @@ void KadaptabilityApproximatorMS::createVariableAndUncMap(dvContainer::const_ite
 //            uint kt(tmpit->second);
 //
 //            // find the decision variable associated with kt in DV map
-//            map<string, map<uint, ROCPPVarIF_Ptr > >::const_iterator v_it2 (m_DVmap.find(v_it->first));
+//            map<string, map<uint, ROCPPVarIF_Ptr> >::const_iterator v_it2 (m_DVmap.find(v_it->first));
 //
 //            if (v_it2==m_DVmap.end())
 //                throw MyException("Decision variable not found in DVmap");
 //
 //            // in the submap find the value of kt
 //
-//            map<uint, ROCPPVarIF_Ptr >::const_iterator kt_it(v_it2->second.find(kt));
+//            map<uint, ROCPPVarIF_Ptr>::const_iterator kt_it(v_it2->second.find(kt));
 //
 //            if (kt_it==v_it2->second.end())
 //                throw MyException("kt value not found in DVmap submap");
@@ -204,14 +204,14 @@ void KadaptabilityApproximatorMS::createVariableAndUncMap(dvContainer::const_ite
     
     cout << "Mapping uncertain parameters for each partition" << endl;
     
-    map< string , map< pair<uint,string> , ROCPPUnc_Ptr > > UncMap; // map from original uncertainty name to t and partition value to new uncertain parameter
+    map< string , map< pair<uint,string> , ROCPPUnc_Ptr> > UncMap; // map from original uncertainty name to t and partition value to new uncertain parameter
     
     // iterate through the uncertain parameters
     
     for (uncContainer::const_iterator u_it = uncBegin; u_it != uncEnd; u_it++)
     {
         
-        map< pair<uint,string> , ROCPPUnc_Ptr > subUncMap;
+        map< pair<uint,string> , ROCPPUnc_Ptr> subUncMap;
         
         // iterate through all the time periods and all subsets for that time period
         for (KadaptabilityPartitionEncoderMS::Klargemap_iterator tit = m_pPartitionEncoder->Klargemap_iteratorBegin(); tit != m_pPartitionEncoder->Klargemap_iteratorEnd(); tit++)
@@ -241,19 +241,19 @@ void KadaptabilityApproximatorMS::createVariableAndUncMap(dvContainer::const_ite
         for (map< string, map<uint, uint> >::const_iterator pit = tit->second.begin(); pit !=
              tit->second.end(); pit++)
         {
-            map<string, ROCPPUnc_Ptr > subMap;
+            map<string, ROCPPUnc_Ptr> subMap;
             
             for (uncContainer::const_iterator u_it = uncBegin; u_it != uncEnd; u_it++)
             {
                 // find the uncertain parameter in UncMap
-                map<string, map< pair<uint,string> , ROCPPUnc_Ptr > >::const_iterator u_it2 (UncMap.find(u_it->first));
+                map<string, map< pair<uint,string> , ROCPPUnc_Ptr> >::const_iterator u_it2 (UncMap.find(u_it->first));
                 
                 if (u_it2==UncMap.end())
                     throw MyException("Uncertainty not found in UncMap");
                 
                 // in the submap find the pair (t and partition)
                 
-                map< pair<uint,string> , ROCPPUnc_Ptr >::const_iterator kt_it(u_it2->second.find(make_pair(tit->first,pit->first)));
+                map< pair<uint,string> , ROCPPUnc_Ptr>::const_iterator kt_it(u_it2->second.find(make_pair(tit->first,pit->first)));
                 
                 if (kt_it==u_it2->second.end())
                     throw MyException("partition not found in DVmap submap");
@@ -360,7 +360,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
                  kit != m_pPartitionEncoder->Kmap_iteratorEnd(); kit++ )
             {
                 // find the submaps that refer to this choice of k
-                map< string, map<string, ROCPPVarIF_Ptr > >::const_iterator dvMapit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(kit->first) ) ;
+                map< string, map<string, ROCPPVarIF_Ptr> >::const_iterator dvMapit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(kit->first) ) ;
 
                 if (dvMapit == m_mapPartitionEnc_mapOrigDVtoDVonPartition.end())
                     throw MyException("contingency plan not found in decision variable map");
@@ -378,7 +378,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
             string basicPartition(m_pPartitionEncoder->getBasicPartition());
             
             // find the submaps that refer to this choice of k
-            map< string, map<string, ROCPPVarIF_Ptr > >::const_iterator dvMapit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(basicPartition) ) ;
+            map< string, map<string, ROCPPVarIF_Ptr> >::const_iterator dvMapit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(basicPartition) ) ;
             
             if (dvMapit == m_mapPartitionEnc_mapOrigDVtoDVonPartition.end())
                 throw MyException("contingency plan not found in decision variable map");
@@ -441,12 +441,12 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
             cout << "Approximate on contingency plan " << kcount << " of total " << partitionsize << " plans" << endl;
             
             // find the submaps that refer to this choice of k
-            map< string, map<string, ROCPPVarIF_Ptr > >::const_iterator dvMapit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(kit->first) ) ;
+            map< string, map<string, ROCPPVarIF_Ptr> >::const_iterator dvMapit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(kit->first) ) ;
             
             if (dvMapit == m_mapPartitionEnc_mapOrigDVtoDVonPartition.end())
                 throw MyException("k value not found in dv map");
             
-            map< pair<string, uint> , map<string, ROCPPUnc_Ptr > >::const_iterator uncMapit( m_mapPartitionEncandt_mapOrigUnctoUnconPartition.find( make_pair(kit->first,m_pPartitionEncoder->getT() ) ) );
+            map< pair<string, uint> , map<string, ROCPPUnc_Ptr> >::const_iterator uncMapit( m_mapPartitionEncandt_mapOrigUnctoUnconPartition.find( make_pair(kit->first,m_pPartitionEncoder->getT() ) ) );
                 
             if (uncMapit == m_mapPartitionEncandt_mapOrigUnctoUnconPartition.end())
                 throw MyException("k value not found in unc map");
@@ -480,7 +480,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
                 
                 // find the variable map
                 
-                map< pair<string,uint> , map<string, ROCPPUnc_Ptr > >::const_iterator uncMapit = m_mapPartitionEncandt_mapOrigUnctoUnconPartition.find(make_pair(partitionsub,t));
+                map< pair<string,uint> , map<string, ROCPPUnc_Ptr> >::const_iterator uncMapit = m_mapPartitionEncandt_mapOrigUnctoUnconPartition.find(make_pair(partitionsub,t));
                 
                 if (uncMapit==m_mapPartitionEncandt_mapOrigUnctoUnconPartition.end())
                     throw MyException("pair not found in the uncertainty partition map");
@@ -519,7 +519,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
                     string previousPartition(m_pPartitionEncoder->getPartitionSubset(pit->second, prevt));
                     
                     
-                    for (map<string, ROCPPUnc_Ptr >::const_iterator u_it = pIn->uncertaintiesBegin(); u_it != pIn->uncertaintiesEnd(); u_it++)
+                    for (map<string, ROCPPUnc_Ptr>::const_iterator u_it = pIn->uncertaintiesBegin(); u_it != pIn->uncertaintiesEnd(); u_it++)
                     {
                         // find the uncertain parameter for time t for this partition
                         ROCPPUnc_Ptr u_current(getUncOnPartition(u_it->second->getName(), currentPartition, t));
@@ -536,10 +536,10 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxObjUnc(ROCPPOptModelIF_Ptr pI
                             ROCPPVarIF_Ptr mv ( pIn->getMeasVar(u_it->second->getName(), t-1));
 
                             // find the measurement variable on this partition
-                            map<string, map<string, ROCPPVarIF_Ptr > >::const_iterator dvMapit( m_DVmap.find(mv->getName()) );
+                            map<string, map<string, ROCPPVarIF_Ptr> >::const_iterator dvMapit( m_DVmap.find(mv->getName()) );
 
                             string deb(m_pPartitionEncoder->getPartitionSubset(pit->second, prevt));
-                            map<string, ROCPPVarIF_Ptr >::const_iterator mv_it_k ( dvMapit->second.find( m_pPartitionEncoder->getPartitionSubset(pit->second, prevt) ) );
+                            map<string, ROCPPVarIF_Ptr>::const_iterator mv_it_k ( dvMapit->second.find( m_pPartitionEncoder->getPartitionSubset(pit->second, prevt) ) );
 
                             if (mv_it_k == dvMapit->second.end() )
                                 throw MyException("decision variable not found in dv map");
@@ -604,7 +604,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
     // add all the deterministic constraints from the original problem to pBilinearMISOCPout, store the uncertain constraint
     
     uint numUncCstr = 0;
-    vector<ROCPPConstraint_Ptr > uncCstr;
+    vector<ROCPPConstraint_Ptr> uncCstr;
     
     uint m_K = m_pPartitionEncoder->getKt(2);
     
@@ -620,7 +620,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                         partition.push_back(1); partition.push_back(k);
                         string partitionNme = m_pPartitionEncoder->convertPartitionToString(partition);
                         // find the submaps that refer to this choice of k
-                        map< string, map<string, ROCPPVarIF_Ptr > >::const_iterator dvMapit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(partitionNme) ) ;
+                        map< string, map<string, ROCPPVarIF_Ptr> >::const_iterator dvMapit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(partitionNme) ) ;
                         
                         if (dvMapit==m_mapPartitionEnc_mapOrigDVtoDVonPartition.end())
                             throw MyException("k value not found in one of the maps");
@@ -667,7 +667,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
     partition.push_back(1);
     string partitionNme = m_pPartitionEncoder->convertPartitionToString(partition);
 
-    map< pair<string,uint>, map<string, ROCPPUnc_Ptr > >::const_iterator uncStatMapit( m_mapPartitionEncandt_mapOrigUnctoUnconPartition.find(make_pair(partitionNme, 1)) );
+    map< pair<string,uint>, map<string, ROCPPUnc_Ptr> >::const_iterator uncStatMapit( m_mapPartitionEncandt_mapOrigUnctoUnconPartition.find(make_pair(partitionNme, 1)) );
     
     //for all uncertainty sets
     for (vector<vector<uint> >::const_iterator vit = elements.begin(); vit!=elements.end(); vit++)
@@ -687,9 +687,9 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
             string elstring(to_string(elcnt));
             
             // First map the first time stage decision variables on each partition
-            map<string, ROCPPUnc_Ptr > uncStatMapInl;
+            map<string, ROCPPUnc_Ptr> uncStatMapInl;
 
-            map<string, ROCPPUnc_Ptr >::const_iterator uStat_it(uncStatMapit->second.begin());
+            map<string, ROCPPUnc_Ptr>::const_iterator uStat_it(uncStatMapit->second.begin());
             for(;uStat_it!=uncStatMapit->second.end();uStat_it++){
                 ROCPPUnc_Ptr uncStatL(new ROCPPUnc( uStat_it->second->getName() + "_(l=" + elstring + ")", 1, uStat_it->second->isObservable()));
                 uncStatMapInl.insert(make_pair(uStat_it->first, uncStatL));
@@ -715,16 +715,16 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                 partition.push_back(1); partition.push_back(k);
                 string partitionNme = m_pPartitionEncoder->convertPartitionToString(partition);
                 
-                map< string, map<string, ROCPPVarIF_Ptr > >::const_iterator dvMapit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(partitionNme) ) ;
-                map< pair<string,uint>, map<string, ROCPPUnc_Ptr > >::const_iterator uncMapit( m_mapPartitionEncandt_mapOrigUnctoUnconPartition.find(make_pair(partitionNme, 2)) );
+                map< string, map<string, ROCPPVarIF_Ptr> >::const_iterator dvMapit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(partitionNme) ) ;
+                map< pair<string,uint>, map<string, ROCPPUnc_Ptr> >::const_iterator uncMapit( m_mapPartitionEncandt_mapOrigUnctoUnconPartition.find(make_pair(partitionNme, 2)) );
                 
                 if (dvMapit==m_mapPartitionEnc_mapOrigDVtoDVonPartition.end() || uncMapit==m_mapPartitionEncandt_mapOrigUnctoUnconPartition.end())
                     throw MyException("k value not found in one of the maps");
                 
                 // create map of \xi_k^l for the k-th policy in this partition l
-                map<string, ROCPPUnc_Ptr > uncMapInl;
+                map<string, ROCPPUnc_Ptr> uncMapInl;
 
-                map<string, ROCPPUnc_Ptr >::const_iterator u_it(uncMapit->second.begin());
+                map<string, ROCPPUnc_Ptr>::const_iterator u_it(uncMapit->second.begin());
                 for(;u_it!=uncMapit->second.end();u_it++){
                     ROCPPUnc_Ptr uncL(new ROCPPUnc( u_it->second->getName() + "_(l=" + elstring + ")", 1, u_it->second->isObservable()));
                     uncMapInl.insert(make_pair(u_it->first, uncL));
@@ -769,7 +769,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                     lambda_l->add(1.0, lambda_kl);
                     
                     
-                    for(vector<ROCPPConstraint_Ptr >::const_iterator c_it = uncCstr.begin(); c_it != uncCstr.end(); c_it++)
+                    for(vector<ROCPPConstraint_Ptr>::const_iterator c_it = uncCstr.begin(); c_it != uncCstr.end(); c_it++)
                     {
                         ROCPPConstraint_Ptr newcstrl ( (*c_it)->mapUnc(uncMapInl) );
                         newcstrl = newcstrl->mapVars( dvMapit->second );
@@ -804,10 +804,10 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                     {
                         ROCPPVarIF_Ptr mv ( pIn->getMeasVar(u_it->second->getName(), 1));
                         
-                        map<string, ROCPPUnc_Ptr >::const_iterator u_it_kl ( uncMapInl.find(u_it->second->getName()) );
+                        map<string, ROCPPUnc_Ptr>::const_iterator u_it_kl ( uncMapInl.find(u_it->second->getName()) );
                         if (u_it_kl==uncMapInl.end())
                             throw MyException("Uncertain parameter not found");
-                        map<string, ROCPPUnc_Ptr >::const_iterator u_it_statl ( uncStatMapInl.find(u_it->second->getName()) );
+                        map<string, ROCPPUnc_Ptr>::const_iterator u_it_statl ( uncStatMapInl.find(u_it->second->getName()) );
                         if (u_it_statl==uncStatMapInl.end())
                             throw MyException("Uncertain parameter not found");
                         
@@ -821,10 +821,10 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                     {
                         if (pIn->isObservable(u_it->second->getName()))
                         {
-                            map<string, ROCPPUnc_Ptr >::const_iterator u_it_kl ( uncMapInl.find(u_it->second->getName()) );
+                            map<string, ROCPPUnc_Ptr>::const_iterator u_it_kl ( uncMapInl.find(u_it->second->getName()) );
                             if (u_it_kl==uncMapInl.end())
                                 throw MyException("Uncertain parameter not found");
-                            map<string, ROCPPUnc_Ptr >::const_iterator u_it_statl ( uncStatMapInl.find(u_it->second->getName()) );
+                            map<string, ROCPPUnc_Ptr>::const_iterator u_it_statl ( uncStatMapInl.find(u_it->second->getName()) );
                             if (u_it_statl==uncStatMapInl.end())
                                 throw MyException("Uncertain parameter not found");
                             
@@ -883,8 +883,8 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                 partition.push_back(1); partition.push_back(k);
                 string partitionNme = m_pPartitionEncoder->convertPartitionToString(partition);
                 
-                map< string, map<string, ROCPPVarIF_Ptr > >::const_iterator dvMapit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(partitionNme) ) ;
-                map< pair<string,uint>, map<string, ROCPPUnc_Ptr > >::const_iterator uncMapit( m_mapPartitionEncandt_mapOrigUnctoUnconPartition.find(make_pair(partitionNme, 2)) );
+                map< string, map<string, ROCPPVarIF_Ptr> >::const_iterator dvMapit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(partitionNme) ) ;
+                map< pair<string,uint>, map<string, ROCPPUnc_Ptr> >::const_iterator uncMapit( m_mapPartitionEncandt_mapOrigUnctoUnconPartition.find(make_pair(partitionNme, 2)) );
                 
                 if (dvMapit==m_mapPartitionEnc_mapOrigDVtoDVonPartition.end() || uncMapit==m_mapPartitionEncandt_mapOrigUnctoUnconPartition.end())
                     throw MyException("k value not found in one of the maps");
@@ -927,7 +927,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                     if (pIn->isDDU(u_it->second->getName()))
                     {
                         ROCPPVarIF_Ptr mv ( pIn->getMeasVar(u_it->second->getName(), 1));
-                        map<string, ROCPPUnc_Ptr >::const_iterator u_it_k ( uncMapit->second.find(u_it->second->getName()) );
+                        map<string, ROCPPUnc_Ptr>::const_iterator u_it_k ( uncMapit->second.find(u_it->second->getName()) );
                         
                         if (u_it_k==uncMapit->second.end())
                             throw MyException("Uncertain parameter not found");
@@ -942,7 +942,7 @@ ROCPPMISOCP_Ptr KadaptabilityApproximatorMS::approxCstrUnc(ROCPPOptModelIF_Ptr p
                     {
                         if (pIn->isObservable(u_it->second->getName()))
                         {
-                            map<string, ROCPPUnc_Ptr >::const_iterator u_it_k ( uncMapit->second.find(u_it->second->getName()) );
+                            map<string, ROCPPUnc_Ptr>::const_iterator u_it_k ( uncMapit->second.find(u_it->second->getName()) );
                             
                             if (u_it_k==uncMapit->second.end())
                                 throw MyException("Uncertain parameter not found");
@@ -1036,11 +1036,11 @@ ROCPPOptModelIF_Ptr KadaptabilityApproximatorMS::fixSecondStageVariablesToWarmSt
     // get the name of the largest warm start partition
     string wsStr(m_pPartitionEncoder->convertPartitionToString(wsMap));
     
-    for (map<string, map<string, ROCPPVarIF_Ptr > >::const_iterator kit = m_DVmap.begin(); kit != m_DVmap.end(); kit++)
+    for (map<string, map<string, ROCPPVarIF_Ptr> >::const_iterator kit = m_DVmap.begin(); kit != m_DVmap.end(); kit++)
     {
 
         // for all second stage variables in the problem
-        for (map<string, ROCPPVarIF_Ptr >::const_iterator vit = kit->second.begin(); vit != kit->second.end(); vit++)
+        for (map<string, ROCPPVarIF_Ptr>::const_iterator vit = kit->second.begin(); vit != kit->second.end(); vit++)
         {
             if (wsStr.compare(vit->first) != -1 ) // if the name of the variable is NOT the same as the name of the variable on the partition (it is an adaptive variable) and is the variable with small k to be found
             {
@@ -1089,7 +1089,7 @@ ROCPPOptModelIF_Ptr KadaptabilityApproximatorMS::fixBinaryVariableValues(ROCPPOp
 //
     // we will not add a constraint, instead we completely get rid of the variable using PredefO2EVariableConverter
 
-    map<string,ROCPPExpr_Ptr > translationMap;
+    map<string,ROCPPExpr_Ptr> translationMap;
 
     // populate the translation map
 
@@ -1142,12 +1142,12 @@ string KadaptabilityApproximatorMS::getSolutionApproachParameters(string delimit
 
 ROCPPVarIF_Ptr KadaptabilityApproximatorMS::getDVonPartition(string partition, string OrigDVname) const
 {
-    map< string, map<string, ROCPPVarIF_Ptr > >::const_iterator pit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(partition) );
+    map< string, map<string, ROCPPVarIF_Ptr> >::const_iterator pit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(partition) );
     
     if (pit == m_mapPartitionEnc_mapOrigDVtoDVonPartition.end())
         throw MyException("partition not found");
     
-    map<string, ROCPPVarIF_Ptr >::const_iterator vit( pit->second.find(OrigDVname) );
+    map<string, ROCPPVarIF_Ptr>::const_iterator vit( pit->second.find(OrigDVname) );
     
     if (vit == pit->second.end() )
         throw MyException("variable not found");
@@ -1161,7 +1161,7 @@ ROCPPUnc_Ptr KadaptabilityApproximatorMS::getUncOnPartition(string OrigUncName, 
     
     // in the submap find the pair (t and partition)
     
-    map< pair<string,uint> , map<string, ROCPPUnc_Ptr > >::const_iterator um_it2(m_mapPartitionEncandt_mapOrigUnctoUnconPartition.find(make_pair(partition,t)));
+    map< pair<string,uint> , map<string, ROCPPUnc_Ptr> >::const_iterator um_it2(m_mapPartitionEncandt_mapOrigUnctoUnconPartition.find(make_pair(partition,t)));
     
     
     if (um_it2==m_mapPartitionEncandt_mapOrigUnctoUnconPartition.end())
@@ -1169,7 +1169,7 @@ ROCPPUnc_Ptr KadaptabilityApproximatorMS::getUncOnPartition(string OrigUncName, 
     
     // in the subsub map find the uncertain parameter
     
-    map< string , ROCPPUnc_Ptr >::const_iterator u_it2(um_it2->second.find(OrigUncName));
+    map< string , ROCPPUnc_Ptr>::const_iterator u_it2(um_it2->second.find(OrigUncName));
     
     if (u_it2==um_it2->second.end())
         throw MyException("uncertainty not found in m_mapPartitionEncandt_mapOrigUnctoUnconPartition submap");
@@ -1199,9 +1199,9 @@ void KadaptabilityApproximatorMS::getWsSolutions(ROCPPOptModelIF_Ptr pIn, const 
     
     bool previous;
 
-    for (map<string, map<string, ROCPPVarIF_Ptr > >::const_iterator kit = m_DVmap.begin(); kit != m_DVmap.end(); kit++)
+    for (map<string, map<string, ROCPPVarIF_Ptr> >::const_iterator kit = m_DVmap.begin(); kit != m_DVmap.end(); kit++)
     {
-         for (map<string, ROCPPVarIF_Ptr >::const_iterator vit = kit->second.begin(); vit != kit->second.end(); vit++)
+         for (map<string, ROCPPVarIF_Ptr>::const_iterator vit = kit->second.begin(); vit != kit->second.end(); vit++)
          {
              // create the variable name
              string varname (vit->second->getName());
@@ -1304,7 +1304,7 @@ void KadaptabilityApproximatorMS::printParametersToScreen() const
 
 void KadaptabilityApproximatorMS::printOut(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv, string partition)
 {
-    map<string, map<string, ROCPPVarIF_Ptr > >::const_iterator dvMap(m_DVmap.find(dv->getName()));
+    map<string, map<string, ROCPPVarIF_Ptr> >::const_iterator dvMap(m_DVmap.find(dv->getName()));
     string dvName = dvMap->second.find(partition)->second->getName();
     double value = resultIn.find(dvName)->second;
 
@@ -1317,12 +1317,12 @@ void KadaptabilityApproximatorMS::printOut(ROCPPOptModelIF_Ptr pIn, const map<st
 void KadaptabilityApproximatorMS::printOut(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv)
 {
     
-    map<string, map<string, ROCPPVarIF_Ptr > >::const_iterator vit ( m_DVmap.find(dv->getName()) );
+    map<string, map<string, ROCPPVarIF_Ptr> >::const_iterator vit ( m_DVmap.find(dv->getName()) );
     
     if (vit==m_DVmap.end())
         throw MyException("Decision variable not found");
     
-    for (map<string, ROCPPVarIF_Ptr >::const_iterator pit = vit->second.begin(); pit != vit->second.end(); pit++)
+    for (map<string, ROCPPVarIF_Ptr>::const_iterator pit = vit->second.begin(); pit != vit->second.end(); pit++)
     {
         printOut(pIn, resultIn, dv, pit->first);
     }
@@ -1338,7 +1338,7 @@ void KadaptabilityApproximatorMS::printOut(ROCPPOptModelIF_Ptr pIn, const map<st
         throw MyException("The uncertain parameter " + unc->getName() + " does not have a time of revelation that is decision-dependent");
     
     
-    map< string, map<string, ROCPPVarIF_Ptr > >::const_iterator pit = m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(partition);
+    map< string, map<string, ROCPPVarIF_Ptr> >::const_iterator pit = m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(partition);
     
     if (pit == m_mapPartitionEnc_mapOrigDVtoDVonPartition.end())
         throw MyException("Partition subset not found");
@@ -1346,7 +1346,7 @@ void KadaptabilityApproximatorMS::printOut(ROCPPOptModelIF_Ptr pIn, const map<st
     for(uint t = pIn->getFirstStageObservable(unc->getName()); t <= pIn->getLastStageObservable(unc->getName()); t++)
     {
         ROCPPVarIF_Ptr dv = pIn->getMeasVar(unc->getName(), t);
-        map<string, ROCPPVarIF_Ptr >::const_iterator measVarOnSubset_it(pit->second.find(dv->getName()));
+        map<string, ROCPPVarIF_Ptr>::const_iterator measVarOnSubset_it(pit->second.find(dv->getName()));
         
         if (measVarOnSubset_it==pit->second.end())
             throw MyException("Decision variable not found on subset");
@@ -1380,7 +1380,7 @@ void KadaptabilityApproximatorMS::printOut(ROCPPOptModelIF_Ptr pIn, const map<st
 void KadaptabilityApproximatorMS::printOut(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc)
 {
     
-    for (map< string, map<string, ROCPPVarIF_Ptr > >::const_iterator pit = m_mapPartitionEnc_mapOrigDVtoDVonPartition.begin(); pit != m_mapPartitionEnc_mapOrigDVtoDVonPartition.end(); pit++)
+    for (map< string, map<string, ROCPPVarIF_Ptr> >::const_iterator pit = m_mapPartitionEnc_mapOrigDVtoDVonPartition.begin(); pit != m_mapPartitionEnc_mapOrigDVtoDVonPartition.end(); pit++)
     {
         printOut(pIn, resultIn, unc, pit->first);
     }
@@ -1441,9 +1441,9 @@ ROCPPMISOCP_Ptr LDRCDRApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
         if( ! pIn->hasRectangularUncertaintySet())
             throw MyException("Stochastic model must have rectangular uncertainty set");
         
-        vector<ROCPPExpr_Ptr > objs(pIn->getObj()->getObj());
+        vector<ROCPPExpr_Ptr> objs(pIn->getObj()->getObj());
         
-        vector<ROCPPExpr_Ptr >::const_iterator obj(objs.begin());
+        vector<ROCPPExpr_Ptr>::const_iterator obj(objs.begin());
         
         for(; obj != objs.end(); obj++)
         {

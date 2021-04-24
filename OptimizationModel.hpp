@@ -105,7 +105,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constant iterator for optimization model constraints
-    typedef vector<ROCPPConstraint_Ptr >::const_iterator constraintIterator;
+    typedef vector<ROCPPConstraint_Ptr>::const_iterator constraintIterator;
     
     /// Constant iterator for optimization model decision variable map
     typedef dvMapType::const_iterator varsIterator;
@@ -160,17 +160,17 @@ public:
     
     /// Add a constraint into the optimization model after setting the constraint attributes
     /// @note We first map all the variables and uncertainties to make sure they are not used in any other model and then add the new constraint to the model
-    /// @see ConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr >), ConstraintIF::mapUnc(), OptimizationModelIF::createVarMap(ROCPPConstraint_Ptr), OptimizationModelIF::createUncMap(ROCPPConstraint_Ptr), OptimizationModelIF::push_constraint()
+    /// @see ConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr>), ConstraintIF::mapUnc(), OptimizationModelIF::createVarMap(ROCPPConstraint_Ptr), OptimizationModelIF::createUncMap(ROCPPConstraint_Ptr), OptimizationModelIF::push_constraint()
     /// blockNme allows to add a constraint
     void add_constraint(ROCPPConstraint_Ptr pConstraint, string blockNme = "main");
     
     /// Add a soc constraint into the optimization model
     /// @param coneHead Cone head decision variable
     /// @param otherVars Other variables
-    void add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr > &otherVars, string blockNme = "main");
+    void add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr> &otherVars, string blockNme = "main");
     
     /// Add constraints into the optimization model
-    void add_constraints(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, string blockNme = "main");
+    void add_constraints(vector<ROCPPConstraint_Ptr>::const_iterator first, vector<ROCPPConstraint_Ptr>::const_iterator last, string blockNme = "main");
     
     /// Add a constraint defining the uncertainty set into the model
     void add_constraint_uncset(ROCPPConstraint_Ptr pUncCstr, string blockNme = "main");
@@ -182,7 +182,7 @@ public:
     
     /// Set the given objective as the objective function of the model
     /// @note We first map all the variables and uncertainties to make sure they are not used in any other model and then set the new objective
-    /// @see ConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr >), ConstraintIF::mapUnc(), OptimizationModelIF::createVarMap(ROCPPConstraint_Ptr), OptimizationModelIF::createUncMap(ROCPPConstraint_Ptr)
+    /// @see ConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr>), ConstraintIF::mapUnc(), OptimizationModelIF::createVarMap(ROCPPConstraint_Ptr), OptimizationModelIF::createUncMap(ROCPPConstraint_Ptr)
     virtual void set_objective(ROCPPObjectiveIF_Ptr pObj);
     
     /// Create an objective function using the given expression and add it to the optimization model
@@ -191,17 +191,17 @@ public:
     
     /// Create an objective function using the given expressions and add it to the optimization model
     /// @see Optimization::set_objective(ROCPPObjectiveIF_Ptr)
-    void set_objective(vector<ROCPPExpr_Ptr > objFuns);
+    void set_objective(vector<ROCPPExpr_Ptr> objFuns);
     
     /// Replace the given term in this model with the given decision variable
     /// @see ObjectiveFunctionIF::replaceTermWithVar(), ConstraintIF::replaceTermWithVar()
-    ROCPPOptModelIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
+    ROCPPOptModelIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
     
     /// Copy the information in the given model and set it to this one, make sure the information of ddu is kept after clone or reformulation
     virtual void set_ddu(ROCPPOptModelIF_Ptr pIn);
     
     /// Copy the information in the given maps and set it to this one, make sure the information of ddu is kept after clone or reformulation
-    virtual void set_ddu(const map< pair<string,uint>, measPair > &dduToMeasMap, const map< string, pair<uint,uint> > &dduStagesObs);
+    virtual void set_ddu(const map<pair<string,uint>, measPair> &dduToMeasMap, const map< string, pair<uint,uint> > &dduStagesObs);
     
     virtual void set_objType(uncOptModelObjType pType);
     
@@ -209,19 +209,19 @@ public:
     /// Iterate through all variables in the given constraint. If a variable with the same name exists in the model, use the old one. If a variables with the same name does not exist, create a new variable and add it into the model.
     /// @return A map from the variable name to the variable
     /// @see OptimizationModelIF::varIsDefined(), OptimizationModelIF::add_var()
-    map<string, ROCPPVarIF_Ptr > createVarMap(ROCPPConstraint_Ptr pConstraint);
+    map<string, ROCPPVarIF_Ptr> createVarMap(ROCPPConstraint_Ptr pConstraint);
     
     /// Create the variable map for the given objective function
     /// Iterate through all variables in the given objective function. If a variable with the same name exists in the model, use the old one. If a variables with the same name does not exist, create a new variable and add it into the model.
     /// @return A map from the variable name to the variable
     /// @see OptimizationModelIF::varIsDefined(), OptimizationModelIF::add_var()
-    map<string, ROCPPVarIF_Ptr > createVarMap(ROCPPObjectiveIF_Ptr objFun);
+    map<string, ROCPPVarIF_Ptr> createVarMap(ROCPPObjectiveIF_Ptr objFun);
     
     /// @note Only valid in uncertain model
-    virtual map<string, ROCPPUnc_Ptr > createUncMap(ROCPPConstraint_Ptr pConstraint);
+    virtual map<string, ROCPPUnc_Ptr> createUncMap(ROCPPConstraint_Ptr pConstraint);
     
     /// @note Only valid in uncertain model
-    virtual map<string, ROCPPUnc_Ptr > createUncMap(ROCPPObjectiveIF_Ptr objFun);
+    virtual map<string, ROCPPUnc_Ptr> createUncMap(ROCPPObjectiveIF_Ptr objFun);
     
     virtual void pair_uncertainties(ROCPPUnc_Ptr u1, ROCPPUnc_Ptr u2);
     
@@ -273,19 +273,19 @@ public:
     
     /// Return the number of times the given term in the map appears in this model
     /// @see ObjectiveFunctionIF::getNumTimesTermAppears(), ConstraintIF::getNumTimesTermAppears()
-    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const;
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const;
     
     /// Return all products of two variables in this model
     /// @note There are no nonlinearities in the objective function
     /// @see ConstraintIF::getAllProductsOf2Variables()
-    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const;
+    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map<pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const;
     
     /// Return a pointer pointing to the objective function of this problem
     ROCPPObjectiveIF_Ptr getObj() const {return m_pObj;}
     
     /// Return a map from decision dependent uncertain parameters to associated measurement variables
     /// @return the first element of the map is a pair of uncertainty name and time stage; the second element is the measurement structure corresponding to this pair. If there is no such parameter, return an empty map.
-    virtual map< pair<string,uint>, measPair > getDDUToMeasMap() const;
+    virtual map< pair<string,uint>, measPair> getDDUToMeasMap() const;
     
     /// Return a map from decision dependent uncertain parameters to the stages when the parameter can be observed
     /// @return the first element of the map is the uncertainty name; the second element is a pair with the first and the last stages when the parameter is observable. If there is no such parameter, return an empty map.
@@ -530,11 +530,11 @@ public:
     
     /// Create the uncertain parameter map for the given constraint
     /// Iterate through all uncertainties in the given constraint. If an uncertain parameter with the same name exists in the model, use the old one. If no parameter with the same name exists, create a new one and add it to the model.
-    virtual map<string, ROCPPUnc_Ptr > createUncMap(ROCPPConstraint_Ptr pConstraint);
+    virtual map<string, ROCPPUnc_Ptr> createUncMap(ROCPPConstraint_Ptr pConstraint);
     
     /// Create the uncertainty map for the given objective function
     /// Iterate through all uncertainties in the given objective function. If an uncertain parameter with the same name exists in the model, use the old one. If no parameter with the same name exists, create a new one and add it to the model.
-    map<string, ROCPPUnc_Ptr > createUncMap(ROCPPObjectiveIF_Ptr objFun);
+    map<string, ROCPPUnc_Ptr> createUncMap(ROCPPObjectiveIF_Ptr objFun);
     
     void set_objType(uncOptModelObjType pType) {m_objType = pType;}
     
@@ -846,11 +846,11 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%% Goer Functions %%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    /// Create product term for the cone head variable and call function CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr, const vector<ROCPPProdTerm_Ptr >)
-    void add_cplexsoc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr > &otherVars);
+    /// Create product term for the cone head variable and call function CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr, const vector<ROCPPProdTerm_Ptr>)
+    void add_cplexsoc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr> &otherVars);
     
     /// Add constraint in the form of: cone head^2 >= sum non cone head ^2
-    void add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vector<ROCPPProdTerm_Ptr > &otherVars);
+    void add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vector<ROCPPProdTerm_Ptr> &otherVars);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%%
@@ -950,7 +950,7 @@ public:
     
     void set_ddu(ROCPPOptModelIF_Ptr pIn);
     
-    void set_ddu(const map< pair<string,uint>, measPair > &dduToMeasMap, const map< string, pair<uint,uint> > &dduStagesObs);
+    void set_ddu(const map< pair<string,uint>, measPair> &dduToMeasMap, const map< string, pair<uint,uint> > &dduStagesObs);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -986,7 +986,7 @@ public:
     ROCPPUnc_Ptr getAssociatedUncertainty(string measVar) const;
     
     /// Return the map m_dduToMeasMap
-    map< pair<string,uint>, measPair > getDDUToMeasMap() const {return m_dduToMeasMap;}
+    map< pair<string,uint>, measPair> getDDUToMeasMap() const {return m_dduToMeasMap;}
     
     /// Return the map m_dduStageObs
     map<string, pair<uint,uint> > getdduStagesObs() const {return m_dduStagesObs;}

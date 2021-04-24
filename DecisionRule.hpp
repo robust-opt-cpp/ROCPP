@@ -76,7 +76,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Find all adaptive continuous variable in the given constraints and objective
-    void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
+    void findVarsToTranslate(vector<ROCPPConstraint_Ptr>::const_iterator first, vector<ROCPPConstraint_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -121,7 +121,7 @@ public:
     ROCPPOptModelIF_Ptr approximate(ROCPPOptModelIF_Ptr pIn) {return convertVar(pIn);}
     
     /// Create the map from the original decision variable to decisions that are affine in the history of observations
-    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd);
+    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr>  &translationMap, vector<ROCPPConstraint_Ptr> &toAdd);
     
     /// Set the uncertainty container of this class
     void setUncContainer(ROCPPuncContainer_Ptr UC){m_UC=UC; m_uncContSet=true;}
@@ -134,10 +134,10 @@ public:
     ROCPPVarIF_Ptr getCoeffDV(string dvName, string uncName) const;
     
     /// Return map m_mapOrigDVUncPairToCoeffDV
-    map< pair<string,string>, ROCPPVarIF_Ptr > getLDRCoeff() const{return m_mapOrigDVUncPairToCoeffDV;}
+    map< pair<string,string>, ROCPPVarIF_Ptr> getLDRCoeff() const{return m_mapOrigDVUncPairToCoeffDV;}
     
     /// Return map m_mapOrigDVToUncAndCoeffDV
-    multimap<string, pair<string, ROCPPVarIF_Ptr > > getLDRExpr() const{return m_mapOrigDVToUncAndCoeffDV;}
+    multimap<string, pair<string, ROCPPVarIF_Ptr> > getLDRExpr() const{return m_mapOrigDVToUncAndCoeffDV;}
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%%
@@ -158,10 +158,10 @@ private:
     bool m_uncContSet;
     
     /// Map of pair of original variable name and uncertainty name to the coefficient variable
-    map< pair<string,string>, ROCPPVarIF_Ptr > m_mapOrigDVUncPairToCoeffDV;
+    map< pair<string,string>, ROCPPVarIF_Ptr> m_mapOrigDVUncPairToCoeffDV;
     
     /// Map of original variable name to the pair of uncertainty name and the coefficient variable
-    multimap<string, pair<string, ROCPPVarIF_Ptr > > m_mapOrigDVToUncAndCoeffDV;
+    multimap<string, pair<string, ROCPPVarIF_Ptr> > m_mapOrigDVToUncAndCoeffDV;
     
     /// Map of original variable name to the name of decision variable representing the constant term in the linear decision rule
     map<string, string> m_cst;
@@ -194,7 +194,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Find all adaptive binary and integer variable in the given constraints and objective
-    void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
+    void findVarsToTranslate(vector<ROCPPConstraint_Ptr>::const_iterator first, vector<ROCPPConstraint_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -225,7 +225,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd);
+    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr>  &translationMap, vector<ROCPPConstraint_Ptr> &toAdd);
     
     void printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &variableValue, ROCPPVarIF_Ptr dv);
     

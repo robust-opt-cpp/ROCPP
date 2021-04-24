@@ -22,6 +22,7 @@
 #include "DecisionRule.hpp"
 #include "PWDecisionRule.hpp"
 #include "UncertaintyConverter.hpp"
+#include "Interface.hpp"
 
 
 
@@ -118,7 +119,7 @@ m_bpdvs ( new dvContainer() )
 
 PartitionConstructorIF::usconstraints_iterator PartitionConstructorIF::USCbegin(string partition) const
 {
-    map< string, vector< ROCPPConstraint_Ptr > >::const_iterator mit( m_partitionUSconstraints.find(partition) );
+    map< string, vector< ROCPPConstraint_Ptr> >::const_iterator mit( m_partitionUSconstraints.find(partition) );
     
     if (mit == m_partitionUSconstraints.end() )
         throw MyException("partition not found");
@@ -128,7 +129,7 @@ PartitionConstructorIF::usconstraints_iterator PartitionConstructorIF::USCbegin(
 
 PartitionConstructorIF::usconstraints_iterator PartitionConstructorIF::USCend(string partition) const
 {
-    map< string, vector< ROCPPConstraint_Ptr > >::const_iterator mit( m_partitionUSconstraints.find(partition) );
+    map< string, vector< ROCPPConstraint_Ptr> >::const_iterator mit( m_partitionUSconstraints.find(partition) );
     
     if (mit == m_partitionUSconstraints.end() )
         throw MyException("partition not found");
@@ -174,7 +175,7 @@ void PartitionConstructorIF::getReady(ROCPPOptModelIF_Ptr pIn, ROCPPParConverter
     
     for (map<string, map<string,uint> >::const_iterator pm_it=m_partitionsMap.begin(); pm_it!=m_partitionsMap.end(); pm_it++)
     {
-        vector<ROCPPConstraint_Ptr > tmp;
+        vector<ROCPPConstraint_Ptr> tmp;
         
         for (UncertainOptimizationModel::uncertaintiesIterator u_it=pInUnc->uncertaintiesBegin(); u_it!=pInUnc->uncertaintiesEnd();u_it++)
         {
@@ -193,7 +194,7 @@ void PartitionConstructorIF::getReady(ROCPPOptModelIF_Ptr pIn, ROCPPParConverter
             
             if (bpNum+1<=r)
             {
-                map<pair<string,uint>, ROCPPExpr_Ptr >::const_iterator loc2( m_uncToBreakpointMap.find( make_pair(u_it->second->getName(), bpNum) ) );
+                map<pair<string,uint>, ROCPPExpr_Ptr>::const_iterator loc2( m_uncToBreakpointMap.find( make_pair(u_it->second->getName(), bpNum) ) );
                 if (loc2==m_uncToBreakpointMap.end())
                     throw MyException("pair not found in m_uncToBreakpointMap");
                 
@@ -211,7 +212,7 @@ void PartitionConstructorIF::getReady(ROCPPOptModelIF_Ptr pIn, ROCPPParConverter
             }
             if (bpNum>1)
             {
-                map<pair<string,uint>, ROCPPExpr_Ptr >::const_iterator loc2( m_uncToBreakpointMap.find( make_pair(u_it->second->getName(), bpNum-1) ) );
+                map<pair<string,uint>, ROCPPExpr_Ptr>::const_iterator loc2( m_uncToBreakpointMap.find( make_pair(u_it->second->getName(), bpNum-1) ) );
                 if (loc2==m_uncToBreakpointMap.end())
                     throw MyException("pair not found in m_uncToBreakpointMap");
                 
@@ -265,7 +266,7 @@ bool PartitionConstructorIF::hasPartition(string uncNme) const
 
 ROCPPExpr_Ptr PartitionConstructorIF::getBp(pair<string, uint> uncOnPartition) const
 {
-    map< pair<string,uint>, ROCPPExpr_Ptr > ::const_iterator bp(m_uncToBreakpointMap.find(uncOnPartition));
+    map< pair<string,uint>, ROCPPExpr_Ptr> ::const_iterator bp(m_uncToBreakpointMap.find(uncOnPartition));
     
     if (bp == m_uncToBreakpointMap.end())
         throw MyException("Partition and uncertainty pair not found");
@@ -279,9 +280,9 @@ ROCPPExpr_Ptr PartitionConstructorIF::getBp(pair<string, uint> uncOnPartition) c
 
 //ROCPPUnc_Ptr PartitionConstructorIF::getUncOnPartition(string partition, string origUncName) const
 //{
-//    // map<string, map<string,ROCPPUnc_Ptr > > m_UncMap;
+//    // map<string, map<string,ROCPPUnc_Ptr> > m_UncMap;
 //
-//    map<string, map<string,ROCPPUnc_Ptr > >::const_iterator subset_it = m_UncMap.find(partition);
+//    map<string, map<string,ROCPPUnc_Ptr> >::const_iterator subset_it = m_UncMap.find(partition);
 //
 //    if (subset_it==m_UncMap.end())
 //        throw MyException("Partition subset not found");
@@ -655,24 +656,24 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
     // create translation map for the breakpoint variables (if any)
     // w_i
     ROCPPconstdvContainer_Ptr bpdvs( m_pPartConstructor->getBPDVContainer() );// );ROCPPdvContainer_Ptr( new dvContainer() )
-    map<string,ROCPPExpr_Ptr >  BPDVTranslationMap;
-    vector<ROCPPConstraint_Ptr > BPtoAdd;
+    map<string,ROCPPExpr_Ptr>  BPDVTranslationMap;
+    vector<ROCPPConstraint_Ptr> BPtoAdd;
     m_pBPA->createTranslationMap(*bpdvs,BPDVTranslationMap,BPtoAdd);
     
-    for (vector<ROCPPConstraint_Ptr >::const_iterator cit = BPtoAdd.begin(); cit != BPtoAdd.end(); cit++)
+    for (vector<ROCPPConstraint_Ptr>::const_iterator cit = BPtoAdd.begin(); cit != BPtoAdd.end(); cit++)
         pOut->add_constraint(*cit);
     
     // create one to one converter using BPDVTranslationMap
     ROCPPO2EVarConverter_Ptr pO2OBPDVS( ROCPPO2EVarConverter_Ptr( new PredefO2EVariableConverter(BPDVTranslationMap) ) );
     pO2OBPDVS->createInverseMap(*bpdvs);
     
-    vector<ROCPPConstraint_Ptr > vecNACs;
+    vector<ROCPPConstraint_Ptr> vecNACs;
     createVariableMap(pModel,pMiddle,vecNACs);
     
-    map<string, ROCPPVarIF_Ptr > inverseVarMapAll;
+    map<string, ROCPPVarIF_Ptr> inverseVarMapAll;
     
     // only for stochastic
-    vector<ROCPPExpr_Ptr > newObj;
+    
     double allArea(1.0);
     map<string, pair<double, double> > allMap;
     
@@ -686,17 +687,11 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
         allArea = calculateArea(allMap);
     }
     
-    // add to the problem all deterministic constraints
-    for (OptimizationModelIF::constraintIterator cit = pMiddle->constraintBegin(); cit != pMiddle->constraintEnd(); cit++)
-    {
-            if ( (*cit)->isDeterministic() )
-                pOut->add_constraint(*cit);
-    }
-
-    
     
     // add the constraints assossiated with each subset of the partition
     uint partitionsCnt(1);
+    
+    ROCPPExpr_Ptr newObjExpr( new ROCPPExpr() );
     
     for (PartitionConstructorIF::const_iterator pit = m_pPartConstructor->begin(); pit != m_pPartConstructor->end(); pit++, partitionsCnt++)
     {
@@ -710,13 +705,13 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
         // add to it the uncertain constraints of pMiddle after mapping the variables and the uncertain parameters
         for (OptimizationModelIF::constraintIterator cit = pMiddle->constraintBegin(); cit != pMiddle->constraintEnd(); cit++)
         {
-            if ( !(*cit)->isDeterministic() )
+            //if ( !(*cit)->isDeterministic() )
             pOut->add_constraint( (*cit)->mapVars(mapFromOldToNewVar), pit->first);
         }
         
-        // add to the problem the constraints specific to this partition (mapping the breakpoint variables)
-        for (PartitionConstructorIF::usconstraints_iterator cit = m_pPartConstructor->USCbegin( (*pit).first ); cit != m_pPartConstructor->USCend((*pit).first ); cit++)
-            pOut->add_constraint( (*cit)->mapVars(mapFromOldToNewVar), pit->first );
+//        // add to the problem the constraints specific to this partition (mapping the breakpoint variables)
+//        for (PartitionConstructorIF::usconstraints_iterator cit = m_pPartConstructor->USCbegin( (*pit).first ); cit != m_pPartConstructor->USCend((*pit).first ); cit++)
+//            pOut->add_constraint( (*cit)->mapVars(mapFromOldToNewVar), pit->first );
         
         
         // map the variables to variables over this partition
@@ -735,7 +730,8 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
         {
             ROCPPObjectiveIF_Ptr oldObj(pMiddle->getObj());
             pair<double, map<string, ROCPPExpr_Ptr> > meanAndProb(calculateMeanAndProb(pMiddle, pit->first, allMap, allArea));
-            getStochasticObj(meanAndProb, oldObj, newObj);
+            newObjExpr->add( getStochasticObj(meanAndProb, oldObj, pit->first) );
+            
         }
         
     }
@@ -744,19 +740,22 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
         pOut->set_objective( pMiddle->getObj() );
     else
     {
-        if(newObj.size() == 0)
-            throw MyException("The objective size should not be 0");
+        ROCPPObjectiveIF_Ptr newObj (new ROCPPSimpleObjective(newObjExpr));
+        pOut->set_objective(newObj);
         
-        if(newObj.size() == 1)
-        {
-            ROCPPObjectiveIF_Ptr objToSet( new SimpleObjective(newObj[0] ) );
-            pOut->set_objective(objToSet);
-        }
-        else
-        {
-            ROCPPObjectiveIF_Ptr objToSet( new MaxObjective(newObj) );
-            pOut->set_objective(objToSet);
-        }
+//        if(newObj.size() == 0)
+//            throw MyException("The objective size should not be 0");
+//        
+//        if(newObj.size() == 1)
+//        {
+//            ROCPPObjectiveIF_Ptr objToSet( new SimpleObjective(newObj[0] ) );
+//            pOut->set_objective(objToSet);
+//        }
+//        else
+//        {
+//            ROCPPObjectiveIF_Ptr objToSet( new MaxObjective(newObj) );
+//            pOut->set_objective(objToSet);
+//        }
 
     }
     
@@ -942,9 +941,9 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
 
 
 
-pair<double, map<string, ROCPPExpr_Ptr > > PiecewiseDecisionRule::calculateMeanAndProb(const ROCPPOptModelIF_Ptr pModel, string partition, const map<string,pair<double,double> > &allMap, double allArea)
+pair<double, map<string, ROCPPExpr_Ptr> > PiecewiseDecisionRule::calculateMeanAndProb(const ROCPPOptModelIF_Ptr pModel, string partition, const map<string,pair<double,double> > &allMap, double allArea)
 {
-    map<string, ROCPPExpr_Ptr > mapFromUncToMean;
+    map<string, ROCPPExpr_Ptr> mapFromUncToMean;
     double prob(1.0);
     
     map<string,pair<double,double> >::const_iterator u_it = allMap.begin();
@@ -997,50 +996,46 @@ pair<double, map<string, ROCPPExpr_Ptr > > PiecewiseDecisionRule::calculateMeanA
     return make_pair(prob, mapFromUncToMean);
 }
 
-void PiecewiseDecisionRule::getStochasticObj(const pair<double, map<string, ROCPPExpr_Ptr > > meanAndProb, const ROCPPObjectiveIF_Ptr oldObj, vector<ROCPPExpr_Ptr> &newObj)
+ROCPPExpr_Ptr PiecewiseDecisionRule::getStochasticObj(const pair<double, map<string, ROCPPExpr_Ptr> > &meanAndProb, ROCPPObjectiveIF_Ptr oldObj, string partitionSubsetNme)
 {
+    if (!(oldObj->getObjType() == simpleObj))
+        throw MyException("Objective function cannot be nonlinear here; linearize first");
+    
+    
+    ROCPPSimpleObjective_Ptr oldObjSimple( static_pointer_cast<ROCPPSimpleObjective>(oldObj) );
+    
+    ROCPPExpr_Ptr oldObjSimpleExpr(oldObjSimple->getSimpleObj());
+    
     double probability(meanAndProb.first);
-    map<string, ROCPPExpr_Ptr > mapFromUncToMean(meanAndProb.second);
+    map<string, ROCPPExpr_Ptr> mapFromUncToMean(meanAndProb.second);
     
-    bool firstPartition(newObj.size() == 0);
     
-    size_t objSize(oldObj->getNumTermsMaxObjective());
+    ROCPPExpr_Ptr outObjExp (new ROCPPExpr());
     
-    if ((!firstPartition) && (newObj.size() != objSize))
-        throw MyException("Something wrong happened before");
+    // get the variable converter
+    map<string,ROCPPVarIF_Ptr> mapFromOldToNewVar(m_VariableMap[ partitionSubsetNme ]);
     
-    for (uint numObj = 1; numObj <= objSize; numObj++) {
-        if (firstPartition) {
-            ROCPPExpr_Ptr newObjExpr(new LHSExpression());
-            
-            ROCPPExpr_Ptr oldObjExpr;
-            oldObjExpr = oldObj->getObj(numObj);
-            
-            newObjExpr->add(probability, oldObjExpr->mapUncs(mapFromUncToMean));
-            newObj.push_back(newObjExpr);
-        }
-        else{
-            ROCPPExpr_Ptr oldObjExpr;
-            oldObjExpr = oldObj->getObj(numObj);
-            
-            ROCPPExpr_Ptr partObj(oldObjExpr->mapUncs(mapFromUncToMean));
-            map<string,ROCPPVarIF_Ptr > mapVar;
-            
-            dvMapType::const_iterator v_it(partObj->varsBegin());
-            for ( ; v_it != partObj->varsEnd(); v_it++)
-            {
-                if (newObj[numObj-1]->varIsInvolved(v_it->second))
-                    mapVar.insert(make_pair(v_it->first, newObj[numObj-1]->getVar(v_it->first)));
-            }
-            
-            ROCPPExpr_Ptr objToAdd(partObj->mapExprVars(mapVar));
-            newObj[numObj-1]->add(probability, objToAdd);
-        }
-    }
+    outObjExp->add( probability * oldObjSimpleExpr->mapExprVars(mapFromOldToNewVar)->mapUncs(mapFromUncToMean) );
+    
+    
+//    ROCPPExpr_Ptr partObj(oldObjExpr->mapUncs(mapFromUncToMean));
+//    map<string,ROCPPVarIF_Ptr> mapVar;
+//
+//    dvMapType::const_iterator v_it(partObj->varsBegin());
+//    for ( ; v_it != partObj->varsEnd(); v_it++)
+//    {
+//        if (newObj[numObj-1]->varIsInvolved(v_it->second))
+//            mapVar.insert(make_pair(v_it->first, newObj[numObj-1]->getVar(v_it->first)));
+//    }
+//
+//    ROCPPExpr_Ptr objToAdd(partObj->mapExprVars(mapVar));
+//    newObj[numObj-1]->add(probability, objToAdd);
+    
+    return outObjExp;
 }
 
 
-void PiecewiseDecisionRule::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraint_Ptr >& vecNACs)
+void PiecewiseDecisionRule::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraint_Ptr>& vecNACs)
 {
 
     // iterate through the variables in pMiddle
@@ -1059,7 +1054,7 @@ void PiecewiseDecisionRule::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptM
         
         string bla(vit->second->getName());
         
-        pair<bool,ROCPPVarIF_Ptr > tmpdvpair( findOrigVariable(vit->second) );
+        pair<bool,ROCPPVarIF_Ptr> tmpdvpair( findOrigVariable(vit->second) );
         
         
         if (tmpdvpair.first==true)
@@ -1110,11 +1105,11 @@ void PiecewiseDecisionRule::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptM
                     // if we want explicit NACs, add them
                     if ( (m_useExplicitNACs) && (basicPartition!=(pit->first)) )
                     {
-                        map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator tmpit (m_VariableMap.find(basicPartition) );
+                        map<string, map<string,ROCPPVarIF_Ptr> >::const_iterator tmpit (m_VariableMap.find(basicPartition) );
                         if (tmpit==m_VariableMap.end())
                             throw MyException("this should not be happening: is the basic partition >= current partition?");
                         
-                        map<string,ROCPPVarIF_Ptr >::const_iterator fit ( tmpit->second.find( vit->second->getName() ) );
+                        map<string,ROCPPVarIF_Ptr>::const_iterator fit ( tmpit->second.find( vit->second->getName() ) );
                         
                         if (fit==tmpit->second.end())
                             throw MyException("unexpected error - variable not found");
@@ -1130,11 +1125,11 @@ void PiecewiseDecisionRule::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptM
                 }
                 else
                 {
-                    map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator tmpit (m_VariableMap.find(basicPartition) );
+                    map<string, map<string,ROCPPVarIF_Ptr> >::const_iterator tmpit (m_VariableMap.find(basicPartition) );
                     if (tmpit==m_VariableMap.end())
                         throw MyException("this should not be happening: is the basic partition >= current partition?");
                     
-                    map<string,ROCPPVarIF_Ptr >::const_iterator fit ( tmpit->second.find( vit->second->getName() ) );
+                    map<string,ROCPPVarIF_Ptr>::const_iterator fit ( tmpit->second.find( vit->second->getName() ) );
                     
                     if (fit==tmpit->second.end())
                         throw MyException("unexpected error - variable not found");
@@ -1165,7 +1160,7 @@ string PiecewiseDecisionRule::getSolutionApproachParameters(string delimiter) co
     return out;
 }
 
-pair<bool,ROCPPVarIF_Ptr > PiecewiseDecisionRule::findOrigVariable(ROCPPVarIF_Ptr newdv) const
+pair<bool,ROCPPVarIF_Ptr> PiecewiseDecisionRule::findOrigVariable(ROCPPVarIF_Ptr newdv) const
 {
     // 1. try to find it in the reverse map of ldr
     ROCPPVarIF_Ptr dv;
@@ -1195,11 +1190,11 @@ pair<bool,ROCPPVarIF_Ptr > PiecewiseDecisionRule::findOrigVariable(ROCPPVarIF_Pt
 ROCPPVarIF_Ptr PiecewiseDecisionRule::getVarOnPartition(string partition, string origVarName) const
 {
     
-    map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator it (m_VariableMap.find(partition));
+    map<string, map<string,ROCPPVarIF_Ptr> >::const_iterator it (m_VariableMap.find(partition));
     if (it==m_VariableMap.end())
         throw MyException("subset of partition " + partition + " not found in map");
     
-    map<string,ROCPPVarIF_Ptr >::const_iterator subit(it->second.find(origVarName));
+    map<string,ROCPPVarIF_Ptr>::const_iterator subit(it->second.find(origVarName));
     
     if (subit==it->second.end())
         throw MyException("decision variable " + origVarName + " not found on subset " + partition + " of partition");
@@ -1213,7 +1208,7 @@ void PiecewiseDecisionRule::getWsSolutions(ROCPPOptModelIF_Ptr pIn, const map<st
     if ( (m_pPartConstructor->getNumSubsets()!=1) && (pIn->getNumBoolVars()) )
     {
         
-        for (map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator p_it = m_VariableMap.begin(); p_it != m_VariableMap.end(); p_it++)
+        for (map<string, map<string,ROCPPVarIF_Ptr> >::const_iterator p_it = m_VariableMap.begin(); p_it != m_VariableMap.end(); p_it++)
         {
             
             uint cnt(0);
@@ -1246,17 +1241,17 @@ void PiecewiseDecisionRule::getWsSolutions(ROCPPOptModelIF_Ptr pIn, const map<st
             }
             
             
-            for (map<string,ROCPPVarIF_Ptr >::const_iterator v_it = p_it->second.begin(); v_it != p_it->second.end(); v_it++)
+            for (map<string,ROCPPVarIF_Ptr>::const_iterator v_it = p_it->second.begin(); v_it != p_it->second.end(); v_it++)
             {
                 // find the mappedPartition in m_variableMap
-                map< string , map<string, ROCPPVarIF_Ptr > >::const_iterator mapped_it = m_VariableMap.find( mappedPartition );
+                map< string , map<string, ROCPPVarIF_Ptr> >::const_iterator mapped_it = m_VariableMap.find( mappedPartition );
                 
                 if (mapped_it==m_VariableMap.end())
                     throw MyException("mappedPartition not found");
                 
                 // find the name of the variable in mapped partition
                 
-                map<string, ROCPPVarIF_Ptr >::const_iterator mv_it ( mapped_it->second.find(v_it->first) );
+                map<string, ROCPPVarIF_Ptr>::const_iterator mv_it ( mapped_it->second.find(v_it->first) );
                 
                 if (mv_it == mapped_it->second.end())
                     throw MyException("variable not found in submap of m_VariableMap");
@@ -1278,10 +1273,10 @@ void PiecewiseDecisionRule::getWsSolutions(ROCPPOptModelIF_Ptr pIn, const map<st
 
 void PiecewiseDecisionRule::calculateSolution(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv, string partition)
 {
-    map<string, ROCPPVarIF_Ptr > variableOnPartition = m_VariableMap.find(partition)->second;
+    map<string, ROCPPVarIF_Ptr> variableOnPartition = m_VariableMap.find(partition)->second;
     
     map<string, double> variableValue;
-    map<string, ROCPPVarIF_Ptr >::const_iterator variable = variableOnPartition.begin();
+    map<string, ROCPPVarIF_Ptr>::const_iterator variable = variableOnPartition.begin();
     map<string, double>::const_iterator result;
     
     for(; variable != variableOnPartition.end(); variable++)
@@ -1308,10 +1303,10 @@ void PiecewiseDecisionRule::calculateSolution(ROCPPOptModelIF_Ptr pIn, const map
 
 void PiecewiseDecisionRule::calculateSolution(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc, string partition)
 {
-    map<string, ROCPPVarIF_Ptr > variableOnPartition = m_VariableMap.find(partition)->second;
+    map<string, ROCPPVarIF_Ptr> variableOnPartition = m_VariableMap.find(partition)->second;
     
     map<string, double> variableValue;
-    map<string, ROCPPVarIF_Ptr >::const_iterator variable = variableOnPartition.begin();
+    map<string, ROCPPVarIF_Ptr>::const_iterator variable = variableOnPartition.begin();
     map<string, double>::const_iterator result;
     
     for(; variable != variableOnPartition.end(); variable++)
@@ -1378,7 +1373,7 @@ void PiecewiseDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<st
 
 void PiecewiseDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv)
 {
-    map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator partitionIn;
+    map<string, map<string,ROCPPVarIF_Ptr> >::const_iterator partitionIn;
     for(partitionIn = m_VariableMap.begin(); partitionIn != m_VariableMap.end(); partitionIn++)
     {
         calculateSolution(pIn, resultIn, dv, partitionIn->first);
@@ -1400,7 +1395,7 @@ void PiecewiseDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<st
 
 void PiecewiseDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc)
 {
-    map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator partitionIn;
+    map<string, map<string,ROCPPVarIF_Ptr> >::const_iterator partitionIn;
     for(partitionIn = m_VariableMap.begin(); partitionIn != m_VariableMap.end(); partitionIn++)
     {
         calculateSolution(pIn, resultIn, unc, partitionIn->first);

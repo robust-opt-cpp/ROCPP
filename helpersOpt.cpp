@@ -53,7 +53,7 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
     
     // -----------------------------------------------------------------------------------------------------------------------------
     // build translation map for uncertainty converter
-    map<string,ROCPPVarIF_Ptr >  translationMapUnc;
+    map<string,ROCPPVarIF_Ptr>  translationMapUnc;
     
     // create a decision variable named after each of the uncertain parameters and add it to translation map
     for (UncertainOptimizationModel::uncertaintiesIterator u_it=pInUnc->uncertaintiesBegin(); u_it!=pInUnc->uncertaintiesEnd();u_it++)
@@ -62,7 +62,7 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
         translationMapUnc[u_it->second->getName()] = uvar;
     }
     
-    map<string,ROCPPVarIF_Ptr >  translationMapVar;
+    map<string,ROCPPVarIF_Ptr>  translationMapVar;
     
     // create a non-adaptive variable of the same type as the variable in the original problem
     for (OptimizationModelIF::varsIterator v_it=pModel->varsBegin(); v_it!=pModel->varsEnd();v_it++)

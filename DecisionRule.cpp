@@ -33,7 +33,7 @@
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void ContinuousVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
+void ContinuousVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr>::const_iterator first, vector<ROCPPConstraint_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
 {
     for (ObjectiveFunctionIF::varsIterator vit = obj->varsBegin(); vit != obj->varsEnd(); vit++)
     {
@@ -41,7 +41,7 @@ void ContinuousVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const
             container += vit->second;
     }
     
-    for (vector<ROCPPConstraint_Ptr >::const_iterator cit = first; cit != last; cit++)
+    for (vector<ROCPPConstraint_Ptr>::const_iterator cit = first; cit != last; cit++)
     {
         for (ConstraintIF::varsIterator vit = (*cit)->varsBegin(); vit != (*cit)->varsEnd(); vit++)
         {
@@ -69,7 +69,7 @@ ROCPPOptModelIF_Ptr LinearDecisionRule::convertVar(ROCPPOptModelIF_Ptr pIn, bool
     return VariableConverterIF::convertVar(pIn,resetAndSave);
 }
 
-void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd)
+void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr>  &translationMap, vector<ROCPPConstraint_Ptr> &toAdd)
 {
     if (!m_uncContSet)
         throw MyException("uncertainty container in LDR is not set");
@@ -144,7 +144,7 @@ void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, m
 
 ROCPPVarIF_Ptr LinearDecisionRule::getCoeffDV(string dvName, string uncName) const
 {
-    map< pair<string,string>, ROCPPVarIF_Ptr >::const_iterator it ( m_mapOrigDVUncPairToCoeffDV.find(make_pair(dvName,uncName)) );
+    map< pair<string,string>, ROCPPVarIF_Ptr>::const_iterator it ( m_mapOrigDVUncPairToCoeffDV.find(make_pair(dvName,uncName)) );
     
     if (it==m_mapOrigDVUncPairToCoeffDV.end())
         throw MyException("this pair " + dvName + " " + uncName + " is not available in the linear decision rule");
@@ -164,12 +164,12 @@ void LinearDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<strin
         return;
     }
     
-    map<string, ROCPPVarIF_Ptr > expression;
-    multimap<string, pair<string, ROCPPVarIF_Ptr > > copy = getLDRExpr();
+    map<string, ROCPPVarIF_Ptr> expression;
+    multimap<string, pair<string, ROCPPVarIF_Ptr> > copy = getLDRExpr();
     
     cout << name <<" = ";
     double value;
-    multimap<string, pair<string, ROCPPVarIF_Ptr > >::iterator term = copy.find(name);
+    multimap<string, pair<string, ROCPPVarIF_Ptr> >::iterator term = copy.find(name);
     string sign;
     
     while(term != copy.end())
@@ -212,7 +212,7 @@ void LinearDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<strin
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void DiscreteVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
+void DiscreteVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr>::const_iterator first, vector<ROCPPConstraint_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
 {
     for (ObjectiveFunctionIF::varsIterator vit = obj->varsBegin(); vit != obj->varsEnd(); vit++)
     {
@@ -220,7 +220,7 @@ void DiscreteVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_i
             container += vit->second;
     }
     
-    for (vector<ROCPPConstraint_Ptr >::const_iterator cit = first; cit != last; cit++)
+    for (vector<ROCPPConstraint_Ptr>::const_iterator cit = first; cit != last; cit++)
     {
         for (ConstraintIF::varsIterator vit = (*cit)->varsBegin(); vit != (*cit)->varsEnd(); vit++)
         {
@@ -239,7 +239,7 @@ void DiscreteVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_i
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void ConstantDecisionRule::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd)
+void ConstantDecisionRule::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr>  &translationMap, vector<ROCPPConstraint_Ptr> &toAdd)
 {
     // iterate through variables to convert
     for (dvContainer::const_iterator vit = tmpContainer.begin(); vit != tmpContainer.end(); vit++)

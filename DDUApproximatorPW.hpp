@@ -66,7 +66,7 @@ public:
     void InitializeMe(ROCPPOptModelIF_Ptr pIn, const map<string,uint> &numPartitionsMap, uint numBits, double bigM, bool useExplicitNACs, string folder);
     
     /// Create the map from partition to map from variable in original problem to variable on partition
-    void createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraint_Ptr >& vecNACs);
+    void createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraint_Ptr>& vecNACs);
     
     /// Approximate the input model
     /// First construct the partition maps, then calculate and robustity the model on each subset, finally add non-anticipativity constraints
@@ -77,10 +77,10 @@ public:
     ROCPPOptModelIF_Ptr fixBinaryVariableValues(ROCPPOptModelIF_Ptr pKadaptModel, const map<string,bool> &varValues) const;
     
     /// Calculate the probability of the given subset of the partition and the means of the uncertain parameters on it
-    pair<double, map<string, ROCPPExpr_Ptr > > calculateMeanAndProb(const ROCPPOptModelIF_Ptr pModel, string partition, const map<string,pair<double,double> > &allMap, double allArea);
+    pair<double, map<string, ROCPPExpr_Ptr> > calculateMeanAndProb(const ROCPPOptModelIF_Ptr pModel, string partition, const map<string,pair<double,double> > &allMap, double allArea);
     
     /// Calculate the value of the objective on the given subset of the partition
-    void getStochasticObj(const pair<double, map<string, ROCPPExpr_Ptr > > meanAndProb, const ROCPPObjectiveIF_Ptr oldObj, vector<ROCPPExpr_Ptr > &newObj);
+    void getStochasticObj(const pair<double, map<string, ROCPPExpr_Ptr> > meanAndProb, const ROCPPObjectiveIF_Ptr oldObj, vector<ROCPPExpr_Ptr> &newObj);
     
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -90,7 +90,7 @@ public:
     string getSolutionApproachParameters(string delimiter) const;
     
     /// Find the variable that new decision variable originated from after LDR and CDR
-    pair<bool,ROCPPVarIF_Ptr > findOrigVariable(ROCPPVarIF_Ptr newdv) const; // find the time stage of the variable that newdv originated from after LDR and CDR
+    pair<bool,ROCPPVarIF_Ptr> findOrigVariable(ROCPPVarIF_Ptr newdv) const; // find the time stage of the variable that newdv originated from after LDR and CDR
     
     /// Get the decision variable on the the given subset of the partition for the given original variable
     ROCPPVarIF_Ptr getVarOnPartition(string partition, string origVarName) const;
@@ -152,7 +152,7 @@ private:
     ROCPPUncSetRealVarApprox_Ptr m_pBPA;
     
     /// Map from subset of partition to map from variable in original problem to variable on subset of the partition
-    map<string, map<string,ROCPPVarIF_Ptr > > m_VariableMap;  // m_VariableMap: map from partition to map from dv in original problem to dv on partition
+    map<string, map<string,ROCPPVarIF_Ptr> > m_VariableMap;  // m_VariableMap: map from partition to map from dv in original problem to dv on partition
     
     /// Use constraints to describe the non anticipativity constraints
     bool m_useExplicitNACs;

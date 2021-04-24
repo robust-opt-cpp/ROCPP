@@ -39,7 +39,7 @@ void ConstraintTermIF::operator*=(double a){throw MyException("operation not app
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-pair<bool,ROCPPCstrTerm_Ptr > ConstraintTermIF::factorOut(ROCPPUnc_Ptr unc) const
+pair<bool,ROCPPCstrTerm_Ptr> ConstraintTermIF::factorOut(ROCPPUnc_Ptr unc) const
 {
     throw MyException("no factor");
 }
@@ -133,12 +133,12 @@ ProductTerm::ProductTerm(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVa
     addVariable(pVariable2);
 }
 
-ProductTerm::ProductTerm(double c, const vector<ROCPPUnc_Ptr >& uncVec, const vector<ROCPPVarIF_Ptr >& varVec) : m_coeff(c)
+ProductTerm::ProductTerm(double c, const vector<ROCPPUnc_Ptr>& uncVec, const vector<ROCPPVarIF_Ptr>& varVec) : m_coeff(c)
 {
-    for (vector<ROCPPUnc_Ptr >::const_iterator uit = uncVec.begin(); uit != uncVec.end(); uit++)
+    for (vector<ROCPPUnc_Ptr>::const_iterator uit = uncVec.begin(); uit != uncVec.end(); uit++)
         addUncertainty(*uit);
     
-    for (vector<ROCPPVarIF_Ptr >::const_iterator vit = varVec.begin(); vit != varVec.end(); vit++)
+    for (vector<ROCPPVarIF_Ptr>::const_iterator vit = varVec.begin(); vit != varVec.end(); vit++)
         addVariable(*vit);
 }
 
@@ -176,7 +176,7 @@ void ProductTerm::operator*=(ROCPPconstCstrTerm_Ptr term)
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-pair<bool,ROCPPCstrTerm_Ptr > ProductTerm::factorOut(ROCPPUnc_Ptr unc) const
+pair<bool,ROCPPCstrTerm_Ptr> ProductTerm::factorOut(ROCPPUnc_Ptr unc) const
 {
     uncIterator uit( m_UncMap.find(unc->getName()) );
     
@@ -213,14 +213,14 @@ pair<bool,ROCPPCstrTerm_Ptr > ProductTerm::factorOut(ROCPPUnc_Ptr unc) const
     return make_pair(true,ROCPPCstrTerm_Ptr(out));
 }
 
-ROCPPCstrTerm_Ptr ProductTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
+ROCPPCstrTerm_Ptr ProductTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
 {
-    vector<ROCPPVarIF_Ptr > vars;
-    vector<ROCPPUnc_Ptr > unc;
+    vector<ROCPPVarIF_Ptr> vars;
+    vector<ROCPPUnc_Ptr> unc;
     
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++)
     {
-        map<string,ROCPPVarIF_Ptr >::const_iterator m_it( mapFromOldToNewVars.find( v_it->first ) );
+        map<string,ROCPPVarIF_Ptr>::const_iterator m_it( mapFromOldToNewVars.find( v_it->first ) );
         
         if (m_it==mapFromOldToNewVars.end())
         {
@@ -241,14 +241,14 @@ ROCPPCstrTerm_Ptr ProductTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr > &ma
     return termOut;
 }
 
-ROCPPCstrTerm_Ptr ProductTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const
+ROCPPCstrTerm_Ptr ProductTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const
 {
-    vector<ROCPPVarIF_Ptr > vars;
-    vector<ROCPPUnc_Ptr > unc;
+    vector<ROCPPVarIF_Ptr> vars;
+    vector<ROCPPUnc_Ptr> unc;
     
     for (uncIterator u_it = uncBegin(); u_it != uncEnd(); u_it++)
     {
-        map<string,ROCPPUnc_Ptr >::const_iterator m_it( mapFromOldToNewUnc.find( u_it->first ) );
+        map<string,ROCPPUnc_Ptr>::const_iterator m_it( mapFromOldToNewUnc.find( u_it->first ) );
         
         if (m_it==mapFromOldToNewUnc.end())
         {
@@ -270,14 +270,14 @@ ROCPPCstrTerm_Ptr ProductTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr > &mapFr
     return termOut;
 }
 
-ROCPPExpr_Ptr ProductTerm::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
+ROCPPExpr_Ptr ProductTerm::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const
 {
     // first check if the product term contains any variables that need to be mapped
     bool noneFound(true);
-    vector<map<string, ROCPPExpr_Ptr >::const_iterator> expr_it_vec;
+    vector<map<string, ROCPPExpr_Ptr>::const_iterator> expr_it_vec;
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++)
     {
-        map<string, ROCPPExpr_Ptr >::const_iterator expr_it (mapFromVarToExpression.find( v_it->second->getName() ) );
+        map<string, ROCPPExpr_Ptr>::const_iterator expr_it (mapFromVarToExpression.find( v_it->second->getName() ) );
         expr_it_vec.push_back( expr_it );
         if (expr_it != mapFromVarToExpression.end() )
             noneFound = false; // at least one variable must be mapped
@@ -293,11 +293,11 @@ ROCPPExpr_Ptr ProductTerm::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVar
     ROCPPExpr_Ptr out( new LHSExpression() );
     out->add( m_coeff );
     
-    vector<map<string, ROCPPExpr_Ptr >::const_iterator>::const_iterator expr_vec_it(expr_it_vec.begin());
+    vector<map<string, ROCPPExpr_Ptr>::const_iterator>::const_iterator expr_vec_it(expr_it_vec.begin());
     
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++, expr_vec_it++)
     {
-        map<string, ROCPPExpr_Ptr >::const_iterator expr_it( *expr_vec_it );
+        map<string, ROCPPExpr_Ptr>::const_iterator expr_it( *expr_vec_it );
         
         ROCPPExpr_Ptr expr( new LHSExpression() );
         if (expr_it == mapFromVarToExpression.end() )
@@ -314,7 +314,7 @@ ROCPPExpr_Ptr ProductTerm::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVar
     return out;
 }
 
-ROCPPExpr_Ptr ProductTerm::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const
+ROCPPExpr_Ptr ProductTerm::mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const
 {
     ROCPPExpr_Ptr out( new LHSExpression() );
     out->add( m_coeff );
@@ -325,7 +325,7 @@ ROCPPExpr_Ptr ProductTerm::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUnc
     for (uncIterator u_it = uncBegin(); u_it!= uncEnd(); u_it++)
     {
         
-        map<string, ROCPPExpr_Ptr >::const_iterator expr_it (mapFromUncToExpression.find( u_it->second->getName() ) );
+        map<string, ROCPPExpr_Ptr>::const_iterator expr_it (mapFromUncToExpression.find( u_it->second->getName() ) );
         
         ROCPPExpr_Ptr expr( new LHSExpression() );
         if (expr_it == mapFromUncToExpression.end() )
@@ -339,7 +339,7 @@ ROCPPExpr_Ptr ProductTerm::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUnc
     return out;
 }
 
-ROCPPCstrTerm_Ptr ProductTerm::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
+ROCPPCstrTerm_Ptr ProductTerm::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
 {
     
     ROCPPCstrTerm_Ptr pOut;
@@ -359,13 +359,13 @@ ROCPPCstrTerm_Ptr ProductTerm::replaceTermWithVar(const multimap<string, ROCPPVa
         }
         else
         {
-            multimap<string, ROCPPVarIF_Ptr > newdvmap = m_DVMap;
+            multimap<string, ROCPPVarIF_Ptr> newdvmap = m_DVMap;
             
-            for (multimap<string, ROCPPVarIF_Ptr >::const_iterator tit = term.begin(); tit != term.end(); tit++)
+            for (multimap<string, ROCPPVarIF_Ptr>::const_iterator tit = term.begin(); tit != term.end(); tit++)
             {
                 for (uint i=1; i<=nt; i++)
                 {
-                    multimap<string, ROCPPVarIF_Ptr >::iterator it ( newdvmap.find( tit->first ) );
+                    multimap<string, ROCPPVarIF_Ptr>::iterator it ( newdvmap.find( tit->first ) );
                     
                     if (it==newdvmap.end())
                         throw MyException("this shouldn't have happened!");
@@ -374,13 +374,13 @@ ROCPPCstrTerm_Ptr ProductTerm::replaceTermWithVar(const multimap<string, ROCPPVa
                 }
             }
             
-            vector<ROCPPVarIF_Ptr > vvars;
-            vector<ROCPPUnc_Ptr > vuncs;
+            vector<ROCPPVarIF_Ptr> vvars;
+            vector<ROCPPUnc_Ptr> vuncs;
             
             for (uint i=1; i<=nt; i++)
                 vvars.push_back(var);
             
-            for (multimap<string, ROCPPVarIF_Ptr >::const_iterator vit = newdvmap.begin(); vit!=newdvmap.end(); vit++)
+            for (multimap<string, ROCPPVarIF_Ptr>::const_iterator vit = newdvmap.begin(); vit!=newdvmap.end(); vit++)
                 vvars.push_back(vit->second);
             
             for (uncIterator uit = uncBegin(); uit != uncEnd(); uit++)
@@ -466,12 +466,12 @@ bool ProductTerm::is_same(ROCPPconstCstrTerm_Ptr other) const
     return ( *this == *pOther );
 }
 
-uint ProductTerm::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const
+uint ProductTerm::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const
 {
     return getNTTermAppears(m_DVMap,term);
 }
 
-void ProductTerm::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const
+void ProductTerm::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const
 {
     GetAllProductsOf2Variables(m_DVMap,freqMap,termMap);
 }
@@ -482,8 +482,8 @@ void ProductTerm::getAllProductsOf2Variables(map< pair<string,string>, uint> &fr
 
 ROCPPCstrTerm_Ptr ProductTerm::Clone() const
 {
-    vector<ROCPPUnc_Ptr > uncVec;
-    vector<ROCPPVarIF_Ptr > varVec;
+    vector<ROCPPUnc_Ptr> uncVec;
+    vector<ROCPPVarIF_Ptr> varVec;
     
     for (ProductTerm::varsIterator vit = varsBegin(); vit != varsEnd(); vit++)
         varVec.push_back(vit->second);
@@ -565,7 +565,7 @@ void ProductTerm::addUncertainty(ROCPPUnc_Ptr pUncertainty)
 //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-NormTerm::NormTerm(const vector<ROCPPExpr_Ptr > &pExpressionVec) : m_pExpressionVec(pExpressionVec)
+NormTerm::NormTerm(const vector<ROCPPExpr_Ptr> &pExpressionVec) : m_pExpressionVec(pExpressionVec)
 {
     if (m_pExpressionVec.empty())
         throw MyException("m_pExpressionVec cannot be empty");
@@ -588,9 +588,9 @@ NormTerm::NormTerm(const vector<ROCPPExpr_Ptr > &pExpressionVec) : m_pExpression
 //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPCstrTerm_Ptr NormTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
+ROCPPCstrTerm_Ptr NormTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
 {
-    vector<ROCPPExpr_Ptr > vecOut;
+    vector<ROCPPExpr_Ptr> vecOut;
     
     for (const_iterator it = m_pExpressionVec.begin(); it != m_pExpressionVec.end(); it++)
     {
@@ -602,9 +602,9 @@ ROCPPCstrTerm_Ptr NormTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr > &mapFr
     return termOut;
 }
 
-ROCPPCstrTerm_Ptr NormTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const
+ROCPPCstrTerm_Ptr NormTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const
 {
-    vector<ROCPPExpr_Ptr > vecOut;
+    vector<ROCPPExpr_Ptr> vecOut;
     
     for (const_iterator it = m_pExpressionVec.begin(); it != m_pExpressionVec.end(); it++)
     {
@@ -616,9 +616,9 @@ ROCPPCstrTerm_Ptr NormTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr > &mapFromO
     return termOut;
 }
 
-ROCPPExpr_Ptr NormTerm::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
+ROCPPExpr_Ptr NormTerm::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const
 {
-    vector<ROCPPExpr_Ptr > vecOut;
+    vector<ROCPPExpr_Ptr> vecOut;
     
     for (const_iterator it = begin(); it != end(); it++)
     {
@@ -634,9 +634,9 @@ ROCPPExpr_Ptr NormTerm::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToE
     return exprOut;
 }
 
-ROCPPExpr_Ptr NormTerm::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const
+ROCPPExpr_Ptr NormTerm::mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const
 {
-    vector<ROCPPExpr_Ptr > vecOut;
+    vector<ROCPPExpr_Ptr> vecOut;
     
     for (const_iterator it = begin(); it != end(); it++)
     {
@@ -652,9 +652,9 @@ ROCPPExpr_Ptr NormTerm::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToE
     return exprOut;
 }
 
-ROCPPCstrTerm_Ptr NormTerm::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
+ROCPPCstrTerm_Ptr NormTerm::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
 {
-    vector<ROCPPExpr_Ptr > vecOut;
+    vector<ROCPPExpr_Ptr> vecOut;
     
     for (const_iterator it = m_pExpressionVec.begin(); it != m_pExpressionVec.end(); it++)
     {
@@ -742,7 +742,7 @@ bool NormTerm::is_same(ROCPPconstCstrTerm_Ptr other) const
     throw MyException("only one norm term allowed - you should not be here!");
 }
 
-uint NormTerm::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const
+uint NormTerm::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const
 {
     uint out(0);
     
@@ -752,7 +752,7 @@ uint NormTerm::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &t
     return out;
 }
 
-void NormTerm::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const
+void NormTerm::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const
 {
     for (const_iterator v_it = begin(); v_it!= end(); v_it++)
         (*v_it)->getAllProductsOf2Variables(freqMap,termMap);
@@ -778,7 +778,7 @@ double NormTerm::evaluate(const map<string,double>& valuesMap ) const
 
 ROCPPCstrTerm_Ptr NormTerm::Clone() const
 {
-    vector<ROCPPExpr_Ptr > vecOut;
+    vector<ROCPPExpr_Ptr> vecOut;
     
     for (const_iterator it = begin(); it != end(); it++)
         vecOut.push_back( (*it)->Clone() );
@@ -799,7 +799,7 @@ void NormTerm::WriteToStream(ofstream &ofs) const
     //ofs.showpos;
     ofs << " + || ( ";
     
-    for ( vector<ROCPPExpr_Ptr >::const_iterator it = m_pExpressionVec.begin(); it != m_pExpressionVec.end(); it++)
+    for ( vector<ROCPPExpr_Ptr>::const_iterator it = m_pExpressionVec.begin(); it != m_pExpressionVec.end(); it++)
     {
         if (it!=m_pExpressionVec.begin())
             ofs << ", ";
@@ -994,7 +994,7 @@ void LHSExpression::add(double c, ROCPPconstExpr_Ptr pExpression,  ROCPPUnc_Ptr 
     add(scaled_expr);
 }
 
-ROCPPExpr_Ptr LHSExpression::mapExprVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
+ROCPPExpr_Ptr LHSExpression::mapExprVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
 {
     ROCPPExpr_Ptr exprOut( new LHSExpression() );
     
@@ -1004,7 +1004,7 @@ ROCPPExpr_Ptr LHSExpression::mapExprVars(const map<string,ROCPPVarIF_Ptr > &mapF
     return exprOut;
 }
 
-ROCPPExpr_Ptr LHSExpression::mapExprUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const
+ROCPPExpr_Ptr LHSExpression::mapExprUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const
 {
     ROCPPExpr_Ptr exprOut( new LHSExpression() );
     
@@ -1014,7 +1014,7 @@ ROCPPExpr_Ptr LHSExpression::mapExprUnc(const map<string,ROCPPUnc_Ptr > &mapFrom
     return exprOut;
 }
 
-ROCPPExpr_Ptr LHSExpression::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
+ROCPPExpr_Ptr LHSExpression::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const
 {
     ROCPPExpr_Ptr exprOut( new LHSExpression() );
     
@@ -1024,7 +1024,7 @@ ROCPPExpr_Ptr LHSExpression::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromV
     return exprOut;
 }
 
-ROCPPExpr_Ptr LHSExpression::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const
+ROCPPExpr_Ptr LHSExpression::mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const
 {
     ROCPPExpr_Ptr exprOut( new LHSExpression() );
     
@@ -1034,7 +1034,7 @@ ROCPPExpr_Ptr LHSExpression::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromU
     return exprOut;
 }
 
-ROCPPExpr_Ptr LHSExpression::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
+ROCPPExpr_Ptr LHSExpression::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
 {
     ROCPPExpr_Ptr exprOut( new LHSExpression() );
     
@@ -1044,7 +1044,7 @@ ROCPPExpr_Ptr LHSExpression::replaceTermWithVar(const multimap<string, ROCPPVarI
     return exprOut;
 }
 
-ROCPPExpr_Ptr LHSExpression::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count ) const
+ROCPPExpr_Ptr LHSExpression::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count ) const
 {
     ROCPPExpr_Ptr newLhs(new LHSExpression());
     
@@ -1055,16 +1055,16 @@ ROCPPExpr_Ptr LHSExpression::replaceBilinearTerm(map<pair<string,string>, ROCPPV
         else{
             
             map< pair<string,string>, uint> freqMap;
-            map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > termMap;
+            map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > termMap;
             (*tit)->getAllProductsOf2Variables(freqMap, termMap);
             
             
-            map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > >::const_iterator term = termMap.begin();
+            map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> >::const_iterator term = termMap.begin();
             for(; term != termMap.end(); term++)
             {
                 pair<string, string> otherName(make_pair(term->first.second,term->first.first));
                 
-                multimap<string, ROCPPVarIF_Ptr > tmpTerm;
+                multimap<string, ROCPPVarIF_Ptr> tmpTerm;
                 ROCPPVarIF_Ptr dv1 ( m_pDVContainer->find(term->first.first)->second );
                 ROCPPVarIF_Ptr dv2 ( m_pDVContainer->find(term->first.second)->second );
                 
@@ -1159,7 +1159,7 @@ ROCPPExpr_Ptr LHSExpression::replaceBilinearTerm(map<pair<string,string>, ROCPPV
     return newLhs;
 }
 
-pair<bool,ROCPPExpr_Ptr > LHSExpression::factorOut(ROCPPUnc_Ptr unc) const
+pair<bool,ROCPPExpr_Ptr> LHSExpression::factorOut(ROCPPUnc_Ptr unc) const
 {
     ROCPPExpr_Ptr out(new LHSExpression());
     bool found(false);
@@ -1169,7 +1169,7 @@ pair<bool,ROCPPExpr_Ptr > LHSExpression::factorOut(ROCPPUnc_Ptr unc) const
         if ( (*it)->isProductTerm() )
         {
             ROCPPProdTerm_Ptr pPT = static_pointer_cast<ProductTerm>(*it);
-            pair<bool,ROCPPCstrTerm_Ptr > tmp( pPT->factorOut(unc) );
+            pair<bool,ROCPPCstrTerm_Ptr> tmp( pPT->factorOut(unc) );
             if (tmp.first)
             {
                 (*out) += tmp.second;
@@ -1333,7 +1333,7 @@ ROCPPExpr_Ptr LHSExpression::getDeterministicLinearPart() const
     return out;
 }
 
-uint LHSExpression::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const
+uint LHSExpression::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const
 {
     uint out(0);
     
@@ -1343,7 +1343,7 @@ uint LHSExpression::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr
     return out;
 }
 
-void LHSExpression::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const
+void LHSExpression::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const
 {
     for (const_iterator it = begin(); it != end(); it++)
         (*it)->getAllProductsOf2Variables(freqMap,termMap);
@@ -1420,7 +1420,7 @@ LHSExpression::iterator LHSExpression::find(ROCPPCstrTerm_Ptr term)
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-bool GetAllProductsOf2Variables(const multimap<string, ROCPPVarIF_Ptr > &term, map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap)
+bool GetAllProductsOf2Variables(const multimap<string, ROCPPVarIF_Ptr> &term, map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap)
 {
     
     if (term.size()==2)
@@ -1462,13 +1462,13 @@ bool GetAllProductsOf2Variables(const multimap<string, ROCPPVarIF_Ptr > &term, m
     {
         bool tmp(true);
         
-        for (multimap<string, ROCPPVarIF_Ptr >::const_iterator tit=term.begin(); tit!=term.end(); tit++)
+        for (multimap<string, ROCPPVarIF_Ptr>::const_iterator tit=term.begin(); tit!=term.end(); tit++)
         {
             // duplicate the term
-            multimap<string, ROCPPVarIF_Ptr > termClone(term);
+            multimap<string, ROCPPVarIF_Ptr> termClone(term);
             
             // from the clone, delete the current term
-            multimap<string, ROCPPVarIF_Ptr >::iterator tcit = termClone.find(tit->first);
+            multimap<string, ROCPPVarIF_Ptr>::iterator tcit = termClone.find(tit->first);
             termClone.erase(tcit);
             
             // pass the subset term to the function recursively
@@ -1481,25 +1481,25 @@ bool GetAllProductsOf2Variables(const multimap<string, ROCPPVarIF_Ptr > &term, m
     }
 }
 
-bool comparison(const pair<string, ROCPPVarIF_Ptr >& p1, const pair<string, ROCPPVarIF_Ptr >& p2) {
+bool comparison(const pair<string, ROCPPVarIF_Ptr>& p1, const pair<string, ROCPPVarIF_Ptr>& p2) {
     return p1.first < p2.first;
 }
 
-uint getNTTermAppears(const multimap<string, ROCPPVarIF_Ptr > &sup, const multimap<string, ROCPPVarIF_Ptr > &sub)
+uint getNTTermAppears(const multimap<string, ROCPPVarIF_Ptr> &sup, const multimap<string, ROCPPVarIF_Ptr> &sub)
 {
     
-    //multimap<string, ROCPPVarIF_Ptr >::key_compare thiscomp ( sub.key_comp() );
+    //multimap<string, ROCPPVarIF_Ptr>::key_compare thiscomp ( sub.key_comp() );
     
     bool termIsSubset ( includes( sup.begin(), sup.end(), sub.begin(), sub.end(), comparison ) );
     
     if (!termIsSubset)
         return 0;
     
-    multimap<string, ROCPPVarIF_Ptr > newdvmap = sup;
+    multimap<string, ROCPPVarIF_Ptr> newdvmap = sup;
     
-    for (multimap<string, ROCPPVarIF_Ptr >::const_iterator tit = sub.begin(); tit != sub.end(); tit++)
+    for (multimap<string, ROCPPVarIF_Ptr>::const_iterator tit = sub.begin(); tit != sub.end(); tit++)
     {
-        multimap<string, ROCPPVarIF_Ptr >::iterator it ( newdvmap.find( tit->first ) );
+        multimap<string, ROCPPVarIF_Ptr>::iterator it ( newdvmap.find( tit->first ) );
         newdvmap.erase(it);
     }
     

@@ -24,9 +24,9 @@ ROCPPBilinMISOCP_Ptr RobustifyEngine::robustify(ROCPPUncSSOptModel_Ptr pIn, bool
     size_t numCstr(pIn->getNumProblemConstraints());
     uint ratio((uint)numCstr/10);
     
-    map<string, vector<ROCPPConstraint_Ptr>>::const_iterator blockIt(pIn->blockMapBegin());
+    map<string, vector<ROCPPConstraint_Ptr> >::const_iterator blockIt(pIn->blockMapBegin());
     
-    for(; blockIt != pIn->blockMapEnd(); blockIt++){
+    for (; blockIt != pIn->blockMapEnd(); blockIt++) {
         ROCPPUncSSOptModel_Ptr pRobust(new ROCPPUncSSOptModel());
         OptimizationModelIF::constraintIterator bc_it(blockIt->second.begin() );
         
@@ -57,6 +57,7 @@ ROCPPBilinMISOCP_Ptr RobustifyEngine::robustify(ROCPPUncSSOptModel_Ptr pIn, bool
     if (pIn->getObj()->isDeterministic())
         pOut->set_objective(pIn->getObj() );
     }
+    
     return pOut;
 }
 
@@ -66,9 +67,9 @@ void RobustifyEngine::calculateUncertaintySetMatrices(ROCPPUncSSOptModel_Ptr con
     m_EVvec.clear();
     
     size_t l (pIn->getNumUncertaintySetConstraints() );
-    vector<vector<vector< pair<bool, ROCPPExpr_Ptr > > > > EMvec;
+    vector<vector<vector< pair<bool, ROCPPExpr_Ptr> > > > EMvec;
     EMvec.resize(l);
-    vector<vector< ROCPPExpr_Ptr > > EVvec;
+    vector<vector< ROCPPExpr_Ptr> > EVvec;
     EVvec.resize(l);
     
     uint cl(0);
@@ -112,7 +113,7 @@ void RobustifyEngine::calculateUncertaintySetMatrices(ROCPPUncSSOptModel_Ptr con
                 
                 // - c(x)^T terms
                 {
-                    pair<bool,ROCPPExpr_Ptr > tmp ( lin_part->factorOut(uit->second) );
+                    pair<bool,ROCPPExpr_Ptr> tmp ( lin_part->factorOut(uit->second) );
                     (*tmp.second) *= -1.;
                     EMvec[cl][m-1][ck] = tmp;
                 }
@@ -122,7 +123,7 @@ void RobustifyEngine::calculateUncertaintySetMatrices(ROCPPUncSSOptModel_Ptr con
                     uint cm(0);
                     for (NormTerm::const_iterator ntit = norm_term->begin(); ntit != norm_term->end(); ntit++, cm++)
                     {
-                        pair<bool,ROCPPExpr_Ptr > tmp ( (*ntit)->factorOut(uit->second) );
+                        pair<bool,ROCPPExpr_Ptr> tmp ( (*ntit)->factorOut(uit->second) );
                         EMvec[cl][cm][ck] = tmp;
                     }
                 }
@@ -157,7 +158,7 @@ void RobustifyEngine::calculateUncertaintySetMatrices(ROCPPUncSSOptModel_Ptr con
 }
 
 
-void RobustifyEngine::createDualVars(ROCPPBilinMISOCP_Ptr pOut, ROCPPConstraint_Ptr pCstr, vector<vector<ROCPPVarIF_Ptr > >& dualVars, bool feasible)
+void RobustifyEngine::createDualVars(ROCPPBilinMISOCP_Ptr pOut, ROCPPConstraint_Ptr pCstr, vector<vector<ROCPPVarIF_Ptr> >& dualVars, bool feasible)
 {
     dualVars.clear();
     
@@ -176,8 +177,8 @@ void RobustifyEngine::createDualVars(ROCPPBilinMISOCP_Ptr pOut, ROCPPConstraint_
     
     // find this time stage in m_EMvec and m_EVvec
     
-    map<uint, vector<vector<vector< pair<bool, ROCPPExpr_Ptr > > > > >::const_iterator em_it( m_EMvec.find(t) );
-    map<uint, vector<vector< ROCPPExpr_Ptr > > >::const_iterator ev_it( m_EVvec.find(t) );
+    map<uint, vector<vector<vector< pair<bool, ROCPPExpr_Ptr> > > > >::const_iterator em_it( m_EMvec.find(t) );
+    map<uint, vector<vector< ROCPPExpr_Ptr> > >::const_iterator ev_it( m_EVvec.find(t) );
     
     if (em_it == m_EMvec.end())
         throw MyException("robustify stage not found in EMvec");
@@ -202,7 +203,7 @@ void RobustifyEngine::createDualVars(ROCPPBilinMISOCP_Ptr pOut, ROCPPConstraint_
         dualVars[cl].resize(em_it->second[cl].size());
         
         ROCPPVarIF_Ptr conehead;
-        vector<ROCPPVarIF_Ptr > nonheaddvs;
+        vector<ROCPPVarIF_Ptr> nonheaddvs;
         for (uint cm = 0; cm<em_it->second[cl].size(); cm++) // iterate, in each constraint, through the first dimension of the constraint matrix
         {
             ROCPPVarIF_Ptr dv;
@@ -267,7 +268,7 @@ void RobustifyEngine::robustifyConstraint(ROCPPConstraint_Ptr pConstraint, ROCPP
         throw MyException("cannot robustify uncertain equality constraint");
     
     
-    vector<vector<ROCPPVarIF_Ptr > > dualVars;
+    vector<vector<ROCPPVarIF_Ptr> > dualVars;
     createDualVars(pOut,pClassic,dualVars,feasible);
     
     // get the time-stage associated with robustification of the constraint that we want to robustify
@@ -276,8 +277,8 @@ void RobustifyEngine::robustifyConstraint(ROCPPConstraint_Ptr pConstraint, ROCPP
     
     // find this time stage in m_EMvec and m_EVvec
     
-    map<uint, vector<vector<vector< pair<bool, ROCPPExpr_Ptr > > > > >::const_iterator em_it( m_EMvec.find(t) );
-    map<uint, vector<vector< ROCPPExpr_Ptr > > >::const_iterator ev_it( m_EVvec.find(t) );
+    map<uint, vector<vector<vector< pair<bool, ROCPPExpr_Ptr> > > > >::const_iterator em_it( m_EMvec.find(t) );
+    map<uint, vector<vector< ROCPPExpr_Ptr> > >::const_iterator ev_it( m_EVvec.find(t) );
     
     if (em_it == m_EMvec.end())
         throw MyException("robustify stage not found in EMvec");
@@ -308,13 +309,13 @@ void RobustifyEngine::robustifyConstraint(ROCPPConstraint_Ptr pConstraint, ROCPP
     // second constraint (set of constraints)
     {
         // first build c vec
-        vector<pair<bool,ROCPPExpr_Ptr > > cvec;
+        vector<pair<bool,ROCPPExpr_Ptr> > cvec;
         {
             ROCPPExpr_Ptr lin_part ( pClassic->getLinearPart() );
             
             for (UncertainOptimizationModel::uncertaintiesIterator uit = pIn->uncertaintiesBegin(); uit != pIn->uncertaintiesEnd(); uit++)
             {
-                pair<bool,ROCPPExpr_Ptr > tmp ( lin_part->factorOut(uit->second) );
+                pair<bool,ROCPPExpr_Ptr> tmp ( lin_part->factorOut(uit->second) );
                 cvec.push_back(tmp);
             }
         }
@@ -334,8 +335,8 @@ void RobustifyEngine::robustifyConstraint(ROCPPConstraint_Ptr pConstraint, ROCPP
             {
                 for (uint cm=0; cm<ev_it->second[cl].size(); cm++) // row of uncertainty set constraint matrix count
                 {
-                    pair<bool,ROCPPExpr_Ptr > tmptmp( em_it->second[cl][cm][ck] );
-                    pair<bool,ROCPPExpr_Ptr > tmp( make_pair(tmptmp.first, tmptmp.second->Clone() ));
+                    pair<bool,ROCPPExpr_Ptr> tmptmp( em_it->second[cl][cm][ck] );
+                    pair<bool,ROCPPExpr_Ptr> tmp( make_pair(tmptmp.first, tmptmp.second->Clone() ));
                     if (tmp.first)
                     {
                         (*tmp.second) *= dualVars[cl][cm];

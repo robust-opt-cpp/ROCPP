@@ -106,25 +106,25 @@ public:
     
     /// Map the old decision variables in this term to new variables
     /// @param mapFromOldToNewVars map from old variable name to new variable pointer
-    virtual ROCPPCstrTerm_Ptr mapTermVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const = 0;
+    virtual ROCPPCstrTerm_Ptr mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const = 0;
     
     /// Map the old uncertain parameters in this term to new uncertainties
     /// @param mapFromOldToNewUnc map from old uncertainty name to new uncertainty pointer
-    virtual ROCPPCstrTerm_Ptr mapTermUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const = 0;
+    virtual ROCPPCstrTerm_Ptr mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const = 0;
     
     /// Map the old variables in this term to expressions
     /// @param mapFromVarToExpression map from old variables names to pointers to expressions
-    virtual ROCPPExpr_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const = 0;
+    virtual ROCPPExpr_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const = 0;
     
     /// Map the old uncertainties in this term to expressions
     /// @param mapFromUncToExpression map from uncertain parameter names to pointers to expressions
-    virtual ROCPPExpr_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const = 0;
+    virtual ROCPPExpr_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const = 0;
     
     /// Replace the given term in this term with the given decision variable
     /// @param term map including the decision variables in the term to be replaced
     /// @param var variable used to replace the term
     /// @note Only replace the nonlinear term with variable
-    virtual ROCPPCstrTerm_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const = 0;
+    virtual ROCPPCstrTerm_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const = 0;
     
     /// Calculate the coeffiecient of the given uncertainty
     /// @note Only valid in class ProductTerm
@@ -152,7 +152,7 @@ public:
     /// @param freqMap map from the pair of the variable names in each product to the frequency of this product
     /// @param termMap map from the pair of the variable names in each product to the map of the name to the variable involved in the product
     /// @note The calculated results are stored in the two inputs of this method
-    virtual void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const = 0;
+    virtual void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const = 0;
     
     /// Return true if and only if the term is of type prodTerm
     virtual bool isProductTerm() const {return false;}
@@ -234,7 +234,7 @@ public:
     
     /// Get the number of times the given term appears in this object
     /// @param term map from name of the variable to the pointer of the variable involved in the term
-    virtual uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const = 0;
+    virtual uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const = 0;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -320,7 +320,7 @@ public:
     /// @param c coefficient
     /// @param uncVec vector of uncetainties involved in the product term
     /// @param varVec vector of decision variables involved in the product term
-    ProductTerm(double c, const vector<ROCPPUnc_Ptr > &uncVec, const vector<ROCPPVarIF_Ptr > &varVec);
+    ProductTerm(double c, const vector<ROCPPUnc_Ptr> &uncVec, const vector<ROCPPVarIF_Ptr> &varVec);
     
     /// Destructor of the ProductTerm class
     ~ProductTerm(){}
@@ -336,20 +336,20 @@ public:
     void operator*=(double a){m_coeff *= a;}
     
     /// Multimap from string to decision variable
-    typedef multimap<string, ROCPPVarIF_Ptr > varMapType;
+    typedef multimap<string, ROCPPVarIF_Ptr> varMapType;
     
     /// Multimap from string to uncertain parameter
-    typedef multimap<string, ROCPPUnc_Ptr > uncMapType;
+    typedef multimap<string, ROCPPUnc_Ptr> uncMapType;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constant iterator for decision variable map (m_DVMap)
-    typedef multimap<string, ROCPPVarIF_Ptr >::const_iterator varsIterator;
+    typedef multimap<string, ROCPPVarIF_Ptr>::const_iterator varsIterator;
     
     /// Constant iterator for uncertain parameter map (m_UncMap)
-    typedef multimap<string, ROCPPUnc_Ptr >::const_iterator uncIterator;
+    typedef multimap<string, ROCPPUnc_Ptr>::const_iterator uncIterator;
     
     /// Return a pointer to the begining of the decision variable map (m_DVMap)
     varsIterator varsBegin() const {return m_DVMap.begin();}
@@ -371,13 +371,13 @@ public:
     /// @return The first element of the pair indicates whether the given uncertainty exists in this object, the second element stores the coefficient if the uncertianty exist
     pair<bool,ROCPPCstrTerm_Ptr> factorOut(ROCPPUnc_Ptr unc) const;
     
-    ROCPPCstrTerm_Ptr mapTermVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const;
-    ROCPPCstrTerm_Ptr mapTermUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const;
+    ROCPPCstrTerm_Ptr mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
+    ROCPPCstrTerm_Ptr mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const;
     
-    ROCPPExpr_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const;
-    ROCPPExpr_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const;
+    ROCPPExpr_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
+    ROCPPExpr_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const;
     
-    ROCPPCstrTerm_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
+    ROCPPCstrTerm_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
     
     void add(ROCPPconstCstrTerm_Ptr other);
     void add_vars_involved_in_prod(dvContainer &dvs) const;
@@ -399,8 +399,8 @@ public:
     double getCoeff() const {return m_coeff;}
     bool isWellDefined() const {return true;}//( (!m_DVMap.empty()) || (!m_UncMap.empty()) );}
     bool is_same(ROCPPconstCstrTerm_Ptr other) const;
-    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const;
-    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const;
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const;
+    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -424,10 +424,10 @@ private:
     double m_coeff;
     
     /// Multimap from decision variable name to decision variable. The variable appears in the map as many times as it is present in the term.
-    multimap<string, ROCPPVarIF_Ptr > m_DVMap;
+    multimap<string, ROCPPVarIF_Ptr> m_DVMap;
     
     /// Multimap from uncertain parameter name to the uncertain parameter. The uncertain parameter appears in the map as many times as it is present in the term.
-    multimap<string, ROCPPUnc_Ptr > m_UncMap;
+    multimap<string, ROCPPUnc_Ptr> m_UncMap;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Private Fuctions %%%%%%%%%%%%%%%%%%%%%%
@@ -460,7 +460,7 @@ public:
     
     /// Constructor of NormTerm
     /// @param pExpressionVec vector of expressions, every expression is an element in the norm term
-    NormTerm(const vector<ROCPPExpr_Ptr > &pExpressionVec);
+    NormTerm(const vector<ROCPPExpr_Ptr> &pExpressionVec);
     
     /// Destructor of NormTerm
     ~NormTerm(){}
@@ -470,7 +470,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constant iterator in vector of LHSExpression
-    typedef vector<ROCPPExpr_Ptr >::const_iterator const_iterator;
+    typedef vector<ROCPPExpr_Ptr>::const_iterator const_iterator;
     
     /// Return a const iterator pointing to the begin of the m_pExpressionVec
     const_iterator begin() const {return m_pExpressionVec.begin();}
@@ -483,15 +483,15 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    ROCPPCstrTerm_Ptr mapTermVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const;
+    ROCPPCstrTerm_Ptr mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
     
-    ROCPPCstrTerm_Ptr mapTermUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const;
+    ROCPPCstrTerm_Ptr mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const;
     
-    ROCPPExpr_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const;
+    ROCPPExpr_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
     
-    ROCPPExpr_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const;
+    ROCPPExpr_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const;
     
-    ROCPPCstrTerm_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
+    ROCPPCstrTerm_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
     
     void add_vars_involved_in_prod(dvContainer &dvs) const;
     
@@ -510,9 +510,9 @@ public:
     bool isWellDefined() const;
     bool is_same(ROCPPconstCstrTerm_Ptr other) const;
     
-    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const;
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const;
     
-    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const;
+    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const;
     
     double evaluate(const map<string,double>& valuesMap ) const;
 
@@ -535,7 +535,7 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Vector of elements(expressions) involved in this norm term
-    vector<ROCPPExpr_Ptr > m_pExpressionVec;
+    vector<ROCPPExpr_Ptr> m_pExpressionVec;
 };
 
 
@@ -724,23 +724,23 @@ public:
     
     /// Map the old decision variables in this expression to new decision variables
     /// @note Call ProductTerm::mapTermsVars() or NormTerm::mapTermsVars() for every term based on its type in this expression
-    ROCPPExpr_Ptr mapExprVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const;
+    ROCPPExpr_Ptr mapExprVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
     
     /// Map the old uncertain parameters in this expression to new uncertain parameters
     /// @note Call ProductTerm::mapTermsUnc() or NormTerm::mapTermsUnc() for every term based on its type in this expression
-    ROCPPExpr_Ptr mapExprUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const;
+    ROCPPExpr_Ptr mapExprUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const;
 
     /// Map the old variables in this expression to some expressions
     /// @note Call ProductTerm::mapVars() or NormTerm::mapVars() for every term based on its type in this expression
-    ROCPPExpr_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const;
+    ROCPPExpr_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
     
     /// Map the old uncertain parameters in this expression to some expressions
     /// @note Call ProductTerm::mapUnc() or NormTerm::mapUnc() for every term based on its type in this expression
-    ROCPPExpr_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const;
+    ROCPPExpr_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const;
 
     /// Replace the given term in this expression with the given decision variable
     /// @note Call ProductTerm::replaceTermWithVar() or NormTerm::replaceTermWithVar() for every term based on its type in this expression
-    ROCPPExpr_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
+    ROCPPExpr_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
     
     /// Replace the bilinear term in this object with the given decision variable
     /// @param allTerms map from pair of decision variable names that define the bilinear term to the decision variable used to replace the term
@@ -749,11 +749,11 @@ public:
     /// @note If the same bilinear term appears later, it will be replaced by the same variable
     /// @note The time stage of the new variable is decided by the maximum time-stage of the decision variables in the bilinear term
     /// @warning The bilinear term should include at least one boolean varaible
-    ROCPPExpr_Ptr replaceBilinearTerm(map< pair<string,string>, ROCPPVarIF_Ptr > &allTerms, uint &count) const;
+    ROCPPExpr_Ptr replaceBilinearTerm(map< pair<string,string>, ROCPPVarIF_Ptr> &allTerms, uint &count) const;
     
     /// Calculate the coeffiecient of the given uncertain parameter
     /// @note Call ProductTerm::factorOut for every ProductTerm in this expression
-    pair<bool,ROCPPExpr_Ptr > factorOut(ROCPPUnc_Ptr unc) const;
+    pair<bool,ROCPPExpr_Ptr> factorOut(ROCPPUnc_Ptr unc) const;
     
     /// Add the variable involved in product in this expression into the given container
     /// @note Call ConstraintTermIF::add_vars_involved_in_prod() based on the type for each term in this expression
@@ -839,13 +839,13 @@ public:
     
     /// Get the number of times the given term appears in this expression
     /// @note Call ProductTerm::getNumTimesTermAppears() or NormTerm::getNumTimesTermAppears() based on the type for each term in this expression
-    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const;
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const;
     
     /// Get products of any two variables in this expression
     /// @param freqMap map from the pair of the decision variable names in each product to the frequency of this product
     /// @param termMap map from the pair of the decision variable names in each product to the map of the name to the variable involved in the product
     /// @note The calculated results are stored in the two inputs of this method
-    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const;
+    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const;
     
     /// Get the decision variable container
     ROCPPconstdvContainer_Ptr getDVContainer() const;
@@ -914,10 +914,10 @@ protected:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /// Given a term, find all possible products of 2 variables in the term and add them to the map passed by reference
-bool GetAllProductsOf2Variables(const multimap<string, ROCPPVarIF_Ptr > &term, map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap);
+bool GetAllProductsOf2Variables(const multimap<string, ROCPPVarIF_Ptr> &term, map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap);
 
 /// Get the number of times that a term appears in a multimap
-uint getNTTermAppears(const multimap<string, ROCPPVarIF_Ptr > &sup, const multimap<string, ROCPPVarIF_Ptr > &sub);
+uint getNTTermAppears(const multimap<string, ROCPPVarIF_Ptr> &sup, const multimap<string, ROCPPVarIF_Ptr> &sub);
 
 
 

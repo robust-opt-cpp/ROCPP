@@ -228,7 +228,7 @@ void ClassicConstraintIF::set_rhs(pair<double,bool> rhs)
     return;
 }
 
-ROCPPConstraint_Ptr ClassicConstraintIF::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
+ROCPPConstraint_Ptr ClassicConstraintIF::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const
 {
     ROCPPClassicConstraint_Ptr out;
     if (this->isEqConstraint())
@@ -244,7 +244,7 @@ ROCPPConstraint_Ptr ClassicConstraintIF::mapVars(const map<string, ROCPPExpr_Ptr
     return out;
 }
 
-ROCPPConstraint_Ptr ClassicConstraintIF::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const
+ROCPPConstraint_Ptr ClassicConstraintIF::mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const
 {
     ROCPPClassicConstraint_Ptr out;
     if (this->isEqConstraint())
@@ -259,12 +259,12 @@ ROCPPConstraint_Ptr ClassicConstraintIF::mapUncs(const map<string, ROCPPExpr_Ptr
     return out;
 }
 
-ROCPPConstraint_Ptr ClassicConstraintIF::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
+ROCPPConstraint_Ptr ClassicConstraintIF::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
 {
     if (term.size()==2) // shortcut for the case when the term has 2 variables
     {
         map< pair<string,string>, uint> freqMap;
-        map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > termMap;
+        map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > termMap;
         getAllProductsOf2Variables(freqMap, termMap);
         
         bool tmp1(freqMap.find(make_pair(term.begin()->first,term.rbegin()->first)) == freqMap.end());
@@ -287,7 +287,7 @@ ROCPPConstraint_Ptr ClassicConstraintIF::replaceTermWithVar(const multimap<strin
     return out;
 }
 
-ROCPPConstraint_Ptr ClassicConstraintIF::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const
+ROCPPConstraint_Ptr ClassicConstraintIF::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const
 {
     ROCPPExpr_Ptr newLhs;
     
@@ -308,7 +308,7 @@ ROCPPConstraint_Ptr ClassicConstraintIF::replaceBilinearTerm(map<pair<string,str
     }
 }
 
-ROCPPConstraint_Ptr ClassicConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
+ROCPPConstraint_Ptr ClassicConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
 {
     ROCPPClassicConstraint_Ptr out;
     if (this->isEqConstraint())
@@ -326,7 +326,7 @@ ROCPPConstraint_Ptr ClassicConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr
     return out;
 }
 
-ROCPPConstraint_Ptr ClassicConstraintIF::mapUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const
+ROCPPConstraint_Ptr ClassicConstraintIF::mapUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const
 {
     ROCPPClassicConstraint_Ptr out;
     if (this->isEqConstraint())
@@ -359,12 +359,12 @@ void ClassicConstraintIF::add_int_vars(dvContainer &dvs) const
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-uint ClassicConstraintIF::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const
+uint ClassicConstraintIF::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const
 {
     return (m_pLHS->getNumTimesTermAppears(term));
 }
 
-void ClassicConstraintIF::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const
+void ClassicConstraintIF::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const
 {
     m_pLHS->getAllProductsOf2Variables(freqMap,termMap);
 }
@@ -557,9 +557,9 @@ void SOSConstraint::add_int_vars(dvContainer &dvs) const
     m_pDVContainer->add_int_vars(dvs);
 }
 
-ROCPPConstraint_Ptr SOSConstraint::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
+ROCPPConstraint_Ptr SOSConstraint::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const
 {
-    for (map<string, ROCPPExpr_Ptr >::const_iterator it = mapFromVarToExpression.begin(); it != mapFromVarToExpression.end(); it++)
+    for (map<string, ROCPPExpr_Ptr>::const_iterator it = mapFromVarToExpression.begin(); it != mapFromVarToExpression.end(); it++)
     {
         dvContainer::const_iterator vit ( m_pDVContainer->find( it->first ) );
         if (vit != m_pDVContainer->end())
@@ -569,7 +569,7 @@ ROCPPConstraint_Ptr SOSConstraint::mapVars(const map<string, ROCPPExpr_Ptr > &ma
     return this->Clone();
 }
 
-ROCPPConstraint_Ptr SOSConstraint::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
+ROCPPConstraint_Ptr SOSConstraint::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
 {
     if (term.size()>1)
         return this->Clone();
@@ -581,25 +581,25 @@ ROCPPConstraint_Ptr SOSConstraint::replaceTermWithVar(const multimap<string, ROC
     if ( (m_pDVContainer->find(term.begin()->first)) == m_pDVContainer->end() )
         return this->Clone();
     
-    map<string,ROCPPVarIF_Ptr > tmp;
+    map<string,ROCPPVarIF_Ptr> tmp;
     tmp.insert(make_pair(term.begin()->first, var) );
     
     return mapVars(tmp);
 }
 
-ROCPPConstraint_Ptr SOSConstraint::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const
+ROCPPConstraint_Ptr SOSConstraint::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const
 {
     return this->Clone();
 }
 
-ROCPPConstraint_Ptr SOSConstraint::mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
+ROCPPConstraint_Ptr SOSConstraint::mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
 {
     ROCPPSOSConstraint_Ptr out ( new SOSConstraint(this->getSOSType()) );
     
     for (SOSMapType::const_iterator it = m_sosMap.begin(); it != m_sosMap.end(); it++)
     {
         // try to find the current variable in the map
-        map<string,ROCPPVarIF_Ptr >::const_iterator tsl_it ( mapFromOldToNewVars.find( it->second.first->getName() ) );
+        map<string,ROCPPVarIF_Ptr>::const_iterator tsl_it ( mapFromOldToNewVars.find( it->second.first->getName() ) );
         
         if (tsl_it == mapFromOldToNewVars.end())
         {
@@ -698,7 +698,7 @@ bool SOSConstraint::AnyVarIsInvolved(dvContainer& dvs) const
     return m_pDVContainer->AnyVarIsInvolved(dvs);
 }
 
-uint SOSConstraint::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const
+uint SOSConstraint::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const
 {
     if (term.size()>1)
         return 0;
@@ -793,7 +793,7 @@ IfThenConstraint::const_iterator IfThenConstraint::end() const {return m_terms.e
 //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPConstraint_Ptr IfThenConstraint::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
+ROCPPConstraint_Ptr IfThenConstraint::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const
 {
     ROCPPConstraint_Ptr mapped_lhs ( m_lhs->mapVars(mapFromVarToExpression) );
     ROCPPConstraint_Ptr mapped_rhs ( m_rhs->mapVars(mapFromVarToExpression) );
@@ -803,7 +803,7 @@ ROCPPConstraint_Ptr IfThenConstraint::mapVars(const map<string, ROCPPExpr_Ptr > 
     return pOut;
 }
 
-ROCPPConstraint_Ptr IfThenConstraint::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const
+ROCPPConstraint_Ptr IfThenConstraint::mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const
 {
     ROCPPConstraint_Ptr mapped_lhs ( m_lhs->mapUncs(mapFromUncToExpression) );
     ROCPPConstraint_Ptr mapped_rhs ( m_rhs->mapUncs(mapFromUncToExpression) );
@@ -813,7 +813,7 @@ ROCPPConstraint_Ptr IfThenConstraint::mapUncs(const map<string, ROCPPExpr_Ptr > 
     return pOut;
 }
 
-ROCPPConstraint_Ptr IfThenConstraint::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
+ROCPPConstraint_Ptr IfThenConstraint::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
 {
     ROCPPConstraint_Ptr mapped_lhs ( m_lhs->replaceTermWithVar(term,var) );
     ROCPPConstraint_Ptr mapped_rhs ( m_rhs->replaceTermWithVar(term,var) );
@@ -822,14 +822,14 @@ ROCPPConstraint_Ptr IfThenConstraint::replaceTermWithVar(const multimap<string, 
     return pOut;
 }
 
-ROCPPConstraint_Ptr IfThenConstraint::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const
+ROCPPConstraint_Ptr IfThenConstraint::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const
 {
     ROCPPConstraint_Ptr newCstr(new IfThenConstraint(m_lhs->replaceBilinearTerm(allTerm, count),m_rhs->replaceBilinearTerm(allTerm, count)));
     
     return newCstr;
 }
 
-ROCPPConstraint_Ptr IfThenConstraint::mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
+ROCPPConstraint_Ptr IfThenConstraint::mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
 {
     ROCPPConstraint_Ptr mapped_lhs ( m_lhs->mapVars(mapFromOldToNewVars) );
     ROCPPConstraint_Ptr mapped_rhs ( m_rhs->mapVars(mapFromOldToNewVars) );
@@ -839,7 +839,7 @@ ROCPPConstraint_Ptr IfThenConstraint::mapVars(const map<string,ROCPPVarIF_Ptr > 
     return pOut;
 }
 
-ROCPPConstraint_Ptr IfThenConstraint::mapUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const
+ROCPPConstraint_Ptr IfThenConstraint::mapUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const
 {
     ROCPPConstraint_Ptr mapped_lhs ( m_lhs->mapUnc(mapFromOldToNewUnc) );
     ROCPPConstraint_Ptr mapped_rhs ( m_rhs->mapUnc(mapFromOldToNewUnc) );
