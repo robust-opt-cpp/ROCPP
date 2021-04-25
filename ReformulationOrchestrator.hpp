@@ -21,6 +21,9 @@ typedef shared_ptr<ROCPPStrategy> ROCPPStrategy_Ptr;
 class ReformulationStrategyIF
 {
 public:
+    ReformulationStrategyIF(){}
+    ~ReformulationStrategyIF(){}
+    
     virtual ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn) = 0;
     virtual bool isApplicable(ROCPPOptModelIF_Ptr pIn) const = 0;
     virtual string getName() const = 0;
@@ -31,8 +34,8 @@ class ReformulationOrchestrator
 {
 public:
     
-    ReformulationOrchestrator();
-    ~ReformulationOrchestrator();
+    ReformulationOrchestrator(){}
+    ~ReformulationOrchestrator(){}
     
     ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn, ROCPPStrategy_Ptr pStrategy) const;
     ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn, vector<ROCPPStrategy_Ptr> strategyVec) const;

@@ -511,7 +511,10 @@ bool OptimizationModelIF::hasRectangularUncertaintySet() const
     throw MyException("This model doesn't have uncertainty set");
 }
 
-
+size_t OptimizationModelIF::getNumUncertainties() const
+{
+    return m_pUncContainer->getNumUncertainties();
+}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%

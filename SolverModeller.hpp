@@ -174,6 +174,9 @@ public:
     virtual double getMIPGap() const = 0;
     double getSolvingTime() const;
     
+    
+    bool isApplicable(ROCPPOptModelIF_Ptr pModelIn) const;
+    
 protected:
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

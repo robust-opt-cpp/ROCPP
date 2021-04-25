@@ -246,7 +246,7 @@ protected:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /// Converts bilinear mixed integer terms to bilinear mixed binary terms
-class Bilinear_MItoMB_Converter : public OneToExprVariableConverterIF, ReformulationStrategyIF
+class Bilinear_MItoMB_Converter : public OneToExprVariableConverterIF, public ReformulationStrategyIF
 {
 public:
     
@@ -406,7 +406,7 @@ private:
 /*!
  Approximates the real-valued decisions affecting the uncertainty set by weighted sums of binary variables
 */
-class UncertaintySetRealVarApproximator : public RealVarDiscretizer, ReformulationStrategyIF
+class UncertaintySetRealVarApproximator : public RealVarDiscretizer, public ReformulationStrategyIF
 {
 public:
     

@@ -94,7 +94,7 @@ public:
 /*!
  Class for approximating continuous variable by linear function of the uncertain parameters
 */
-class LinearDecisionRule: public ContinuousVarsDRIF, ReformulationStrategyIF
+class LinearDecisionRule: public ContinuousVarsDRIF, public ReformulationStrategyIF
 {
 public:
     
@@ -218,7 +218,7 @@ public:
 /*!
  Class for approximating discrete variables with an expression that is constant in the uncertain parameters
 */
-class ConstantDecisionRule : public DiscreteVarsDRIF, ReformulationStrategyIF
+class ConstantDecisionRule : public DiscreteVarsDRIF, public ReformulationStrategyIF
 {
 public:
     

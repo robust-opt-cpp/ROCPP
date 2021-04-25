@@ -142,7 +142,7 @@ private:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /// K-adaptability approximator
-class KadaptabilityDecisionRule : public DecisionRuleIF, ReformulationStrategyIF
+class KadaptabilityDecisionRule : public DecisionRuleIF, public ReformulationStrategyIF
 {
 public:
     

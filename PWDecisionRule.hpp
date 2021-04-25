@@ -250,7 +250,7 @@ public:
 /// Piecewise constant and piecewise linear decision rule approximator
 /// @warning: only applies to problems where the uncertainty set only depends on binary variables
 
-class PiecewiseDecisionRule : public DecisionRuleIF, ReformulationStrategyIF
+class PiecewiseDecisionRule : public DecisionRuleIF, public ReformulationStrategyIF
 {
 public:
     
