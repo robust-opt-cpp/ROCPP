@@ -341,9 +341,9 @@ public:
     /// Return true if the problem has rectangular uncertainty set
     virtual bool hasRectangularUncertaintySet() const;
     
-    bool hasRealVarsInUncertaintySet() const {throw MyException("Problems that are not uncertain do not have an uncertainty set");}
+    virtual bool hasRealVarsInUncertaintySet() const {throw MyException("Problems that are not uncertain do not have an uncertainty set");}
     
-    bool hasDecisionDependentUncertaintySet() const {throw MyException("Problems that are not uncertain do not have an uncertainty set");}
+    virtual bool hasDecisionDependentUncertaintySet() const {throw MyException("Problems that are not uncertain do not have an uncertainty set");}
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -994,6 +994,8 @@ public:
     map<string, pair<uint,uint> > getdduStagesObs() const {return m_dduStagesObs;}
     
     problemType getType() const {return dduType;}
+    
+    //using UncertainOptimizationModel::hasDecisionDependentUncertaintySet();
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%

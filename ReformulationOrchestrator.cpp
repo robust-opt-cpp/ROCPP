@@ -21,11 +21,14 @@ ROCPPOptModelIF_Ptr ReformulationOrchestrator::Reformulate(ROCPPOptModelIF_Ptr p
 
 ROCPPOptModelIF_Ptr ReformulationOrchestrator::Reformulate(ROCPPOptModelIF_Ptr pIn, vector<ROCPPStrategy_Ptr> strategyVec) const
 {
-    ROCPPOptModelIF_Ptr pOut = pIn;
+    ROCPPOptModelIF_Ptr pOut;
     
     for (vector<ROCPPStrategy_Ptr>::const_iterator sit = strategyVec.begin(); sit != strategyVec.end(); sit++)
     {
-        pOut = (*sit)->Reformulate(pOut);
+        if (sit == strategyVec.begin())
+            pOut = Reformulate(pIn, (*sit));
+        else
+            pOut = Reformulate(pOut, (*sit));
     }
     
     return pOut;
