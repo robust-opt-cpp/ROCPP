@@ -13,6 +13,7 @@
 #include "ConstraintTerm.hpp"
 #include "Constraint.hpp"
 #include "OptimizationModel.hpp"
+#include "ReformulationOrchestrator.hpp"
 #include "VariableConverter.hpp"
 #include "OptModelConverters.hpp"
 #include <time.h>

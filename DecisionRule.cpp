@@ -13,6 +13,7 @@
 #include "Constraint.hpp"
 #include "ObjectiveFunction.hpp"
 #include "OptimizationModel.hpp"
+#include "ReformulationOrchestrator.hpp"
 #include "VariableConverter.hpp"
 #include "OptModelConverters.hpp"
 #include "RobustifyEngine.hpp"
@@ -261,6 +262,14 @@ void ConstantDecisionRule::createTranslationMap(const dvContainer &tmpContainer,
         translationMap[vit->second->getName()] = cst;
     }
 }
+
+
+ROCPPOptModelIF_Ptr ConstantDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
+{
+    return convertVar(pIn);
+}
+
+
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%%

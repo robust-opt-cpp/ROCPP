@@ -285,7 +285,7 @@ public:
     
     /// Return a map from decision dependent uncertain parameters to associated measurement variables
     /// @return the first element of the map is a pair of uncertainty name and time stage; the second element is the measurement structure corresponding to this pair. If there is no such parameter, return an empty map.
-    virtual map< pair<string,uint>, measPair> getDDUToMeasMap() const;
+    virtual map<pair<string,uint>, measPair> getDDUToMeasMap() const;
     
     /// Return a map from decision dependent uncertain parameters to the stages when the parameter can be observed
     /// @return the first element of the map is the uncertainty name; the second element is a pair with the first and the last stages when the parameter is observable. If there is no such parameter, return an empty map.

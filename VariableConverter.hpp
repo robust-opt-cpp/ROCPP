@@ -246,7 +246,7 @@ protected:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /// Converts bilinear mixed integer terms to bilinear mixed binary terms
-class Bilinear_MItoMB_Converter : public OneToExprVariableConverterIF
+class Bilinear_MItoMB_Converter : public OneToExprVariableConverterIF, ReformulationStrategyIF
 {
 public:
     
@@ -257,6 +257,11 @@ public:
     ~Bilinear_MItoMB_Converter(){}
     
     void findVarsToTranslate(vector<ROCPPConstraint_Ptr>::const_iterator first, vector<ROCPPConstraint_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
+    
+    
+    ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn){return convertVar(pIn);}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const {return true;}
+    string getName() const {return "bilinear term mixed-integer to mixed-binary converter";}
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -380,6 +385,7 @@ public:
     
     uint getNumBitsPerVar() const {return m_numBitsPerVariable;}
     
+    
 private:
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -400,7 +406,7 @@ private:
 /*!
  Approximates the real-valued decisions affecting the uncertainty set by weighted sums of binary variables
 */
-class UncertaintySetRealVarApproximator : public RealVarDiscretizer
+class UncertaintySetRealVarApproximator : public RealVarDiscretizer, ReformulationStrategyIF
 {
 public:
     
@@ -411,6 +417,10 @@ public:
     ~UncertaintySetRealVarApproximator(){}
     
     void findVarsToTranslate(vector<ROCPPConstraint_Ptr>::const_iterator first, vector<ROCPPConstraint_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
+    
+    ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn){return convertVar(pIn);}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const {return true;}
+    string getName() const {return "uncertainty set real variable approximator";}
 };
 
 

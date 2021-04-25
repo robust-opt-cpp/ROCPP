@@ -16,6 +16,7 @@
 #include "Constraint.hpp"
 #include "ObjectiveFunction.hpp"
 #include "OptimizationModel.hpp"
+#include "ReformulationOrchestrator.hpp"
 #include "VariableConverter.hpp"
 #include <fstream>
 #include <math.h>

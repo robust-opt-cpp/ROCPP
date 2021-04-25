@@ -13,6 +13,7 @@
 #include "Constraint.hpp"
 #include "ObjectiveFunction.hpp"
 #include "OptimizationModel.hpp"
+#include "ReformulationOrchestrator.hpp"
 #include "VariableConverter.hpp"
 #include "DecisionRule.hpp"
 #include "RobustifyEngine.hpp"
@@ -59,6 +60,40 @@ ROCPPBilinMISOCP_Ptr RobustifyEngine::robustify(ROCPPUncSSOptModel_Ptr pIn, bool
     }
     
     return pOut;
+}
+
+
+ROCPPOptModelIF_Ptr RobustifyEngine::Reformulate(ROCPPOptModelIF_Ptr pIn)
+{
+    if (!(pIn->getType()==uncertainssType))
+        throw MyException("Problem must be uncertain single-stage optimization model to robustify.");
+        
+    ROCPPOptModelIF_Ptr pOut = robustify(static_pointer_cast<ROCPPUncSSOptModel>(pIn));
+    return pOut;
+}
+
+
+bool RobustifyEngine::isApplicable(ROCPPOptModelIF_Ptr pIn) const
+{
+    // check that problem is single-stage robust problem
+    if (!(pIn->getType()==uncertainssType))
+    {
+        cout << "robustification only possible on uncertain single stage problem" << endl;
+        return false;
+    }
+    
+    // check that uncertainty set only depends on binary decision variables
+    if (pIn->hasRealVarsInUncertaintySet())
+    {
+        cout << "cannot robustify problem whose uncertainty set depends on real-valued decision variables" << endl;
+        return false;
+    }
+    
+    // check that no uncertain parameter is involved in non-linear terms
+    
+    
+    return true;
+    
 }
 
 void RobustifyEngine::calculateUncertaintySetMatrices(ROCPPUncSSOptModel_Ptr const pIn)

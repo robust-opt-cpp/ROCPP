@@ -14,11 +14,15 @@
 #include "HeaderIncludeFiles.hpp"
 
 
+
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%% DECISION RULE APPROXIMATOR INTERFACE %%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+class ReformulationStrategyIF;
 
 /// Decision rule approximator interface
 class DecisionRuleIF
@@ -43,6 +47,7 @@ public:
     uint getMemory() const {return m_memory;}
     
     virtual ROCPPOptModelIF_Ptr approximate(ROCPPOptModelIF_Ptr pIn) = 0;
+    
     
 protected:
     
@@ -89,7 +94,7 @@ public:
 /*!
  Class for approximating continuous variable by linear function of the uncertain parameters
 */
-class LinearDecisionRule: public ContinuousVarsDRIF
+class LinearDecisionRule: public ContinuousVarsDRIF, ReformulationStrategyIF
 {
 public:
     
@@ -134,7 +139,7 @@ public:
     ROCPPVarIF_Ptr getCoeffDV(string dvName, string uncName) const;
     
     /// Return map m_mapOrigDVUncPairToCoeffDV
-    map< pair<string,string>, ROCPPVarIF_Ptr> getLDRCoeff() const{return m_mapOrigDVUncPairToCoeffDV;}
+    map<pair<string,string>, ROCPPVarIF_Ptr> getLDRCoeff() const{return m_mapOrigDVUncPairToCoeffDV;}
     
     /// Return map m_mapOrigDVToUncAndCoeffDV
     multimap<string, pair<string, ROCPPVarIF_Ptr> > getLDRExpr() const{return m_mapOrigDVToUncAndCoeffDV;}
@@ -145,6 +150,12 @@ public:
     
     /// Print the solution (in the form of an expression) for the given variable
     void printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &variableValue, ROCPPVarIF_Ptr dv);
+    
+    
+    
+    ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn){return approximate(pIn);}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const {return true;}
+    string getName() const {return "linear decision rule";}
     
 private:
     
@@ -158,7 +169,7 @@ private:
     bool m_uncContSet;
     
     /// Map of pair of original variable name and uncertainty name to the coefficient variable
-    map< pair<string,string>, ROCPPVarIF_Ptr> m_mapOrigDVUncPairToCoeffDV;
+    map<pair<string,string>, ROCPPVarIF_Ptr> m_mapOrigDVUncPairToCoeffDV;
     
     /// Map of original variable name to the pair of uncertainty name and the coefficient variable
     multimap<string, pair<string, ROCPPVarIF_Ptr> > m_mapOrigDVToUncAndCoeffDV;
@@ -207,7 +218,7 @@ public:
 /*!
  Class for approximating discrete variables with an expression that is constant in the uncertain parameters
 */
-class ConstantDecisionRule : public DiscreteVarsDRIF
+class ConstantDecisionRule : public DiscreteVarsDRIF, ReformulationStrategyIF
 {
 public:
     
@@ -229,7 +240,11 @@ public:
     
     void printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &variableValue, ROCPPVarIF_Ptr dv);
     
-    ROCPPOptModelIF_Ptr approximate(ROCPPOptModelIF_Ptr pIn) {return convertVar(pIn);};
+    ROCPPOptModelIF_Ptr approximate(ROCPPOptModelIF_Ptr pIn);
+    
+    ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn){return approximate(pIn);}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const {return true;}
+    string getName() const {return "constant decision rule";}
 };
 
 

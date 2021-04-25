@@ -13,7 +13,7 @@
 
 
 /// Robustify engine class (automatically dualizes all semi-infinite constraints)
-class RobustifyEngine
+class RobustifyEngine : public ReformulationStrategyIF
 {
 public:
     
@@ -50,6 +50,12 @@ public:
     
     /// Get the number of dual variables
     uint getDualVarsCnt() const {return m_dualVarsCounter;}
+    
+    
+    
+    ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn);//{return ROCPPOptModelIF_Ptr(robustify(ROCPPOptModelIF_Ptr(pIn)));}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const;
+    string getName() const {return "robustification";}
     
 private:
     

@@ -10,6 +10,9 @@
 #define OptModelConverters_hpp
 
 #include "HeaderIncludeFiles.hpp"
+#include "ReformulationOrchestrator.hpp"
+
+class ReformulationStrategyIF;
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -18,7 +21,7 @@
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-class BilinearTermReformulatorIF  // creates MILP if original problem containts only bilinear terms involving at least one binary variable; creates convex relaxation otherwise
+class BilinearTermReformulatorIF : public ReformulationStrategyIF // creates MILP if original problem containts only bilinear terms involving at least one binary variable; creates convex relaxation otherwise
 {
 public:
     
@@ -33,9 +36,14 @@ public:
     
     ROCPPOptModelIF_Ptr linearize(ROCPPOptModelIF_Ptr pIn, const map<string,pair<double,double> >& variableBounds = (map<string,pair<double,double> >()));
     
+    
     virtual void getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr newdv,  vector<ROCPPConstraint_Ptr> &cstrvec, map<string,pair<double,double> > &variableBounds) = 0;
     
     uint getAuxVarCnt() const {return m_auxVarCnt;}
+    
+    ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn){return linearize(pIn);}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const {return true;}
+    string getName() const {return "bilinear term reformulator";}
     
 private:
     

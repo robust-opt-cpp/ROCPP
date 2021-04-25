@@ -250,7 +250,7 @@ public:
 /// Piecewise constant and piecewise linear decision rule approximator
 /// @warning: only applies to problems where the uncertainty set only depends on binary variables
 
-class PiecewiseDecisionRule : public DecisionRuleIF
+class PiecewiseDecisionRule : public DecisionRuleIF, ReformulationStrategyIF
 {
 public:
     
@@ -288,9 +288,6 @@ public:
     /// Approximate the input model
     /// First construct the partition maps, then calculate and robustity the model on each subset, finally add non-anticipativity constraints
     ROCPPOptModelIF_Ptr approximate(ROCPPOptModelIF_Ptr pIn);
-    
-    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const;
-    
     
     
     /// Return a new model after fixing the binary variables to the value provided in the input map
@@ -339,6 +336,12 @@ public:
     
     /// Print out whether we observe or not the given uncertainty on all subsets of the partition
     void printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc);
+    
+    
+    
+    ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn) {return approximate(pIn);}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const;
+    string getName() const {return "piecewise linear/constant decision rule";}
     
 private:
     

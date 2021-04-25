@@ -117,6 +117,8 @@ public:
     
     string getMaxPartitionString() const {return convertPartitionToString(m_numPartitionsMap);}
     
+    
+    
 private:
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -140,7 +142,7 @@ private:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /// K-adaptability approximator
-class KadaptabilityDecisionRule : public DecisionRuleIF
+class KadaptabilityDecisionRule : public DecisionRuleIF, ReformulationStrategyIF
 {
 public:
     
@@ -187,7 +189,6 @@ public:
     /// Check the compatability of the input model and check whether the model has constraint uncertainty to choose the appropriate method
     ROCPPOptModelIF_Ptr approximate(ROCPPOptModelIF_Ptr pIn);
     
-    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const;
     
     /// Return a new model after fixing second stage variables which are solved by the warm start problem to the value provided in the input map
     /// @param pIn Model before approximating
@@ -239,6 +240,11 @@ public:
     
     /// Print out whether we observe or not the given uncertainty for all cases
     void printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc);
+    
+    
+    ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn){return approximate(pIn);}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const;
+    string getName() const {return "K-adaptability approximator";}
     
 protected:
     
