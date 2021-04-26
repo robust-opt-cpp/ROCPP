@@ -259,15 +259,10 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constructor of the PiecewiseDecisionRule class
-    /// @param pIn Model to be approximated
-    /// @param numPartitionsStr String to encode the number of subsets for each observable uncertainty, in alphabetical order
-    /// @param numBits Number of bits used for discretizing any real-valued variables affecting the uncertainty set
+    /// @param numPartitionsMap map from the name of the uncertain parameter to the number of subsets along that direction (number of breakpoints + 1)
     /// @param bigM Big-M value used for linearizing the bilinear terms
     /// @param useExplicitNACs If true, then two meansurement variables are equal, otherwise use the same measurement variables for the NACs
     /// @param folder Name of folders where to store the log file
-    
-    /// Constructor of the PiecewiseApproximator class
-    /// @param numPartitionsMap map from the name of the uncertain parameter to the number of subsets along that direction (number of breakpoints + 1)
     PiecewiseDecisionRule(const map<string,uint> &numPartitionsMap = map<string, uint>(), double bigM = 100., bool useExplicitNACs = false, string folder=" ");
     
     /// Constructor of the PiecewiseApproximator class
@@ -291,7 +286,7 @@ public:
     
     
     /// Return a new model after fixing the binary variables to the value provided in the input map
-    ROCPPOptModelIF_Ptr fixBinaryVariableValues(ROCPPOptModelIF_Ptr pKadaptModel, const map<string,bool> &varValues) const;
+    //ROCPPOptModelIF_Ptr fixBinaryVariableValues(ROCPPOptModelIF_Ptr pKadaptModel, const map<string,bool> &varValues) const;
     
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

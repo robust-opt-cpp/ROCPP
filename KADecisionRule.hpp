@@ -151,18 +151,17 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constructor of K-Adaptability approximator
-    /// @param pIn Model to be approximated
     /// @param K Value of K in each time stage
     /// @param bigM Big-M constant value for linearizing the bilinear terms
     /// @param epsilon Value of epsilon to build the strictly inequality in the constraint uncertainty case
     /// @param folder Name of the folders where to save the log file
-    KadaptabilityDecisionRule(ROCPPOptModelIF_Ptr pIn, uint K, double bigM = 100.0, double epsilon = 0.0001, string folder=" ");
+    KadaptabilityDecisionRule(uint K, double bigM = 100.0, double epsilon = 0.0001, string folder=" ");
     
-    /// Constructor of K-Adaptability approximator
-    /// @param pPartitionEncoder predefined partition encoder for the model to be approximated
-    KadaptabilityDecisionRule(ROCPPKadaptEncoder_Ptr pPartitionEncoder, double bigM = 100.0, double epsilon = 0.0001, string folder=" ");
-    
-    KadaptabilityDecisionRule(ROCPPKadaptEncoder_Ptr pPartitionEncoder, ROCPPBilinearReform_Ptr pBTR, double epsilon = 0.0001, string folder=" ") : m_pPartitionEncoder(pPartitionEncoder), m_pBTR(pBTR), m_folder(folder), m_epsilon(epsilon) {}
+//    / Constructor of K-Adaptability approximator
+//    / @param pPartitionEncoder predefined partition encoder for the model to be approximated
+//    KadaptabilityDecisionRule(ROCPPKadaptEncoder_Ptr pPartitionEncoder, double bigM = 100.0, double epsilon = 0.0001, string folder=" ");
+//
+//    KadaptabilityDecisionRule(ROCPPKadaptEncoder_Ptr pPartitionEncoder, ROCPPBilinearReform_Ptr pBTR, double epsilon = 0.0001, string folder=" ") : m_pPartitionEncoder(pPartitionEncoder), m_pBTR(pBTR), m_folder(folder), m_epsilon(epsilon) {}
     
     /// Destructor of K-Adaptability approximator
     ~KadaptabilityDecisionRule(){}
@@ -252,6 +251,9 @@ protected:
     //%%%%%%%%%%%%%%%%%%%%%% Protected Methods %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
+    /// Initialize the class ith the given parameters
+    void initialize(ROCPPOptModelIF_Ptr pIn);
+    
     /// Method for multistage model with only objective uncertainty
     /// @warning No uncertainty in constraint is allowed here
     ROCPPOptModelIF_Ptr approxObjUnc(ROCPPOptModelIF_Ptr pIn);
@@ -282,6 +284,7 @@ protected:
     
     string m_folder;
     
+    uint m_K;
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

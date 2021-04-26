@@ -230,17 +230,15 @@ string KadaptabilityPartitionEncoderMS::getPartitionSubset(const map<uint,uint> 
 //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-KadaptabilityDecisionRule::KadaptabilityDecisionRule(ROCPPOptModelIF_Ptr pIn, uint K, double bigM, double epsilon, string folder) : m_folder(folder), m_epsilon(epsilon)
+KadaptabilityDecisionRule::KadaptabilityDecisionRule(uint K, double bigM, double epsilon, string folder) : m_folder(folder), m_epsilon(epsilon), m_K(K)
 {
-    ROCPPKadaptEncoder_Ptr pPartitionEncoder (new KadaptabilityPartitionEncoderMS(pIn->getNumTimeStages(),K));
-    m_pPartitionEncoder=pPartitionEncoder;
     m_pBTR = ROCPPBilinearReform_Ptr(new BTR_bigM("bl", "", 0, bigM));
 }
 
-KadaptabilityDecisionRule::KadaptabilityDecisionRule(ROCPPKadaptEncoder_Ptr pPartitionEncoder, double bigM, double epsilon, string folder) : m_pPartitionEncoder(pPartitionEncoder), m_folder(folder), m_epsilon(epsilon)
-{
-    m_pBTR = ROCPPBilinearReform_Ptr(new BTR_bigM("bl", "", 0, bigM));
-}
+//KadaptabilityDecisionRule::KadaptabilityDecisionRule(ROCPPKadaptEncoder_Ptr pPartitionEncoder, double bigM, double epsilon, string folder) : m_pPartitionEncoder(pPartitionEncoder), m_folder(folder), m_epsilon(epsilon)
+//{
+//    m_pBTR = ROCPPBilinearReform_Ptr(new BTR_bigM("bl", "", 0, bigM));
+//}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
@@ -299,6 +297,12 @@ void KadaptabilityDecisionRule::checkWsCompatability(const map<uint,uint> &wsMap
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+void KadaptabilityDecisionRule::initialize(ROCPPOptModelIF_Ptr pIn)
+{
+    ROCPPKadaptEncoder_Ptr pPartitionEncoder (new KadaptabilityPartitionEncoderMS(pIn->getNumTimeStages(), m_K));
+    m_pPartitionEncoder=pPartitionEncoder;
+}
 
 void KadaptabilityDecisionRule::createVariableAndUncMap(dvContainer::const_iterator varsBegin, dvContainer::const_iterator varsEnd, uncContainer::const_iterator uncBegin, uncContainer::const_iterator uncEnd)
 {
@@ -415,7 +419,7 @@ ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::approximate(ROCPPOptModelIF_Ptr p
     
     auto start = chrono::high_resolution_clock::now();
     
-    // Mark: change here
+    initialize(pIn);
     
     if(pIn->getNumTimeStages() != m_pPartitionEncoder->getT())
         throw MyException("The time span of k must equal the number of time stages in the model");

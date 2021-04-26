@@ -1593,8 +1593,6 @@ void LDRCDRApproximator::printOut(const ROCPPOptModelIF_Ptr pIn, const map<strin
     for(t = 1; t < pIn->getNumTimeStages(); t++)
     {
         meas = pIn->getMeasVar(name, t);
-        //???:print out
-        //value = lexical_cast<bool>(resultIn.find(meas->getName())->second);
         value = resultIn.find(meas->getName())->second;
         bool observed;
         if (abs(value - 1.0) <= 0.01)
