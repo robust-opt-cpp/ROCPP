@@ -104,10 +104,10 @@ public:
     
     /// Constructor of the LinearDecisionRule class
     /// @param UC Container that contains all uncertainty being used to approximate the decision variable in this problem
-    LinearDecisionRule(ROCPPuncContainer_Ptr UC, uint memory=1000) : ContinuousVarsDRIF(memory), m_UC(UC), m_uncContSet(true) {}
+    LinearDecisionRule(ROCPPuncContainer_Ptr UC, uint memory=1000, double bigM=100.) : ContinuousVarsDRIF(memory), m_UC(UC), m_uncContSet(true), m_bigM(bigM) {}
     
     /// Constructor of the LinearDecisionRule class
-    LinearDecisionRule(uint memory=1000) : ContinuousVarsDRIF(memory), m_uncContSet(false) {}
+    LinearDecisionRule(uint memory=1000, double bigM=100.) : ContinuousVarsDRIF(memory), m_uncContSet(false), m_bigM(bigM) {}
     
     /// Destructor of the LinearDecisionRule class
     ~LinearDecisionRule(){}
@@ -123,7 +123,7 @@ public:
     /// @see VariableConverterIF::convertVar(ROCPPOptModelIF_Ptr, bool)
     ROCPPOptModelIF_Ptr convertVar(ROCPPOptModelIF_Ptr pIn, bool resetAndSave=false);
     
-    ROCPPOptModelIF_Ptr approximate(ROCPPOptModelIF_Ptr pIn) {return convertVar(pIn);}
+    ROCPPOptModelIF_Ptr approximate(ROCPPOptModelIF_Ptr pIn);
     
     /// Create the map from the original decision variable to decisions that are affine in the history of observations
     void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr>  &translationMap, vector<ROCPPConstraint_Ptr> &toAdd);
@@ -150,11 +150,11 @@ public:
     
     /// Print the solution (in the form of an expression) for the given variable
     void printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &variableValue, ROCPPVarIF_Ptr dv);
-    
+    void printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc);
     
     
     ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn){return approximate(pIn);}
-    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const {return true;}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const;
     string getName() const {return "linear decision rule";}
     
 private:
@@ -176,6 +176,9 @@ private:
     
     /// Map of original variable name to the name of decision variable representing the constant term in the linear decision rule
     map<string, string> m_cst;
+    
+    /// Value of the big M constant
+    double m_bigM;
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -238,12 +241,17 @@ public:
     
     void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr>  &translationMap, vector<ROCPPConstraint_Ptr> &toAdd);
     
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     void printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &variableValue, ROCPPVarIF_Ptr dv);
+    void printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc);
     
     ROCPPOptModelIF_Ptr approximate(ROCPPOptModelIF_Ptr pIn);
     
     ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn){return approximate(pIn);}
-    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const {return true;}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const;
     string getName() const {return "constant decision rule";}
 };
 
