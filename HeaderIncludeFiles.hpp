@@ -1,5 +1,5 @@
 //
-//  HeaderIncludeFiles.h
+//  HeaderIncludeFiles.hpp
 //  RobustOptimizationPlatform
 //
 // This software is Copyright © 2020 Phebe Vayanos. All Rights Reserved.
@@ -250,9 +250,16 @@ class ConstantDecisionRule;
 typedef ConstantDecisionRule ROCPPConstantDR;
 typedef shared_ptr<ROCPPConstantDR> ROCPPConstantDR_Ptr;
 
+class PiecewiseDecisionRule;
+typedef PiecewiseDecisionRule ROCPPPWDR;
+typedef shared_ptr<ROCPPPWDR> ROCPPPWDR_Ptr;
+
 class KadaptabilityDecisionRule;
 typedef KadaptabilityDecisionRule ROCPPKADR;
 typedef shared_ptr<ROCPPKADR> ROCPPKADR_Ptr;
+
+class KadaptabilityPartitionEncoderMS;
+typedef shared_ptr<KadaptabilityPartitionEncoderMS> ROCPPKadaptEncoder_Ptr;
 
 class PartitionConstructorIF;
 typedef shared_ptr<PartitionConstructorIF> ROCPPParConstructor_Ptr;
@@ -262,38 +269,21 @@ typedef shared_ptr<PartitionConverter> ROCPPParConverter_Ptr;
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%% ROBUSTIFY ENGINE TYPE DEFS %%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%% REFORMULATION STRATGEY TYPE DEFS %%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+class ReformulationStrategyIF;
+typedef ReformulationStrategyIF ROCPPRSIF;
+typedef shared_ptr<ROCPPRSIF> ROCPPRSIF_Ptr;
+
+class ReformulationOrchestrator;
+typedef ReformulationOrchestrator ROCPPOrchestrator;
+typedef shared_ptr<ROCPPOrchestrator> ROCPPOrchestrator_Ptr;
 
 class RobustifyEngine;
 typedef RobustifyEngine ROCPPRobustifyEngine;
 typedef shared_ptr<RobustifyEngine> ROCPPRobustifyEngine_Ptr;
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%% DDU TYPE DEFS %%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-class DDUApproximatorIF;
-typedef DDUApproximatorIF ROCPPApproximator;
-typedef shared_ptr<ROCPPApproximator> ROCPPApproximator_Ptr;
-
-class KadaptabilityPartitionEncoderMS;
-typedef shared_ptr<KadaptabilityPartitionEncoderMS> ROCPPKadaptEncoder_Ptr;
-
-class KadaptabilityApproximatorMS;
-typedef KadaptabilityApproximatorMS ROCPPKadaptApprox;
-typedef shared_ptr<ROCPPKadaptApprox> ROCPPKadaptApprox_Ptr;
-
-class LDRCDRApproximator;
-typedef LDRCDRApproximator ROCPPLCDRApprox;
-typedef shared_ptr<ROCPPLCDRApprox> ROCPPLCDRApprox_Ptr;
-
-class PiecewiseApproximator;
-typedef PiecewiseApproximator ROCPPPiecewiseApprox;
-typedef shared_ptr<ROCPPPiecewiseApprox> ROCPPPiecewiseApprox_Ptr;
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

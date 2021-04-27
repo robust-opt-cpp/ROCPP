@@ -1,8 +1,9 @@
 //
 //  ReformulationOrchestrator.cpp
-//  ROCPP
+//  RobustOptimizationPlatform
 //
-//  Created by Phebe Vayanos on 4/24/21.
+// This software is Copyright © 2020 Phebe Vayanos. All Rights Reserved.
+// Software created by Phebe Vayanos, Qing Jin, and George Elissaios
 //
 
 #include "ReformulationOrchestrator.hpp"

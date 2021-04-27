@@ -230,7 +230,7 @@ string KadaptabilityPartitionEncoderMS::getPartitionSubset(const map<uint,uint> 
 //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-KadaptabilityDecisionRule::KadaptabilityDecisionRule(uint K, double bigM, double epsilon, string folder) : m_folder(folder), m_epsilon(epsilon), m_K(K)
+KadaptabilityDecisionRule::KadaptabilityDecisionRule(const map<uint, uint> &numPartitionMap, double bigM, double epsilon, string folder) : m_folder(folder), m_epsilon(epsilon), m_numPartitionsMap(numPartitionMap)
 {
     m_pBTR = ROCPPBilinearReform_Ptr(new BTR_bigM("bl", "", 0, bigM));
 }
@@ -300,7 +300,18 @@ void KadaptabilityDecisionRule::checkWsCompatability(const map<uint,uint> &wsMap
 
 void KadaptabilityDecisionRule::initialize(ROCPPOptModelIF_Ptr pIn)
 {
-    ROCPPKadaptEncoder_Ptr pPartitionEncoder (new KadaptabilityPartitionEncoderMS(pIn->getNumTimeStages(), m_K));
+    map<uint, uint> newPartitionMap;
+    
+    for(uint t = 1; t <= pIn->getNumTimeStages(); t++){
+        if(m_numPartitionsMap.find(t) == m_numPartitionsMap.end()){
+            newPartitionMap.insert(make_pair(t, 1));
+        }
+        else
+            newPartitionMap.insert(make_pair(t, m_numPartitionsMap.find(t)->second));
+    }
+    
+    ROCPPKadaptEncoder_Ptr pPartitionEncoder (new KadaptabilityPartitionEncoderMS(newPartitionMap));
+    
     m_pPartitionEncoder=pPartitionEncoder;
 }
 

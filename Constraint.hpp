@@ -870,6 +870,7 @@ private:
     vector<ROCPPCstrTerm_Ptr> m_terms;
 };
 
+bool DoublesAreEssentiallyEqual(double A, double B, double epsilon);
 ROCPPConstraint_Ptr createConstraint(ROCPPExpr_Ptr lhs, double rhs, bool isEqual, bool definesUncertaintySet=false, bool isNAC=false);
 
 

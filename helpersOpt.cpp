@@ -328,6 +328,8 @@ double calculateArea(const map<string,pair<double,double> > &allMap)
     
     map<string,pair<double,double> >::const_iterator m_it(allMap.begin());
     for (; m_it != allMap.end(); m_it++) {
+        if (DoublesAreEssentiallyEqual(m_it->second.second, m_it->second.first, 0.0001))
+            continue;
         area *= (m_it->second.second - m_it->second.first);
     }
     

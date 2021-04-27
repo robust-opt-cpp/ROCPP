@@ -1,8 +1,9 @@
 //
 //  PWDecisionRule.hpp
-//  ROCPP
+//  RobustOptimizationPlatform
 //
-//  Created by Phebe Vayanos on 4/3/21.
+// This software is Copyright © 2020 Phebe Vayanos. All Rights Reserved.
+// Software created by Phebe Vayanos, Qing Jin, and George Elissaios
 //
 
 #ifndef PWDecisionRule_hpp

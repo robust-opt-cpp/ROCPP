@@ -13,8 +13,6 @@
 #include "Constraint.hpp"
 #include <fstream>
 
-bool DoublesAreEssentiallyEqual(double A, double B, double epsilon);
-
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%% CONSTRAINT INTERFACE %%%%%%%%%%%%%%%%%%%%%%%

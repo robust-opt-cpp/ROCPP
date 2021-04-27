@@ -151,11 +151,12 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constructor of K-Adaptability approximator
-    /// @param K Value of K in each time stage
+    /// @param numPartitionsMap Map from time period to value of K for that time-period
     /// @param bigM Big-M constant value for linearizing the bilinear terms
     /// @param epsilon Value of epsilon to build the strictly inequality in the constraint uncertainty case
     /// @param folder Name of the folders where to save the log file
-    KadaptabilityDecisionRule(uint K, double bigM = 100.0, double epsilon = 0.0001, string folder=" ");
+    KadaptabilityDecisionRule(
+                              const map<uint,uint> &numPartitionsMap = map<uint, uint>(), double bigM = 100.0, double epsilon = 0.0001, string folder=" ");
     
 //    / Constructor of K-Adaptability approximator
 //    / @param pPartitionEncoder predefined partition encoder for the model to be approximated
@@ -284,7 +285,8 @@ protected:
     
     string m_folder;
     
-    uint m_K;
+    /// Map from time period to value of K for that time-period
+    map<uint,uint> m_numPartitionsMap; // map from time period to value of K for that time-period
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

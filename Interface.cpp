@@ -19,7 +19,6 @@
 #include "OptModelConverters.hpp"
 #include "RobustifyEngine.hpp"
 #include "FileRelations.hpp"
-#include "DDUApproximator.hpp"
 #include "SolverModeller.hpp"
 #include "GurobiModeller.hpp"
 #include "Interface.hpp"
