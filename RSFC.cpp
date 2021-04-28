@@ -160,12 +160,12 @@ int main(int argc, const char * argv[]) {
     ROCPPOrchestrator_Ptr pRO(new ReformulationOrchestrator());
     
     // Construct the linear decision rule reformulation strategy
-    ROCPPRSIF_Ptr pLDR(new LinearDecisionRule());
+    ROCPPStrategy_Ptr pLDR(new LinearDecisionRule());
     // Construct the robustify engine reformulation strategy
-    ROCPPRSIF_Ptr pRE(new RobustifyEngine());
+    ROCPPStrategy_Ptr pRE(new RobustifyEngine());
     
     // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
-    vector<ROCPPRSIF_Ptr> strategyVec {pLDR, pRE};
+    vector<ROCPPStrategy_Ptr> strategyVec {pLDR, pRE};
     ROCPPOptModelIF_Ptr RSFCModelLDRFinal = pRO->Reformulate(RSFCModel, strategyVec);
 
 #ifdef USE_SCIP

@@ -14,11 +14,6 @@
 #include "HeaderIncludeFiles.hpp"
 
 
-class ReformulationStrategyIF;
-typedef ReformulationStrategyIF ROCPPStrategy;
-typedef shared_ptr<ROCPPStrategy> ROCPPStrategy_Ptr;
-
-
 class ReformulationStrategyIF
 {
 public:

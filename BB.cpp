@@ -127,13 +127,13 @@ int main(int argc, const char * argv[])
     BPconfig["Value_1"] = 3;
     BPconfig["Value_2"] = 3;
     BPconfig["Value_4"] = 3;
-    ROCPPRSIF_Ptr pPWApprox(new PiecewiseDecisionRule(BPconfig));
+    ROCPPStrategy_Ptr pPWApprox(new PiecewiseDecisionRule(BPconfig));
     
     // Construct the robustify engine reformulation strategy
-    ROCPPRSIF_Ptr pRE (new RobustifyEngine());
+    ROCPPStrategy_Ptr pRE (new RobustifyEngine());
     
     // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
-    vector<ROCPPRSIF_Ptr> strategyVec {pPWApprox, pRE};
+    vector<ROCPPStrategy_Ptr> strategyVec {pPWApprox, pRE};
     ROCPPOptModelIF_Ptr BBModelPWCFinal = pRO->Reformulate(BBModel, strategyVec);
     
     

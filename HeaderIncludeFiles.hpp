@@ -274,8 +274,8 @@ typedef shared_ptr<PartitionConverter> ROCPPParConverter_Ptr;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 class ReformulationStrategyIF;
-typedef ReformulationStrategyIF ROCPPRSIF;
-typedef shared_ptr<ROCPPRSIF> ROCPPRSIF_Ptr;
+typedef ReformulationStrategyIF ROCPPStrategy;
+typedef shared_ptr<ROCPPStrategy> ROCPPStrategy_Ptr;
 
 class ReformulationOrchestrator;
 typedef ReformulationOrchestrator ROCPPOrchestrator;

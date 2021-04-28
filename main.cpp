@@ -164,12 +164,12 @@ int main()
 //    ROCPPOrchestrator_Ptr pRO(new ReformulationOrchestrator());
 //
 //    // Construct the linear/constant decision rule reformulation strategy
-//    ROCPPRSIF_Ptr pLDR(new LinearDecisionRule());
+//    ROCPPStrategy_Ptr pLDR(new LinearDecisionRule());
 //    // Construct the robustify engine reformulation strategy
-//    ROCPPRSIF_Ptr pRE(new RobustifyEngine());
+//    ROCPPStrategy_Ptr pRE(new RobustifyEngine());
 //
 //    // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
-//    vector<ROCPPRSIF_Ptr> strategyVec {pLDR, pRE};
+//    vector<ROCPPStrategy_Ptr> strategyVec {pLDR, pRE};
 //    ROCPPOptModelIF_Ptr RSFCModelLDRFinal = pRO->Reformulate(RSFCModel, strategyVec);
 //
 //    #ifdef USE_SCIP
@@ -313,12 +313,12 @@ int main()
 //    ROCPPOrchestrator_Ptr pRO(new ReformulationOrchestrator());
 //
 //    // Construct the piecewise linear decision rule reformulation strategy
-//    ROCPPRSIF_Ptr pPWApprox(new PiecewiseDecisionRule(BPconfig));
+//    ROCPPStrategy_Ptr pPWApprox(new PiecewiseDecisionRule(BPconfig));
 //    // Construct the robustify engine reformulation strategy
-//    ROCPPRSIF_Ptr pRE (new RobustifyEngine());
+//    ROCPPStrategy_Ptr pRE (new RobustifyEngine());
 //
 //    // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
-//    vector<ROCPPRSIF_Ptr> strategyVec {pPWApprox, pRE};
+//    vector<ROCPPStrategy_Ptr> strategyVec {pPWApprox, pRE};
 //    ROCPPOptModelIF_Ptr BBModelPWCFinal = pRO->Reformulate(BBModel, strategyVec);
 //
 //
@@ -452,16 +452,16 @@ int main()
 //
 //    // Construct the finite adaptability reformulation strategy with 2 candidate policies in the each time stage
 //    map<uint, uint> kMap = {{2, 2}, {3, 2}, {4, 2}};
-//    ROCPPRSIF_Ptr pKADR(new KadaptabilityDecisionRule(kMap));
+//    ROCPPStrategy_Ptr pKADR(new KadaptabilityDecisionRule(kMap));
 //
 //    // Construct the robustify engine reformulation strategy
-//    ROCPPRSIF_Ptr pRE (new RobustifyEngine());
+//    ROCPPStrategy_Ptr pRE (new RobustifyEngine());
 //
 //    //Copnstruct the linearization reformulation strategy with big M approach
-//    ROCPPRSIF_Ptr pLinear (new BTR_bigM());
+//    ROCPPStrategy_Ptr pLinear (new BTR_bigM());
 //
 //    // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
-//    vector<ROCPPRSIF_Ptr> strategyVec {pKADR, pRE, pLinear};
+//    vector<ROCPPStrategy_Ptr> strategyVec {pKADR, pRE, pLinear};
 //    ROCPPOptModelIF_Ptr PBModelKADRFinal = pRO->Reformulate(PBModel, strategyVec);
 //
 //    // Construct the solver; in this case, use the gurobi or SCIP solver as a deterministic solver
