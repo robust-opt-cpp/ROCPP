@@ -212,6 +212,12 @@ typedef shared_ptr<BilinearTermReformulatorIF> ROCPPBilinearReform_Ptr;
 class Bilinear_MItoMB_Converter;
 typedef shared_ptr<Bilinear_MItoMB_Converter> ROCPPMItoMB_Ptr;
 
+class UnaryConverter;
+typedef shared_ptr<UnaryConverter> ROCPPUnaryMItoMB_Ptr;
+
+class BinaryConverter;
+typedef shared_ptr<BinaryConverter> ROCPPBinaryMItoMB_Ptr;
+
 class RealVarDiscretizer;
 typedef shared_ptr<RealVarDiscretizer> ROCPPRealVarDiscretizer_Ptr;
 
@@ -234,7 +240,7 @@ typedef shared_ptr<OneToExprVariableConverterIF> ROCPPO2EVarConverterIF_Ptr;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 class DecisionRuleIF;
 typedef DecisionRuleIF ROCPPDRIF;
-typedef shared_ptr<ROCPPDRIF> ROCPPROCPPDRIF_Ptr;
+typedef shared_ptr<ROCPPDRIF> ROCPPDRIF_Ptr;
 
 class ContinuousVarsDRIF;
 typedef shared_ptr<ContinuousVarsDRIF> ROCPPContinuousVarsDR_Ptr;

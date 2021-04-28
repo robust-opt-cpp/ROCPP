@@ -458,7 +458,7 @@ ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::approximate(ROCPPOptModelIF_Ptr p
     auto duration = std::chrono::duration_cast<chrono::seconds>(stop - start);
     
     cout << endl;
-    cout << "Total time to approximate and robustify: " << duration.count() << " seconds" << endl;
+    cout << "Total time to approximate: " << duration.count() << " seconds" << endl;
     cout << "=========================================================================== " << endl;
     cout << endl;
     
