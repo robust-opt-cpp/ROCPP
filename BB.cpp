@@ -28,11 +28,8 @@ int main(int argc, const char * argv[])
     ValueUB[1]=1030.;ValueUB[2]=1585.;ValueUB[3]=971.;ValueUB[4]=971.;ValueUB[5]=1694.;
 
     map<uint, double> obsCost;
-    for (uint i = 1; i <= I; i++)
-    {
-        for (uint t = 1; t <= T; t++){
-            obsCost.insert(make_pair(t, 0.));
-        }
+    for (uint t = 1; t <= T; t++){
+        obsCost.insert(make_pair(t, 0.));
     }
     
     // Create an empty stochastic model with T periods for the BB problem
