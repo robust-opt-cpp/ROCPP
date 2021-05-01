@@ -188,6 +188,10 @@ class UncertainSingleStageOptimizationModel;
 typedef UncertainSingleStageOptimizationModel ROCPPUncSSOptModel;
 typedef shared_ptr<ROCPPUncSSOptModel> ROCPPUncSSOptModel_Ptr;
 
+class UncertainMultiStageOptimizationModel;
+typedef UncertainMultiStageOptimizationModel ROCPPUncMSOptModel;
+typedef shared_ptr<ROCPPUncMSOptModel> ROCPPUncMSOptModel_Ptr;
+
 class Bilinear_MISOCP;
 typedef Bilinear_MISOCP ROCPPBilinMISOCP;
 typedef shared_ptr<ROCPPBilinMISOCP> ROCPPBilinMISOCP_Ptr;

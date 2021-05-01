@@ -803,7 +803,7 @@ private:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-/// Single stage uncertain optimization model
+/// Multi stage uncertain optimization model
 class UncertainMultiStageOptimizationModel : public UncertainOptimizationModel
 {
 public:
