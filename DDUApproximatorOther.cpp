@@ -1497,9 +1497,9 @@ ROCPPMISOCP_Ptr LDRCDRApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
     // convert resulting problem to MISOCP
     ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp3) );
     
-    if(pIn->isDDUOptimizationModel() )
+    if(pIn->isMultiStageOptModelDDID() )
     {
-        ROCPPDDUOptModel_Ptr pIn_DDU( static_pointer_cast<DDUOptimizationModel>(pIn));
+        ROCPPOptModelDDID_Ptr pIn_DDU( static_pointer_cast<MultiStageOptModelDDID>(pIn));
         
         ROCPPLinearDR_Ptr pLDR(static_pointer_cast<LinearDecisionRule>(m_pCVA));
         
@@ -1510,7 +1510,7 @@ ROCPPMISOCP_Ptr LDRCDRApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
         {
             ROCPPVarIF_Ptr odv( pIn_DDU->getVar( tmldr_it->first ) );//Y_{t,i}
             
-            for (DDUOptimizationModel::dduIterator ddu_it = pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
+            for (MultiStageOptModelDDID::dduIterator ddu_it = pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
             {
                 ROCPPVarIF_Ptr mv( pIn_DDU->getMeasVar(ddu_it->first,odv->getTimeStage()-1) );//x_{t-1, j}
                 

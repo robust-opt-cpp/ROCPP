@@ -140,9 +140,9 @@ ROCPPOptModelIF_Ptr LinearDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
         pLDRModel->getExpectation();
 
     
-    if(pIn->isDDUOptimizationModel() )
+    if(pIn->isMultiStageOptModelDDID() )
     {
-        ROCPPDDUOptModel_Ptr pIn_DDU( static_pointer_cast<DDUOptimizationModel>(pIn));
+        ROCPPOptModelDDID_Ptr pIn_DDU( static_pointer_cast<MultiStageOptModelDDID>(pIn));
         
         // ---------------- DECISION-DEPENDENT NON-ANTICIPATIVITY CONSTRAINTS -----------------------------------------------
         
@@ -151,7 +151,7 @@ ROCPPOptModelIF_Ptr LinearDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
         {
             ROCPPVarIF_Ptr odv( pIn_DDU->getVar( tmldr_it->first ) );//Y_{t,i}
             
-            for (DDUOptimizationModel::dduIterator ddu_it = pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
+            for (MultiStageOptModelDDID::dduIterator ddu_it = pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
             {
                 ROCPPVarIF_Ptr mv( pIn_DDU->getMeasVar(ddu_it->first,odv->getTimeStage()-1) );//x_{t-1, j}
                 
@@ -323,7 +323,7 @@ void LinearDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<strin
     uint t;
     string name = unc->getName();
     
-    if(!pIn->isDDUOptimizationModel()){
+    if(!pIn->isMultiStageOptModelDDID()){
         cout << "This is not a decision dependent uncertain model." << endl;
         return;
     }
@@ -523,7 +523,7 @@ void ConstantDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<str
     uint t;
     string name = unc->getName();
     
-    if(!pIn->isDDUOptimizationModel()){
+    if(!pIn->isMultiStageOptModelDDID()){
         cout << "This is not a decision dependent uncertain model." << endl;
         return;
     }

@@ -772,9 +772,9 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
 //    // convert resulting problem to MISOCP
 //    ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp3) );
     
-    if(pIn->isDDUOptimizationModel() )
+    if(pIn->isMultiStageOptModelDDID() )
     {
-        ROCPPDDUOptModel_Ptr pIn_DDU( static_pointer_cast<DDUOptimizationModel>(pIn));
+        ROCPPOptModelDDID_Ptr pIn_DDU( static_pointer_cast<MultiStageOptModelDDID>(pIn));
         
         ROCPPLinearDR_Ptr pLDR(static_pointer_cast<LinearDecisionRule>(m_pCVA));
         
@@ -787,7 +787,7 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
             {
                 ROCPPVarIF_Ptr odv( pIn_DDU->getVar( tmldr_it->first ) );//Y_{t,i}
                 
-                for (DDUOptimizationModel::dduIterator ddu_it = pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
+                for (MultiStageOptModelDDID::dduIterator ddu_it = pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
                 {
                     ROCPPVarIF_Ptr mv( pIn_DDU->getMeasVar(ddu_it->first,odv->getTimeStage()-1) );//original x_{t-1, j}
                     ROCPPVarIF_Ptr mvp( getVarOnPartition(mp_it->first, mv->getName()) );//x_{t-1, j}^p
@@ -821,7 +821,7 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
         // | x_{t,l}^q - x_{t,l}^p | <= x_{t-1,j}^p \forall q \in P_j(p), \forall p: p_j=1, \forall l \neq j, \forall j,p,t
         // | Y_{t,il}^q - Y_{t,il}^p | <= Mx_{t-1,j}^p \forall i \forall q \in P_j(p), \forall p: p_j=1, \forall l \neq j, \forall j,p,t
         
-        for (DDUOptimizationModel::dduIterator ddu_it=pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
+        for (MultiStageOptModelDDID::dduIterator ddu_it=pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
         {
             uint loc(pIn_DDU->getObservableAlphabeticalLocation(ddu_it->second));
 

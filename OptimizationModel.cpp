@@ -1065,34 +1065,6 @@ void UncertainOptimizationModel::add_uncertainties(ROCPPconstuncContainer_Ptr pU
         add_uncertainty(it->second);
 }
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%% Simple Uncertain Optimization Model %%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void SimpleUncertainOptimizationModel::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
-{
-    UncertainOptimizationModel::checkCompatibility(pConstraint);
-    
-    if (pConstraint->hasNonlinearities())
-        throw MyException("SimpleUncertainOptimizationModel should not have bilinear terms");
-
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%% Simple Uncertain Single Stage Optimization Model %%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void SimpleUncertainSingleStageOptimizationModel::checkCompatibility(ROCPPVarIF_Ptr pVariable) const
-{
-    OptimizationModelIF::checkCompatibility(pVariable);
-    
-    if (pVariable->isAdaptive())
-        throw MyException("cannot add adaptive variable to single stage model");
-}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1359,8 +1331,8 @@ void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vect
 //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-DDUOptimizationModel::DDUOptimizationModel(uint numTimeStages, uncOptModelObjType objType) :
-UncertainOptimizationModel(numTimeStages,objType)
+MultiStageOptModelDDID::MultiStageOptModelDDID(uint numTimeStages, uncOptModelObjType objType) :
+UncertainMultiStageOptimizationModel(numTimeStages,objType)
 {
 //    if(objType != robust)
 //    {
@@ -1372,33 +1344,33 @@ UncertainOptimizationModel(numTimeStages,objType)
 //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-DDUOptimizationModel::dduIterator DDUOptimizationModel::dduBegin() const
+MultiStageOptModelDDID::dduIterator MultiStageOptModelDDID::dduBegin() const
 {
     return m_dduContainer->begin();
 }
 
-DDUOptimizationModel::dduIterator DDUOptimizationModel::dduEnd() const
+MultiStageOptModelDDID::dduIterator MultiStageOptModelDDID::dduEnd() const
 {
     return m_dduContainer->end();
 }
 
-DDUOptimizationModel::nondduIterator DDUOptimizationModel::nondduBegin() const
+MultiStageOptModelDDID::nondduIterator MultiStageOptModelDDID::nondduBegin() const
 {
     return m_nondduContainer->begin();
 }
 
 
-DDUOptimizationModel::nondduIterator DDUOptimizationModel::nondduEnd() const
+MultiStageOptModelDDID::nondduIterator MultiStageOptModelDDID::nondduEnd() const
 {
     return m_nondduContainer->end();
 }
 
-DDUOptimizationModel::dduToMeasMapIterator DDUOptimizationModel::dduToMeasMapBegin() const
+MultiStageOptModelDDID::dduToMeasMapIterator MultiStageOptModelDDID::dduToMeasMapBegin() const
 {
     return m_dduToMeasMap.begin();
 }
 
-DDUOptimizationModel::dduToMeasMapIterator DDUOptimizationModel::dduToMeasMapEnd() const
+MultiStageOptModelDDID::dduToMeasMapIterator MultiStageOptModelDDID::dduToMeasMapEnd() const
 {
     return m_dduToMeasMap.end();
 }
@@ -1407,7 +1379,7 @@ DDUOptimizationModel::dduToMeasMapIterator DDUOptimizationModel::dduToMeasMapEnd
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void DDUOptimizationModel::add_ddu(ROCPPUnc_Ptr pUncertainty, uint firstTimeStageObservable, uint lastTimeStageObservable, const map<uint, double> &obsCosts)
+void MultiStageOptModelDDID::add_ddu(ROCPPUnc_Ptr pUncertainty, uint firstTimeStageObservable, uint lastTimeStageObservable, const map<uint, double> &obsCosts)
 {
     
     ROCPPUnc_Ptr newUnc = pUncertainty->Clone();
@@ -1538,7 +1510,7 @@ void DDUOptimizationModel::add_ddu(ROCPPUnc_Ptr pUncertainty, uint firstTimeStag
     }
 }
 
-void DDUOptimizationModel::set_objective(ROCPPObjectiveIF_Ptr pObj)
+void MultiStageOptModelDDID::set_objective(ROCPPObjectiveIF_Ptr pObj)
 {
     OptimizationModelIF::set_objective(pObj);
     
@@ -1558,7 +1530,7 @@ void DDUOptimizationModel::set_objective(ROCPPObjectiveIF_Ptr pObj)
 }
 
 
-void DDUOptimizationModel::pair_uncertainties(ROCPPUnc_Ptr u1, ROCPPUnc_Ptr u2)
+void MultiStageOptModelDDID::pair_uncertainties(ROCPPUnc_Ptr u1, ROCPPUnc_Ptr u2)
 {
     string u1name(u1->getName());
     string u2name(u2->getName());
@@ -1586,12 +1558,12 @@ void DDUOptimizationModel::pair_uncertainties(ROCPPUnc_Ptr u1, ROCPPUnc_Ptr u2)
     }
 }
 
-void DDUOptimizationModel::set_ddu(ROCPPOptModelIF_Ptr pIn)
+void MultiStageOptModelDDID::set_ddu(ROCPPOptModelIF_Ptr pIn)
 {
     set_ddu(pIn->getDDUToMeasMap(), pIn->getdduStagesObs());
 }
 
-void DDUOptimizationModel::set_ddu(const map< pair<string,uint>, measPair> &dduToMeasMap, const map< string, pair<uint,uint> > &dduStagesObs)
+void MultiStageOptModelDDID::set_ddu(const map< pair<string,uint>, measPair> &dduToMeasMap, const map< string, pair<uint,uint> > &dduStagesObs)
 {
     m_dduStagesObs.clear();
     
@@ -1627,7 +1599,7 @@ void DDUOptimizationModel::set_ddu(const map< pair<string,uint>, measPair> &dduT
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-DDUOptimizationModel::dduToMeasMapIterator DDUOptimizationModel::find(string uncName, uint timeStage) const
+MultiStageOptModelDDID::dduToMeasMapIterator MultiStageOptModelDDID::find(string uncName, uint timeStage) const
 {
     dduToMeasMapIterator it = m_dduToMeasMap.find( make_pair(uncName,timeStage) );
     if (it==dduToMeasMapEnd())
@@ -1636,12 +1608,12 @@ DDUOptimizationModel::dduToMeasMapIterator DDUOptimizationModel::find(string unc
     return it;
 }
 
-DDUOptimizationModel::measVarsIterator DDUOptimizationModel::find(string varName) const
+MultiStageOptModelDDID::measVarsIterator MultiStageOptModelDDID::find(string varName) const
 {
     return (m_measVars.find(varName));
 }
 
-bool DDUOptimizationModel::isMeasVar(string varName) const
+bool MultiStageOptModelDDID::isMeasVar(string varName) const
 {
     if (varIsDefined(varName))
     {
@@ -1655,7 +1627,7 @@ bool DDUOptimizationModel::isMeasVar(string varName) const
     return true;
 }
 
-bool DDUOptimizationModel::isDDU(string uncName) const
+bool MultiStageOptModelDDID::isDDU(string uncName) const
 {
     uncContainer::const_iterator ddu_it( m_dduContainer->find( uncName ) );
     
@@ -1665,7 +1637,7 @@ bool DDUOptimizationModel::isDDU(string uncName) const
     return true;
 }
 
-uint DDUOptimizationModel::getFirstStageObservable(string uncName) const
+uint MultiStageOptModelDDID::getFirstStageObservable(string uncName) const
 {
     map<string, pair<uint,uint> >::const_iterator obs_it( m_dduStagesObs.find(uncName) );
     if (obs_it == m_dduStagesObs.end() )
@@ -1674,7 +1646,7 @@ uint DDUOptimizationModel::getFirstStageObservable(string uncName) const
     return (obs_it->second.first);
 }
 
-uint DDUOptimizationModel::getLastStageObservable(string uncName) const
+uint MultiStageOptModelDDID::getLastStageObservable(string uncName) const
 {
     map<string, pair<uint,uint> >::const_iterator obs_it( m_dduStagesObs.find(uncName) );
     if (obs_it == m_dduStagesObs.end() )
@@ -1683,9 +1655,9 @@ uint DDUOptimizationModel::getLastStageObservable(string uncName) const
     return (obs_it->second.second);
 }
 
-size_t DDUOptimizationModel::getNumDDUncertainties() const {return m_dduContainer->getNumUncertainties();}
+size_t MultiStageOptModelDDID::getNumDDUncertainties() const {return m_dduContainer->getNumUncertainties();}
 
-ROCPPVarIF_Ptr DDUOptimizationModel::getMeasVar(string dduncName, uint timeStage) const
+ROCPPVarIF_Ptr MultiStageOptModelDDID::getMeasVar(string dduncName, uint timeStage) const
 {
     dduToMeasMapIterator m_it( find( dduncName,timeStage) );
     
@@ -1695,7 +1667,7 @@ ROCPPVarIF_Ptr DDUOptimizationModel::getMeasVar(string dduncName, uint timeStage
     return (m_it->second.m_measVar);
 }
 
-ROCPPUnc_Ptr DDUOptimizationModel::getAssociatedUncertainty(string measVar) const
+ROCPPUnc_Ptr MultiStageOptModelDDID::getAssociatedUncertainty(string measVar) const
 {
     if (!isMeasVar(measVar))
         throw MyException("this is not a measurement variable");
@@ -1703,7 +1675,7 @@ ROCPPUnc_Ptr DDUOptimizationModel::getAssociatedUncertainty(string measVar) cons
     return ((m_measVars.find(measVar))->second.m_ddu);
 }
 
-void DDUOptimizationModel::add_uncertainty( ROCPPUnc_Ptr pUnc)
+void MultiStageOptModelDDID::add_uncertainty( ROCPPUnc_Ptr pUnc)
 {
     if (pUnc->getTimeStage() > getNumTimeStages())
         throw MyException("time stage of uncertainty should be no more than number of stages in the model");
@@ -1718,7 +1690,7 @@ void DDUOptimizationModel::add_uncertainty( ROCPPUnc_Ptr pUnc)
 //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void DDUOptimizationModel::WriteToFile(string folderName, string fileName) const
+void MultiStageOptModelDDID::WriteToFile(string folderName, string fileName) const
 {
     string filePath = folderName;
     if (folderName!="")
@@ -1851,7 +1823,7 @@ void DDUOptimizationModel::WriteToFile(string folderName, string fileName) const
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPOptModelIF_Ptr DDUOptimizationModel::Clone() const
+ROCPPOptModelIF_Ptr MultiStageOptModelDDID::Clone() const
 {
 //    ROCPPOptModelIF_Ptr pOut;
 //    if (isUncertainOptimizationModel())
@@ -1883,13 +1855,11 @@ ROCPPOptModelIF_Ptr InstanciateModel( problemType type, uint numTimeStages, uncO
     if (type==uncertainType)
         return ROCPPOptModelIF_Ptr( new  UncertainOptimizationModel(numTimeStages,objType) );
     else if (type == dduType)
-        return ROCPPOptModelIF_Ptr( new  DDUOptimizationModel(numTimeStages,objType) );
-    else if (type == simpleuType)
-        return ROCPPOptModelIF_Ptr( new  SimpleUncertainOptimizationModel(numTimeStages,objType) );
+        return ROCPPOptModelIF_Ptr( new  MultiStageOptModelDDID(numTimeStages,objType) );
     else if (type == uncertainssType)
         return ROCPPOptModelIF_Ptr( new  UncertainSingleStageOptimizationModel(objType) );
-    else if (type == suncertainssType)
-        return ROCPPOptModelIF_Ptr( new  SimpleUncertainSingleStageOptimizationModel(objType) );
+    else if (type == uncertainmsType)
+        return ROCPPOptModelIF_Ptr( new  UncertainMultiStageOptimizationModel(objType) );
     if (type==deterministicType)
         return ROCPPOptModelIF_Ptr( new  DeterministicOptimizationModel() );
     else if (type == misocpType)

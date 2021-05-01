@@ -26,12 +26,10 @@ enum problemType{
     uncertainType,
     /// Uncertain problem with decision-dependent information discovery
     dduType,
-    /// Simple uncertain problem
-    simpleuType,
-    /// Simple uncertain single-stage problem
-    suncertainssType,
     /// Uncertain single-stage problem
     uncertainssType,
+    /// Uncertain multi-stage problem
+    uncertainmsType,
     /// MISOCP problem
     misocpType,
     /// Bilinear MISOCP problem
@@ -251,7 +249,7 @@ public:
     virtual bool isUncertainOptimizationModel() const {return false;}
     
     /// Return true if and only if this model is a ddu model
-    virtual bool isDDUOptimizationModel() const {return false;}
+    virtual bool isMultiStageOptModelDDID() const {return false;}
     
     /// Return true if and only if the decision variable exists in this model
     /// @note Call dvContainer::find() for the dvContainer of this model
@@ -615,79 +613,6 @@ protected:
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%% Simple Uncertain Optimization Model %%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-/// Simple uncertain optimization model
-class SimpleUncertainOptimizationModel : public UncertainOptimizationModel
-{
-public:
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// Constructor of SimpleUncertainOptimizationModel
-    SimpleUncertainOptimizationModel(uint numTimeStages = 1, uncOptModelObjType objType = robust) :
-    UncertainOptimizationModel(numTimeStages,objType)
-    {}
-    
-    /// Destructor of SimpleUncertainOptimizationModel
-    ~SimpleUncertainOptimizationModel(){}
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// @warning No bilinear term is allowed in simple uncertain optimization model
-    void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    virtual problemType getType() const {return simpleuType;}
-};
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%% Simple Uncertain Single Stage Optimization Model %%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-/// Simple uncertain single stage optimization model
-class SimpleUncertainSingleStageOptimizationModel : public SimpleUncertainOptimizationModel
-{
-public:
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// Constructor of SimpleUncertainSingleStageOptimizationModel
-    SimpleUncertainSingleStageOptimizationModel(uncOptModelObjType objType = robust) :
-    SimpleUncertainOptimizationModel(1,objType)
-    {}
-    
-    /// Destructor of SimpleUncertainSingleStageOptimizationModel
-    ~SimpleUncertainSingleStageOptimizationModel(){}
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// @warning No adaptive decision variable is allowed in the simple uncertain single stage optimization model
-    void checkCompatibility(ROCPPVarIF_Ptr pVariable) const;
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    virtual problemType getType() const {return suncertainssType;}
-};
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%% Uncertain Single Stage Optimization Model %%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -725,7 +650,7 @@ public:
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%% MISOC Optimization Model %%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%% MISOCP Optimization Model %%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -870,6 +795,47 @@ private:
     string m_baseVarNme;
 };
 
+
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%% Uncertain Multi Stage Optimization Model %%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/// Single stage uncertain optimization model
+class UncertainMultiStageOptimizationModel : public UncertainOptimizationModel
+{
+public:
+    
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    /// Constructor of UncertainSingleStageOptimizationModel
+    UncertainMultiStageOptimizationModel(uint numTimeStages = 1, uncOptModelObjType objType = robust) :
+    UncertainOptimizationModel(numTimeStages,objType)
+    {}
+    
+    /// Destructor of UncertainSingleStageOptimizationModel
+    ~UncertainMultiStageOptimizationModel(){}
+    
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    
+    
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    virtual problemType getType() const {return uncertainmsType;}
+};
+
+
+
+
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%% DDU Optimization Model %%%%%%%%%%%%%%%%%%%%%%%
@@ -877,7 +843,7 @@ private:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /// Optimization model with decision-dependent information discovery
-class DDUOptimizationModel : public UncertainOptimizationModel
+class MultiStageOptModelDDID : public UncertainMultiStageOptimizationModel
 {
 public:
     
@@ -886,10 +852,10 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constructor of DDUOptimizationModel
-    DDUOptimizationModel(uint numTimeStages = 1, uncOptModelObjType objType = robust);
+    MultiStageOptModelDDID(uint numTimeStages = 1, uncOptModelObjType objType = robust);
     
     /// Destructor of DDUOptimizationModel
-    ~DDUOptimizationModel(){}
+    ~MultiStageOptModelDDID(){}
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -970,7 +936,7 @@ public:
     /// Return true if and only if the uncertainty called uncName has a time of revelation that is decision-dependent
     bool isDDU(string uncName) const;
     
-    bool isDDUOptimizationModel() const {return true;}
+    bool isMultiStageOptModelDDID() const {return true;}
     
     /// Return the first time stage when uncertainty called uncName can be observed
     uint getFirstStageObservable(string uncName) const;

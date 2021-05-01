@@ -167,9 +167,9 @@ class OptimizationModelIF;
 typedef OptimizationModelIF ROCPPOptModelIF;
 typedef shared_ptr<ROCPPOptModelIF> ROCPPOptModelIF_Ptr;
 
-class DDUOptimizationModel;
-typedef DDUOptimizationModel ROCPPDDUOptModel;
-typedef shared_ptr<ROCPPDDUOptModel> ROCPPDDUOptModel_Ptr;
+class MultiStageOptModelDDID;
+typedef MultiStageOptModelDDID ROCPPOptModelDDID;
+typedef shared_ptr<ROCPPOptModelDDID> ROCPPOptModelDDID_Ptr;
 
 class DeterministicOptimizationModel;
 typedef DeterministicOptimizationModel ROCPPDetOptModel;
@@ -180,9 +180,9 @@ typedef UncertainOptimizationModel ROCPPUncOptModel;
 typedef shared_ptr<ROCPPUncOptModel> ROCPPUncOptModel_Ptr;
 typedef shared_ptr<const ROCPPUncOptModel> ROCPPconstUncOptModel_Ptr;
 
-class SimpleUncertainOptimizationModel;
-typedef SimpleUncertainOptimizationModel ROCPPSimpleUncOptModel;
-typedef shared_ptr<ROCPPSimpleUncOptModel> ROCPPSimpleUncOptModel_Ptr;
+//class SimpleUncertainOptimizationModel;
+//typedef SimpleUncertainOptimizationModel ROCPPSimpleUncOptModel;
+//typedef shared_ptr<ROCPPSimpleUncOptModel> ROCPPSimpleUncOptModel_Ptr;
 
 class UncertainSingleStageOptimizationModel;
 typedef UncertainSingleStageOptimizationModel ROCPPUncSSOptModel;
