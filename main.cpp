@@ -59,7 +59,7 @@ int main()
 //     Omega = Omega*NomDemand*rho;
 //
 //     // Create an empty robust model with T + 1 periods for the RSFC problem
-//     ROCPPOptModelIF_Ptr RSFCModel(new ROCPPUncOptModel(T+1, robust));
+//     ROCPPOptModelIF_Ptr RSFCModel(new ROCPPUncMSOptModel(T+1, robust));
 //
 //     // Create the Demand map to store the uncertain parameters of the problem
 //     map<uint,ROCPPUnc_Ptr> Demand;
@@ -221,7 +221,7 @@ int main()
 //    }
 //
 //    // Create an empty stochastic model with T periods for the BB problem
-//    ROCPPOptModelIF_Ptr BBModel(new ROCPPDDUOptModel(T, stochastic));
+//    ROCPPOptModelIF_Ptr BBModel(new ROCPPROCPPOptModelDDID(T, stochastic));
 //
 //    map<uint, ROCPPUnc_Ptr> Value, Cost;
 //    for (uint i = 1; i <= I; i++) {
@@ -372,7 +372,7 @@ int main()
 //    }
 //
 //    // Create an empty robust model with T periods for the PB problem
-//    ROCPPOptModelIF_Ptr PBModel(new ROCPPDDUOptModel(T, robust));
+//    ROCPPOptModelIF_Ptr PBModel(new ROCPPOptModelDDID(T, robust));
 //
 //    // Create map for the uncertain parameter of value
 //    map<uint, ROCPPUnc_Ptr> Value;

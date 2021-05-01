@@ -33,7 +33,7 @@ int main(int argc, const char * argv[])
     }
     
     // Create an empty stochastic model with T periods for the BB problem
-    ROCPPOptModelIF_Ptr BBModel(new ROCPPDDUOptModel(T, stochastic));
+    ROCPPOptModelIF_Ptr BBModel(new ROCPPOptModelDDID(T, stochastic));
 
     map<uint, ROCPPUnc_Ptr> Value, Cost;
     for (uint i = 1; i <= I; i++) {

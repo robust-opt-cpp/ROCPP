@@ -55,7 +55,7 @@ int main(int argc, const char * argv[]) {
      Omega = Omega*NomDemand*rho;
 
      // Create an empty robust model with T + 1 periods for the RSFC problem
-     ROCPPOptModelIF_Ptr RSFCModel(new ROCPPUncOptModel(T+1, robust));
+     ROCPPOptModelIF_Ptr RSFCModel(new ROCPPUncMSOptModel(T+1, robust));
 
      // Create the Demand map to store the uncertain parameters of the problem
      map<uint,ROCPPUnc_Ptr> Demand;

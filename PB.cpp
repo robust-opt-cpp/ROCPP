@@ -43,7 +43,7 @@ int main(int argc, const char * argv[])
     }
     
     // Create an empty robust model with T periods for the PB problem
-    ROCPPOptModelIF_Ptr PBModel(new ROCPPDDUOptModel(T, robust));
+    ROCPPOptModelIF_Ptr PBModel(new ROCPPOptModelDDID(T, robust));
     
     // Create map for the uncertain parameter of value
     map<uint, ROCPPUnc_Ptr> Value;
