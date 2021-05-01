@@ -130,8 +130,8 @@ typedef shared_ptr<const ROCPPExpr> ROCPPconstExpr_Ptr;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 class ConstraintIF;
-typedef ConstraintIF ROCPPConstraint;
-typedef shared_ptr<ROCPPConstraint> ROCPPConstraint_Ptr;
+typedef ConstraintIF ROCPPConstraintIF;
+typedef shared_ptr<ROCPPConstraintIF> ROCPPConstraintIF_Ptr;
 
 class ClassicConstraintIF;
 typedef shared_ptr<ClassicConstraintIF> ROCPPClassicConstraint_Ptr;
