@@ -11,26 +11,51 @@ Please visit our [website](https://sites.google.com/usc.edu/robust-opt-cpp/home)
 ROC++ requires at least one of the following MILP solvers:
 * [GUROBI](https://www.gurobi.com/)
 * [SCIP](https://www.scipopt.org/)
-	* Note that to solve nonlinear problems in SCIP, you need to install at least one supported nonlinear solver and compile it with SCIP. The information can be found [here](https://scipopt.org/doc/html/NLPI.php). 
+	* Note that SCIP needs at leaset one LP solver, the supported LP solver interfaces are listed [here](https://www.scipopt.org/doc/html/LPI.php).
+	* If you want to solve a nonlinear MIP porblem, you need to have at least one of [NLP solver](https://www.scipopt.org/doc/html/NLPISOLVERS.php) supported by SCIP.
+	* The compilation instructions of SCIP are [here](https://www.scipopt.org/doc/html/CMAKE.php) using CMake and [here](https://www.scipopt.org/doc/html/MAKE.php) using Makefiles.
 
 ### Compile
-After installation of the solvers, we can build the ROCPP project using CMake by following steps:
+#### ROCPP project
+After installation of the solvers, we can build the `ROCPP` project using CMake by the following steps:
 ```
 mkdir build
 cd build
-cmake -DEXAMPLE=EXAMPLE_NAME .. [-DSOLVER=SOLVER_NAME -DGUROBI_DIR=/path/to/gurobi]
+cmake -DEXAMPLE=EXAMPLE_NAME .. [-DSOLVER=SCIP or -DGUROBI_DIR=/path/to/gurobi]
 make
 ```
 
-CMake will build files in a separated directory. Users need to create this directory, usually called `build` or whatever other names. Then run `cmake -DEXAMPLE=EXAMPLE_NAME .. [-DSOLVER=SOLVER_NAME -DGUROBI_DIR=/path/to/gurobi]` to configure the build. The option `EXAMPLE` indicates the example to run. `SOLVER` set the solver to use. If you choose GUROBI as the solver, you need to specify the path to gurobi to `GUROBI_DIR`. The following table lists detailed information on CMake options.
+CMake will build files in a separated directory. Users need to create this directory, usually called `build` or whatever other names. Then run `cmake -DEXAMPLE=EXAMPLE_NAME -DGUROBI_DIR=/path/to/gurobi ..` or `cmake -DEXAMPLE=EXAMPLE_NAME -DSOLVER=SCIP ..` to configure the build. The option `EXAMPLE` indicates the example to run. `SOLVER` set the solver to use. If you choose GUROBI as the solver, you need to specify the path to gurobi to `GUROBI_DIR`. The following table lists detailed information on CMake options.
 
-Next, run `make` to compile the source code. You can the generated executable can be found in `bin`. In macOS, you need to give the system permission to run the executable.
+Next, run `make` to compile the source code. A generated executable can be found in `bin`. In macOS, you need to give the system permission to run the executable. A library `ROCPP.a` will also be created and put in the folder `lib`.
+
+#### ROPY library
+We use [pybind11](https://pybind11.readthedocs.io/en/stable/index.html) to create Python bindings of the C++ code. 
+
+We add pybind11 as a submodule of this repo. 
+If you clone this repo, an empty `pybind11` directory will be created. Run the following commands to initialize the local configuration files and fetch the data. 
+```
+git submodule init
+git submodule update
+```
+If you directly download the .zip, then there will be an empty pybind11 directory. You need to download it [here](https://github.com/pybind/pybind11) and replace the empty one.
+
+Now we are able to build the `ROPY` library by the following steps. Note that we don't need to create a new build folder if it already existed.
+```
+mkdir build
+cd build
+cmake -DBUILD_PYTHON=ON .. [-DSOLVER=SCIP or -DGUROBI_DIR=/path/to/gurobi]
+make
+```
+
+By setting the option `BUILD_PYTHON` to `ON`, we choose to build a library for python.  A library `ROPY.python-version.so` will be created and put in the folder `lib`. To use the library, we need to put it in the same directory of python files and add a line `from ROPY import *` at the top of the file. See more examples in the `examples_py` folder.
 
 |CMake Options|type    |Avaliable values|Description|
-|:-----------:|:------:|:--------------:|:---------------------------------------------------------------------------------------------------:|
+|:-----------:|:------:|:--------------:|:---------------------------------------------------------------------------------------------------|
 |EXAMPLE      |string|BB, RSFC, PB    |Name of the example to run in the folder `/examples`, can also be the names of users created .cpp files|
-|SOLVER       |string|GUROBI, SCIP    |Name of the solvers that are supported by ROCPP, SCIP by default|
+|SOLVER       |string|GUROBI(default), SCIP    |Name of the solvers that are supported by ROCPP, SCIP by default|
 |GUROBI_DIR   |path  |-               |Path to the folder which contains the Gurobi libraries and include folder|
+|BUILD_PYTHON |bool  |ON, OFF(default)|If `ON`, then a `.so` library for python will be created, else an executable of the specific example will be generated|
   
 ## Documentation
 The documentation of ROCPP generated by Doxygen can be found [here](https://robust-opt-cpp.github.io/ROCPPDocumentation/).
