@@ -15,8 +15,8 @@
 #include "HeaderIncludeFiles.hpp"
 
 
-typedef vector<ROCPPCstrTerm_Ptr >::const_iterator ConstraintLHS_const_iterator;
-typedef vector<ROCPPCstrTerm_Ptr >::iterator ConstraintLHS_iterator;
+typedef vector<ROCPPCstrTermIF_Ptr>::const_iterator ConstraintLHS_const_iterator;
+typedef vector<ROCPPCstrTermIF_Ptr>::iterator ConstraintLHS_iterator;
 
 
 /// Constraint right hand side parameters class
@@ -99,22 +99,22 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     /// Map the decision variables in this constraint to new variables
-    virtual ROCPPConstraint_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const = 0;
+    virtual ROCPPConstraintIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const = 0;
     
     /// Map the uncertain parameters in this constraint to new uncertain parameters
-    virtual ROCPPConstraint_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const = 0;
+    virtual ROCPPConstraintIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const = 0;
     
     /// Replace the given term in this expression with the given decision variable
-    virtual ROCPPConstraint_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const = 0;
+    virtual ROCPPConstraintIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const = 0;
     
     /// Replace the bilinear term in this objecet with the given decision variable
-    virtual ROCPPConstraint_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const = 0;
+    virtual ROCPPConstraintIF_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const = 0;
     
     /// Map the decision variables in this constraint to some expressions
-    virtual ROCPPConstraint_Ptr mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const = 0;
+    virtual ROCPPConstraintIF_Ptr mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const = 0;
     
     /// Map the uncertain parameters in this constraint to some expressions
-    virtual ROCPPConstraint_Ptr mapUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const = 0;
+    virtual ROCPPConstraintIF_Ptr mapUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const = 0;
     
     /// Add the decisions variables involved in a product in this term to the given container dvs
     virtual void add_vars_involved_in_prod(dvContainer &dvs) const = 0;
@@ -141,10 +141,10 @@ public:
     virtual void add_lhs(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(ROCPPconstCstrTerm_Ptr term);
+    virtual void add_lhs(ROCPPconstCstrTermIF_Ptr term);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, ROCPPconstCstrTerm_Ptr term);
+    virtual void add_lhs(double c, ROCPPconstCstrTermIF_Ptr term);
     
     /// @note Only valid in classic constraint
     virtual void add_lhs(ROCPPconstExpr_Ptr pExpression);
@@ -162,10 +162,10 @@ public:
     /// Get the number of times the term given in the multimap appears in this constraint
     /// @param term multimap from the name of the decision variable to the desicion variable used to define this term
     /// @note The same decision variable may appear many times in a term (indicating that we have a product of the same variable)
-    virtual uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const = 0;
+    virtual uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const = 0;
     
     /// Get the all products of two variables in this constraint.
-    virtual void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const = 0;
+    virtual void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const = 0;
     
     /// Get the decision variable container of this constraint
     virtual ROCPPconstdvContainer_Ptr getDVContainer() const = 0;
@@ -255,7 +255,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Return a copy of this constraint
-    virtual ROCPPConstraint_Ptr Clone() const = 0;
+    virtual ROCPPConstraintIF_Ptr Clone() const = 0;
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -365,13 +365,13 @@ public:
     /// Add the given term to the left hand side of this constraint
     /// @note If the term already exists, change the coefficient
     /// @warning One expression can only have one norm term with coefficient equal to 1
-    void add_lhs(ROCPPconstCstrTerm_Ptr term);
+    void add_lhs(ROCPPconstCstrTermIF_Ptr term);
     
     /// Add the product of the given inputs into the left hand side of this constraint
     /// @param c coefficient
     /// @param term term to add to expression after multiplying it by coefficient
-    /// @note Call LHExpression::add(ROCPPconstCstrTerm_Ptr) after multiplying term by c
-    void add_lhs(double c, ROCPPconstCstrTerm_Ptr term);
+    /// @note Call LHExpression::add(ROCPPconstCstrTermIF_Ptr) after multiplying term by c
+    void add_lhs(double c, ROCPPconstCstrTermIF_Ptr term);
     
     /// Add the given expression to the left hand side of this constraint
     /// @param pExpression expression to add to this expression after multiplying it by coefficient c
@@ -395,23 +395,23 @@ public:
     /// @param rhs first element of the pair is the right-hand side parameter, the second one is true if the parameter is 0, false otherwise
     void set_rhs(pair<double,bool> rhs);
     
-    /// @note Call LHExpression::mapVars(const map<string, ROCPPExpr_Ptr >) for the left-hand side expression of this constraint
-    ROCPPConstraint_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const;
+    /// @note Call LHExpression::mapVars(const map<string, ROCPPExpr_Ptr>) for the left-hand side expression of this constraint
+    ROCPPConstraintIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
     
     /// @note Call LHExpression::mapUncs() for the left-hand side expression of this constraint
-    ROCPPConstraint_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const;
+    ROCPPConstraintIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const;
     
     /// @note Call LHExpression::replaceTermWithVar() for the left-hand side expression of this constraint
-    ROCPPConstraint_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
+    ROCPPConstraintIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
     
     /// @note Call LHExpression::replaceBilinearTerm() for the left-hand side expression of this constraint
-    ROCPPConstraint_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const;
+    ROCPPConstraintIF_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const;
     
-    /// @note Call LHExpression::mapVars(const map<string,ROCPPVarIF_Ptr >) for the left-hand side expression of this constraint
-    ROCPPConstraint_Ptr mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const;
+    /// @note Call LHExpression::mapVars(const map<string,ROCPPVarIF_Ptr>) for the left-hand side expression of this constraint
+    ROCPPConstraintIF_Ptr mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
     
     /// @note Call LHExpression::mapUnc() for the left-hand side expression of this constraint
-    ROCPPConstraint_Ptr mapUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const;
+    ROCPPConstraintIF_Ptr mapUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const;
     
     /// @note Call LHExpression::hasProdsContVars() for the left-hand side expression of this constraint
     void add_vars_involved_in_prod(dvContainer &dvs) const;
@@ -424,10 +424,10 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     /// @note Call LHExpression::getNumTimesTermAppears() for the left-hand side expression of this constraint
-    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const;
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const;
     
     /// @note Call LHExpression::getAllProductsOf2Variables() for the left-hand side expression of this constraint
-    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const;
+    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const;
     
     ROCPPconstdvContainer_Ptr getDVContainer() const;
     ROCPPconstuncContainer_Ptr getUncContainer() const;
@@ -481,7 +481,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    ROCPPConstraint_Ptr Clone() const;
+    ROCPPConstraintIF_Ptr Clone() const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -619,21 +619,21 @@ public:
     void add_vars_involved_in_prod(dvContainer &dvs) const {}
     
     /// @warning Should consider modelling it as a classic constaint if the given expression has more than a single variable
-    ROCPPConstraint_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const;
+    ROCPPConstraintIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
     
     /// @note Return a copy of the original constraint because there is no uncertainty in the SOS constraint
-    ROCPPConstraint_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const {return this->Clone();}
+    ROCPPConstraintIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const {return this->Clone();}
     
     /// @note Only replaces the term in the given map if the term is a single variable
-    ROCPPConstraint_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
+    ROCPPConstraintIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
     
     /// @note Returns a copy of the original constraint since there is no uncertain parameters in SOSConstraint
-    ROCPPConstraint_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const;
+    ROCPPConstraintIF_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const;
     
-    ROCPPConstraint_Ptr mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const;
+    ROCPPConstraintIF_Ptr mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
     
     /// @note Returns a copy of the original constraint since there is no uncertain parameters in SOSConstraint
-    ROCPPConstraint_Ptr mapUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const {return this->Clone();}
+    ROCPPConstraintIF_Ptr mapUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const {return this->Clone();}
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -680,10 +680,10 @@ public:
     bool AnyVarIsInvolved(dvContainer& dvs) const;
     
     /// @note Only counts the term in the given map if it is a single variable
-    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const;
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const;
     
     /// @note There are no products of decision variables in SOSConstraints
-    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const {};
+    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const {};
     
     bool hasNormTerm() const {return false;}
     bool isSOSConstraint() const {return true;}
@@ -693,7 +693,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Create a copy of this constraint
-    ROCPPConstraint_Ptr Clone() const;
+    ROCPPConstraintIF_Ptr Clone() const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -735,7 +735,7 @@ public:
     /// IfThenConstraint constructor
     /// @param lhs "If" part
     /// @param rhs "Then" part
-    IfThenConstraint(ROCPPConstraint_Ptr lhs, ROCPPConstraint_Ptr rhs);
+    IfThenConstraint(ROCPPConstraintIF_Ptr lhs, ROCPPConstraintIF_Ptr rhs);
     
     /// IfThenConstraint destructor
     ~IfThenConstraint(){}
@@ -760,23 +760,23 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    /// @note Call ClassicConstraintIF::mapVars(const map<string, ROCPPExpr_Ptr >) for both statements in the if-then constraint
-    ROCPPConstraint_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const;
+    /// @note Call ClassicConstraintIF::mapVars(const map<string, ROCPPExpr_Ptr>) for both statements in the if-then constraint
+    ROCPPConstraintIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
     
     /// @note Call ClassicConstraintIF::mapUncs() for both statements in the if-then constraint
-    ROCPPConstraint_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const;
+    ROCPPConstraintIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const;
     
     /// @note Call ClassicConstraintIF::replaceTermWithVar() for both statements in the if-then constraint
-    ROCPPConstraint_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
+    ROCPPConstraintIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
     
     /// @note Call ClassicConstraintIF::replaceBilinearTerm() for both of two statements in the if-then constraint
-    ROCPPConstraint_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr > &allTerm, uint &count) const;
+    ROCPPConstraintIF_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const;
     
-    /// @note Call ClassicConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr >) for both of two statements in the if-then constraint
-    ROCPPConstraint_Ptr mapVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const;
+    /// @note Call ClassicConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr>) for both of two statements in the if-then constraint
+    ROCPPConstraintIF_Ptr mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
     
     /// @note Call ClassicConstraintIF::mapUnc() for both statements in the if-then constraint
-    ROCPPConstraint_Ptr mapUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const;
+    ROCPPConstraintIF_Ptr mapUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const;
     
     void add_vars_involved_in_prod(dvContainer &dvs) const { m_lhs->add_vars_involved_in_prod(dvs); m_rhs->add_vars_involved_in_prod(dvs); }
     void add_int_vars(dvContainer &dvs) const { m_lhs->add_int_vars(dvs); m_rhs->add_int_vars(dvs); }
@@ -786,18 +786,18 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Returns the "If" part of the constraint
-    ROCPPConstraint_Ptr get_lhs() const {return m_lhs->Clone();}
+    ROCPPConstraintIF_Ptr get_lhs() const {return m_lhs->Clone();}
     
     /// Returns the "Then" part of the constraint
-    ROCPPConstraint_Ptr get_rhs() const {return m_rhs->Clone();}
+    ROCPPConstraintIF_Ptr get_rhs() const {return m_rhs->Clone();}
     
     /// @note Calculate the total number of times the term appears in both statements of the if-then constraint
     /// @note Call ClassicConstraintIF::getNumTimesTermAppears() for both statements in the if-then constraint
-    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const {return (m_lhs->getNumTimesTermAppears(term) + m_rhs->getNumTimesTermAppears(term));}
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const {return (m_lhs->getNumTimesTermAppears(term) + m_rhs->getNumTimesTermAppears(term));}
     
     /// @note Get all products of two variables in both statements in the if-then constraint
     /// @note Call ClassicConstraintIF::getAllProductsOf2Variables() for both statements in the if-then constraint
-    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const
+    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const
     {m_lhs->getAllProductsOf2Variables(freqMap,termMap); m_rhs->getAllProductsOf2Variables(freqMap,termMap);}
     
     
@@ -840,7 +840,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    ROCPPConstraint_Ptr Clone() const;
+    ROCPPConstraintIF_Ptr Clone() const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -855,10 +855,10 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// If part of constraint
-    ROCPPConstraint_Ptr m_lhs;
+    ROCPPConstraintIF_Ptr m_lhs;
     
     /// Else part of constraint
-    ROCPPConstraint_Ptr m_rhs;
+    ROCPPConstraintIF_Ptr m_rhs;
     
     /// Decision variable container of this constraint
     ROCPPdvContainer_Ptr m_pDVContainer;
@@ -867,10 +867,11 @@ private:
     ROCPPuncContainer_Ptr m_pUncContainer;
     
     /// Vector of terms in this constraint
-    vector<ROCPPCstrTerm_Ptr > m_terms;
+    vector<ROCPPCstrTermIF_Ptr> m_terms;
 };
 
-ROCPPConstraint_Ptr createConstraint(ROCPPExpr_Ptr lhs, double rhs, bool isEqual, bool definesUncertaintySet=false, bool isNAC=false);
+bool DoublesAreEssentiallyEqual(double A, double B, double epsilon);
+ROCPPConstraintIF_Ptr createConstraint(ROCPPExpr_Ptr lhs, double rhs, bool isEqual, bool definesUncertaintySet=false, bool isNAC=false);
 
 
 #endif /* Constraint_hpp */

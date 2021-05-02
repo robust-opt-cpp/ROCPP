@@ -13,7 +13,7 @@
 
 
 /// Robustify engine class (automatically dualizes all semi-infinite constraints)
-class RobustifyEngine
+class RobustifyEngine : public ReformulationStrategyIF
 {
 public:
     
@@ -38,7 +38,7 @@ public:
     /// @param pCstr Constraint to be robustified
     /// @param dualVars Store dual variable for each linear expression(outside and in the norm term) in each constraint defining uncertainty set and store it in this vector
     /// @param feasible Indicate whether the given constraint is feasible or not, only set to false when we dualize an infeasible problem
-    void createDualVars(ROCPPBilinMISOCP_Ptr pOut, ROCPPConstraint_Ptr pCstr, vector<vector<ROCPPVarIF_Ptr > >& dualVars, bool feasible = true);
+    void createDualVars(ROCPPBilinMISOCP_Ptr pOut, ROCPPConstraintIF_Ptr pCstr, vector<vector<ROCPPVarIF_Ptr> >& dualVars, bool feasible = true);
     
     /// Robusify the given constraint
     /// @param pConstraint Constraint to be robustified
@@ -46,10 +46,16 @@ public:
     /// @param feasible Indicate whether the given constraint is feasible or not, only set to false when we dualize an infeasible problem
     /// @note First create the dual variables being used for robustifying this constraint, then add the dual constraint into the output model
     /// @see createDualVars
-    void robustifyConstraint(ROCPPConstraint_Ptr pConstraint, ROCPPUncSSOptModel_Ptr const pIn, ROCPPBilinMISOCP_Ptr pOut, bool feasible = true);
+    void robustifyConstraint(ROCPPConstraintIF_Ptr pConstraint, ROCPPUncSSOptModel_Ptr const pIn, ROCPPBilinMISOCP_Ptr pOut, bool feasible = true);
     
     /// Get the number of dual variables
     uint getDualVarsCnt() const {return m_dualVarsCounter;}
+    
+    
+    
+    ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn);//{return ROCPPOptModelIF_Ptr(robustify(ROCPPOptModelIF_Ptr(pIn)));}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const;
+    string getName() const {return "robustification";}
     
 private:
     
@@ -61,9 +67,9 @@ private:
     /// Indicate whether the uncertainty set matriced are calculated or not
     bool m_uncertaintySetMatricesCalculated;
     ///  Map from time-stage to -> dimensions are constraint defining the us, number of linear expressions in that constraint, number of total uncertainties in the model
-    map<uint, vector<vector<vector< pair<bool, ROCPPExpr_Ptr > > > > > m_EMvec; // map from time-stage to -> dimensions are constraint defining the us, row of us constraint matrix, col of us constraint matrix
+    map<uint, vector<vector<vector< pair<bool, ROCPPExpr_Ptr> > > > > m_EMvec; // map from time-stage to -> dimensions are constraint defining the us, row of us constraint matrix, col of us constraint matrix
     /// Map from time-stage -> dimensions are constraint defining the us number, number of linear expressions in that constraint
-    map<uint, vector<vector< ROCPPExpr_Ptr > > > m_EVvec; // map from time-stage dimensions are constraint defining the us number, row of us constraint matrix
+    map<uint, vector<vector< ROCPPExpr_Ptr> > > m_EVvec; // map from time-stage dimensions are constraint defining the us number, row of us constraint matrix
     /// Map from pair( time-stage, constraint num) to bool = true if constraint is equality constraint
     map<pair<uint,uint>, bool> m_isEqCstr; // map from pair( time-stage, constraint num) to bool = true if constraint is equality constraint
 };

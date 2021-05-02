@@ -14,11 +14,13 @@
 #include "Constraint.hpp"
 #include "ObjectiveFunction.hpp"
 #include "OptimizationModel.hpp"
+#include "ReformulationOrchestrator.hpp"
 #include "VariableConverter.hpp"
 #include "OptModelConverters.hpp"
 #include "RobustifyEngine.hpp"
 #include "helpersOpt.hpp"
 #include "DecisionRule.hpp"
+#include "PWDecisionRule.hpp"
 #include "FileRelations.hpp"
 #include "DDUApproximator.hpp"
 #include "DDUApproximatorPW.hpp"
@@ -153,7 +155,7 @@ void PiecewiseApproximator::InitializeMe(ROCPPOptModelIF_Ptr pIn, const map<stri
     m_pBPA = ROCPPUncSetRealVarApprox_Ptr( new UncertaintySetRealVarApproximator(0));
 }
 
-void PiecewiseApproximator::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraint_Ptr >& vecNACs)
+void PiecewiseApproximator::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraintIF_Ptr>& vecNACs)
 {
 
     // iterate through the variables in pMiddle
@@ -172,7 +174,7 @@ void PiecewiseApproximator::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptM
         
         string bla(vit->second->getName());
         
-        pair<bool,ROCPPVarIF_Ptr > tmpdvpair( findOrigVariable(vit->second) );
+        pair<bool,ROCPPVarIF_Ptr> tmpdvpair( findOrigVariable(vit->second) );
         
         
         if (tmpdvpair.first==true)
@@ -223,11 +225,11 @@ void PiecewiseApproximator::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptM
                     // if we want explicit NACs, add them
                     if ( (m_useExplicitNACs) && (basicPartition!=(pit->first)) )
                     {
-                        map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator tmpit (m_VariableMap.find(basicPartition) );
+                        map<string, map<string,ROCPPVarIF_Ptr> >::const_iterator tmpit (m_VariableMap.find(basicPartition) );
                         if (tmpit==m_VariableMap.end())
                             throw MyException("this should not be happening: is the basic partition >= current partition?");
                         
-                        map<string,ROCPPVarIF_Ptr >::const_iterator fit ( tmpit->second.find( vit->second->getName() ) );
+                        map<string,ROCPPVarIF_Ptr>::const_iterator fit ( tmpit->second.find( vit->second->getName() ) );
                         
                         if (fit==tmpit->second.end())
                             throw MyException("unexpected error - variable not found");
@@ -243,11 +245,11 @@ void PiecewiseApproximator::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptM
                 }
                 else
                 {
-                    map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator tmpit (m_VariableMap.find(basicPartition) );
+                    map<string, map<string,ROCPPVarIF_Ptr> >::const_iterator tmpit (m_VariableMap.find(basicPartition) );
                     if (tmpit==m_VariableMap.end())
                         throw MyException("this should not be happening: is the basic partition >= current partition?");
                     
-                    map<string,ROCPPVarIF_Ptr >::const_iterator fit ( tmpit->second.find( vit->second->getName() ) );
+                    map<string,ROCPPVarIF_Ptr>::const_iterator fit ( tmpit->second.find( vit->second->getName() ) );
                     
                     if (fit==tmpit->second.end())
                         throw MyException("unexpected error - variable not found");
@@ -280,16 +282,16 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
     else
     {
         if( ! pIn->hasRectangularUncertaintySet())
-            throw MyException("Stochastice model must have rectanular uncertainty set");
+            throw MyException("Stochastic model must have rectangular uncertainty set");
         
-        vector<ROCPPExpr_Ptr > objs(pIn->getObj()->getObj());
+        vector<ROCPPExpr_Ptr> objs(pIn->getObj()->getObj());
         
-        vector<ROCPPExpr_Ptr >::const_iterator obj(objs.begin());
+        vector<ROCPPExpr_Ptr>::const_iterator obj(objs.begin());
         
         for(; obj != objs.end(); obj++)
         {
             if((*obj)->hasProdsUncertainties())
-                throw MyException("Can not deal with products of uncertainties at this time");
+                throw MyException("Cannot deal with products of uncertainties at this time");
         }
     }
     
@@ -340,28 +342,28 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
     // create translation map for the breakpoint variables (if any)
     // w_i
     ROCPPconstdvContainer_Ptr bpdvs( m_pPartConstructor->getBPDVContainer() );// );ROCPPdvContainer_Ptr( new dvContainer() )
-    map<string,ROCPPExpr_Ptr >  BPDVTranslationMap;
-    vector<ROCPPConstraint_Ptr > BPtoAdd;
+    map<string,ROCPPExpr_Ptr>  BPDVTranslationMap;
+    vector<ROCPPConstraintIF_Ptr> BPtoAdd;
     m_pBPA->createTranslationMap(*bpdvs,BPDVTranslationMap,BPtoAdd);
     
-    for (vector<ROCPPConstraint_Ptr >::const_iterator cit = BPtoAdd.begin(); cit != BPtoAdd.end(); cit++)
+    for (vector<ROCPPConstraintIF_Ptr>::const_iterator cit = BPtoAdd.begin(); cit != BPtoAdd.end(); cit++)
         pOutTmp->add_constraint(*cit);
     
     // create one to one converter using BPDVTranslationMap
-    ROCPPO2EVarConverter_Ptr pO2OBPDVS( ROCPPO2EVarConverter_Ptr( new PredefO2EVariableConverter(BPDVTranslationMap) ) );
+    ROCPPPredefO2EVarConverter_Ptr pO2OBPDVS( ROCPPPredefO2EVarConverter_Ptr( new PredefO2EVariableConverter(BPDVTranslationMap) ) );
     pO2OBPDVS->createInverseMap(*bpdvs);
     
-    vector<ROCPPConstraint_Ptr > vecNACs;
+    vector<ROCPPConstraintIF_Ptr> vecNACs;
     createVariableMap(pInNew,pMiddle,vecNACs);
     
     // robustify model on each partition
     uint dualvarscnt(0);
     uint partitionsCnt(1);
     
-    map<string, ROCPPVarIF_Ptr > inverseVarMapAll;
+    map<string, ROCPPVarIF_Ptr> inverseVarMapAll;
     
     // only for stochastic
-    vector<ROCPPExpr_Ptr > newObj;
+    vector<ROCPPExpr_Ptr> newObj;
     double allArea(1.0);
     map<string, pair<double, double> > allMap;
     
@@ -403,7 +405,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
         
         // map the variables to variables over this partition
         // Y_(ij) -> Y_(ij)^s
-        ROCPPO2OVarConverter_Ptr pO2OVC( new PredefO2OVariableConverter( m_VariableMap[ (*pit).first ] ) );
+        ROCPPPredefO2OVarConverter_Ptr pO2OVC( new PredefO2OVariableConverter( m_VariableMap[ (*pit).first ] ) );
         ROCPPOptModelIF_Ptr pTmp2( pO2OVC->convertVar(pTmp,true) );
         
         inverseVarMapAll.insert(pO2OVC->beginInv(), pO2OVC->endInv() );
@@ -417,7 +419,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
         if (pIn->getObjType() == stochastic)
         {
             ROCPPObjectiveIF_Ptr oldObj(pTmp4->getObj());
-            pair<double, map<string, ROCPPExpr_Ptr > > meanAndProb(calculateMeanAndProb(pTmp4, pit->first, allMap, allArea));
+            pair<double, map<string, ROCPPExpr_Ptr> > meanAndProb(calculateMeanAndProb(pTmp4, pit->first, allMap, allArea));
             getStochasticObj(meanAndProb, oldObj, newObj);
         }
         
@@ -462,9 +464,9 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
     // convert resulting problem to MISOCP
     ROCPPMISOCP_Ptr pOut( convertToMISOCP(pOutTmp3) );
     
-    if(pIn->isDDUOptimizationModel() )
+    if(pIn->isMultiStageOptModelDDID() )
     {
-        ROCPPDDUOptModel_Ptr pIn_DDU( static_pointer_cast<DDUOptimizationModel>(pIn));
+        ROCPPOptModelDDID_Ptr pIn_DDU( static_pointer_cast<MultiStageOptModelDDID>(pIn));
         
         ROCPPLinearDR_Ptr pLDR(static_pointer_cast<LinearDecisionRule>(m_pCVA));
         
@@ -477,7 +479,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
             {
                 ROCPPVarIF_Ptr odv( pIn_DDU->getVar( tmldr_it->first ) );//Y_{t,i}
                 
-                for (DDUOptimizationModel::dduIterator ddu_it = pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
+                for (MultiStageOptModelDDID::dduIterator ddu_it = pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
                 {
                     ROCPPVarIF_Ptr mv( pIn_DDU->getMeasVar(ddu_it->first,odv->getTimeStage()-1) );//original x_{t-1, j}
                     ROCPPVarIF_Ptr mvp( getVarOnPartition(mp_it->first, mv->getName()) );//x_{t-1, j}^p
@@ -486,13 +488,13 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
                     ROCPPVarIF_Ptr ldrCoeffp( getVarOnPartition(mp_it->first, ldrCoeff->getName()) );//Y_{t, ij}^p
                     
                     // add non-anticipativity constraints
-                    ROCPPConstraint_Ptr pConstraint1( new IneqConstraint(false,true) );
+                    ROCPPConstraintIF_Ptr pConstraint1( new IneqConstraint(false,true) );
                     pConstraint1->add_lhs(1.,ldrCoeffp);
                     pConstraint1->add_lhs(-1.*m_bigM,mvp);
                     pConstraint1->set_rhs(make_pair(0.,true));
                     pOut->add_constraint(pConstraint1);
                     
-                    ROCPPConstraint_Ptr pConstraint2( new IneqConstraint(false,true) );
+                    ROCPPConstraintIF_Ptr pConstraint2( new IneqConstraint(false,true) );
                     pConstraint2->add_lhs(-1.,ldrCoeffp);
                     pConstraint2->add_lhs(-1.*m_bigM,mvp);
                     pConstraint2->set_rhs(make_pair(0.,true));
@@ -511,7 +513,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
         // | x_{t,l}^q - x_{t,l}^p | <= x_{t-1,j}^p \forall q \in P_j(p), \forall p: p_j=1, \forall l \neq j, \forall j,p,t
         // | Y_{t,il}^q - Y_{t,il}^p | <= Mx_{t-1,j}^p \forall i \forall q \in P_j(p), \forall p: p_j=1, \forall l \neq j, \forall j,p,t
         
-        for (DDUOptimizationModel::dduIterator ddu_it=pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
+        for (MultiStageOptModelDDID::dduIterator ddu_it=pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
         {
             uint loc(pIn_DDU->getObservableAlphabeticalLocation(ddu_it->second));
 
@@ -558,14 +560,14 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
                                             ROCPPVarIF_Ptr ldrCoeffp2( getVarOnPartition(mpi_it->first, ldrCoeff->getName()) );
                                             
                                             // for each coefficient, add NACs
-                                            ROCPPConstraint_Ptr pConstraint1( new IneqConstraint(false,true) );
+                                            ROCPPConstraintIF_Ptr pConstraint1( new IneqConstraint(false,true) );
                                             pConstraint1->add_lhs(1.,ldrCoeffp1);
                                             pConstraint1->add_lhs(-1.,ldrCoeffp2);
                                             pConstraint1->add_lhs(-1.*m_bigM,mvp);
                                             pConstraint1->set_rhs(make_pair(0.,true));
                                             pOut->add_constraint(pConstraint1);
                                             
-                                            ROCPPConstraint_Ptr pConstraint2( new IneqConstraint(false,true) );
+                                            ROCPPConstraintIF_Ptr pConstraint2( new IneqConstraint(false,true) );
                                             pConstraint2->add_lhs(1.,ldrCoeffp2);
                                             pConstraint2->add_lhs(-1.,ldrCoeffp1);
                                             pConstraint2->add_lhs(-1.*m_bigM,mvp);
@@ -587,7 +589,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
                                         ROCPPVarIF_Ptr cdrCoeffp1( getVarOnPartition(mp_it->first, cdrCoeff->getName()) );
                                         ROCPPVarIF_Ptr cdrCoeffp2( getVarOnPartition(mpi_it->first, cdrCoeff->getName()) );
                                         
-                                        ROCPPConstraint_Ptr pConstraint1( new IneqConstraint(false,true) );
+                                        ROCPPConstraintIF_Ptr pConstraint1( new IneqConstraint(false,true) );
                                         pConstraint1->add_lhs(1.,cdrCoeffp1);
                                         pConstraint1->add_lhs(-1.,cdrCoeffp2);
                                         if (odv->getType()==intDV)
@@ -597,7 +599,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
                                         pConstraint1->set_rhs(make_pair(0.,true));
                                         pOut->add_constraint(pConstraint1);
                                         
-                                        ROCPPConstraint_Ptr pConstraint2( new IneqConstraint(false,true) );
+                                        ROCPPConstraintIF_Ptr pConstraint2( new IneqConstraint(false,true) );
                                         pConstraint2->add_lhs(1.,cdrCoeffp2);
                                         pConstraint2->add_lhs(-1.,cdrCoeffp1);
                                         if (odv->getType()==intDV)
@@ -637,9 +639,9 @@ ROCPPOptModelIF_Ptr PiecewiseApproximator::fixBinaryVariableValues(ROCPPOptModel
     throw MyException("Not implement yet.");
 }
 
-pair<double, map<string, ROCPPExpr_Ptr > > PiecewiseApproximator::calculateMeanAndProb(const ROCPPOptModelIF_Ptr pModel, string partition, const map<string,pair<double,double> > &allMap, double allArea)
+pair<double, map<string, ROCPPExpr_Ptr> > PiecewiseApproximator::calculateMeanAndProb(const ROCPPOptModelIF_Ptr pModel, string partition, const map<string,pair<double,double> > &allMap, double allArea)
 {
-    map<string, ROCPPExpr_Ptr > mapFromUncToMean;
+    map<string, ROCPPExpr_Ptr> mapFromUncToMean;
     double prob(1.0);
     
     map<string,pair<double,double> >::const_iterator u_it = allMap.begin();
@@ -692,10 +694,10 @@ pair<double, map<string, ROCPPExpr_Ptr > > PiecewiseApproximator::calculateMeanA
     return make_pair(prob, mapFromUncToMean);
 }
 
-void PiecewiseApproximator::getStochasticObj(const pair<double, map<string, ROCPPExpr_Ptr > > meanAndProb, const ROCPPObjectiveIF_Ptr oldObj, vector<ROCPPExpr_Ptr > &newObj)
+void PiecewiseApproximator::getStochasticObj(const pair<double, map<string, ROCPPExpr_Ptr> > meanAndProb, const ROCPPObjectiveIF_Ptr oldObj, vector<ROCPPExpr_Ptr> &newObj)
 {
     double probability(meanAndProb.first);
-    map<string, ROCPPExpr_Ptr > mapFromUncToMean(meanAndProb.second);
+    map<string, ROCPPExpr_Ptr> mapFromUncToMean(meanAndProb.second);
     
     bool firstPartition(newObj.size() == 0);
     
@@ -714,12 +716,12 @@ void PiecewiseApproximator::getStochasticObj(const pair<double, map<string, ROCP
             newObjExpr->add(probability, oldObjExpr->mapUncs(mapFromUncToMean));
             newObj.push_back(newObjExpr);
         }
-        else{
+        else {
             ROCPPExpr_Ptr oldObjExpr;
             oldObjExpr = oldObj->getObj(numObj);
             
             ROCPPExpr_Ptr partObj(oldObjExpr->mapUncs(mapFromUncToMean));
-            map<string,ROCPPVarIF_Ptr > mapVar;
+            map<string,ROCPPVarIF_Ptr> mapVar;
             
             dvMapType::const_iterator v_it(partObj->varsBegin());
             for ( ; v_it != partObj->varsEnd(); v_it++)
@@ -748,7 +750,7 @@ string PiecewiseApproximator::getSolutionApproachParameters(string delimiter) co
     return out;
 }
 
-pair<bool,ROCPPVarIF_Ptr > PiecewiseApproximator::findOrigVariable(ROCPPVarIF_Ptr newdv) const
+pair<bool,ROCPPVarIF_Ptr> PiecewiseApproximator::findOrigVariable(ROCPPVarIF_Ptr newdv) const
 {
     // 1. try to find it in the reverse map of ldr
     ROCPPVarIF_Ptr dv;
@@ -778,11 +780,11 @@ pair<bool,ROCPPVarIF_Ptr > PiecewiseApproximator::findOrigVariable(ROCPPVarIF_Pt
 ROCPPVarIF_Ptr PiecewiseApproximator::getVarOnPartition(string partition, string origVarName) const
 {
     
-    map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator it (m_VariableMap.find(partition));
+    map<string, map<string,ROCPPVarIF_Ptr> >::const_iterator it (m_VariableMap.find(partition));
     if (it==m_VariableMap.end())
         throw MyException("subset of partition " + partition + " not found in map");
     
-    map<string,ROCPPVarIF_Ptr >::const_iterator subit(it->second.find(origVarName));
+    map<string,ROCPPVarIF_Ptr>::const_iterator subit(it->second.find(origVarName));
     
     if (subit==it->second.end())
         throw MyException("decision variable " + origVarName + " not found on subset " + partition + " of partition");
@@ -796,7 +798,7 @@ void PiecewiseApproximator::getWsSolutions(ROCPPOptModelIF_Ptr pIn, const map<st
     if ( (m_pPartConstructor->getNumSubsets()!=1) && (pIn->getNumBoolVars()) )
     {
         
-        for (map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator p_it = m_VariableMap.begin(); p_it != m_VariableMap.end(); p_it++)
+        for (map<string, map<string,ROCPPVarIF_Ptr> >::const_iterator p_it = m_VariableMap.begin(); p_it != m_VariableMap.end(); p_it++)
         {
             
             uint cnt(0);
@@ -829,17 +831,17 @@ void PiecewiseApproximator::getWsSolutions(ROCPPOptModelIF_Ptr pIn, const map<st
             }
             
             
-            for (map<string,ROCPPVarIF_Ptr >::const_iterator v_it = p_it->second.begin(); v_it != p_it->second.end(); v_it++)
+            for (map<string,ROCPPVarIF_Ptr>::const_iterator v_it = p_it->second.begin(); v_it != p_it->second.end(); v_it++)
             {
                 // find the mappedPartition in m_variableMap
-                map< string , map<string, ROCPPVarIF_Ptr > >::const_iterator mapped_it = m_VariableMap.find( mappedPartition );
+                map< string , map<string, ROCPPVarIF_Ptr> >::const_iterator mapped_it = m_VariableMap.find( mappedPartition );
                 
                 if (mapped_it==m_VariableMap.end())
                     throw MyException("mappedPartition not found");
                 
                 // find the name of the variable in mapped partition
                 
-                map<string, ROCPPVarIF_Ptr >::const_iterator mv_it ( mapped_it->second.find(v_it->first) );
+                map<string, ROCPPVarIF_Ptr>::const_iterator mv_it ( mapped_it->second.find(v_it->first) );
                 
                 if (mv_it == mapped_it->second.end())
                     throw MyException("variable not found in submap of m_VariableMap");
@@ -861,10 +863,10 @@ void PiecewiseApproximator::getWsSolutions(ROCPPOptModelIF_Ptr pIn, const map<st
 
 void PiecewiseApproximator::calculateSolution(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv, string partition)
 {
-    map<string, ROCPPVarIF_Ptr > variableOnPartition = m_VariableMap.find(partition)->second;
+    map<string, ROCPPVarIF_Ptr> variableOnPartition = m_VariableMap.find(partition)->second;
     
     map<string, double> variableValue;
-    map<string, ROCPPVarIF_Ptr >::const_iterator variable = variableOnPartition.begin();
+    map<string, ROCPPVarIF_Ptr>::const_iterator variable = variableOnPartition.begin();
     map<string, double>::const_iterator result;
     
     for(; variable != variableOnPartition.end(); variable++)
@@ -891,10 +893,10 @@ void PiecewiseApproximator::calculateSolution(ROCPPOptModelIF_Ptr pIn, const map
 
 void PiecewiseApproximator::calculateSolution(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc, string partition)
 {
-    map<string, ROCPPVarIF_Ptr > variableOnPartition = m_VariableMap.find(partition)->second;
+    map<string, ROCPPVarIF_Ptr> variableOnPartition = m_VariableMap.find(partition)->second;
     
     map<string, double> variableValue;
-    map<string, ROCPPVarIF_Ptr >::const_iterator variable = variableOnPartition.begin();
+    map<string, ROCPPVarIF_Ptr>::const_iterator variable = variableOnPartition.begin();
     map<string, double>::const_iterator result;
     
     for(; variable != variableOnPartition.end(); variable++)
@@ -961,7 +963,7 @@ void PiecewiseApproximator::printOut(const ROCPPOptModelIF_Ptr pIn, const map<st
 
 void PiecewiseApproximator::printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv)
 {
-    map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator partitionIn;
+    map<string, map<string,ROCPPVarIF_Ptr> >::const_iterator partitionIn;
     for(partitionIn = m_VariableMap.begin(); partitionIn != m_VariableMap.end(); partitionIn++)
     {
         calculateSolution(pIn, resultIn, dv, partitionIn->first);
@@ -983,7 +985,7 @@ void PiecewiseApproximator::printOut(const ROCPPOptModelIF_Ptr pIn, const map<st
 
 void PiecewiseApproximator::printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc)
 {
-    map<string, map<string,ROCPPVarIF_Ptr > >::const_iterator partitionIn;
+    map<string, map<string,ROCPPVarIF_Ptr> >::const_iterator partitionIn;
     for(partitionIn = m_VariableMap.begin(); partitionIn != m_VariableMap.end(); partitionIn++)
     {
         calculateSolution(pIn, resultIn, unc, partitionIn->first);

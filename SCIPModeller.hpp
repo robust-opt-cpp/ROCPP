@@ -1,6 +1,6 @@
 //
 //  SCIPModeller.hpp
-//  ROCPP
+//  RobustOptimizationPlatform
 //
 // This software is Copyright © 2020 Phebe Vayanos. All Rights Reserved.
 // Software created by Phebe Vayanos, Qing Jin, and George Elissaios
@@ -99,7 +99,7 @@ private:
     SCIP_RETCODE solveSCIPModel(ROCPPCPLEXMISOCP_Ptr pModelIn, bool writeSlnToConsle, const map<string, double>& WSvars, const map<string,int>& priorities);
     SCIP_RETCODE createSCIPmodel(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip);
     SCIP_RETCODE addSCIPdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, SCIP* scip);
-    SCIP_RETCODE addConstraint(SCIP* scip, ROCPPConstraint_Ptr pCstrIn, uint num);
+    SCIP_RETCODE addConstraint(SCIP* scip, ROCPPConstraintIF_Ptr pCstrIn, uint num);
 };
 
 #endif /* SCIPModeller_hpp */

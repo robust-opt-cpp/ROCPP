@@ -1,3 +1,11 @@
+//
+//  PB.cpp
+//  RobustOptimizationPlatform
+//
+// This software is Copyright © 2020 Phebe Vayanos. All Rights Reserved.
+// Software created by Phebe Vayanos, Qing Jin, and George Elissaios
+//
+
 #include "ROCPP.h"
 #include <vector>
 #include <map>
@@ -5,7 +13,7 @@
 #include <iomanip>
 
 
-int main(int argc, const char * argv[]) 
+int main(int argc, const char * argv[])
 {
     
     double theta(1.);
@@ -21,7 +29,7 @@ int main(int argc, const char * argv[])
     
     map<uint, map<uint, double> > RiskCoeff;
     RiskCoeff[1][1]=0.17; RiskCoeff[1][2]= -0.7; RiskCoeff[1][3]= -0.13; RiskCoeff[1][4]= -0.6;
-	RiskCoeff[2][1]=0.39; RiskCoeff[2][2]=0.88; RiskCoeff[2][3]=0.74; RiskCoeff[2][4]=0.78;
+    RiskCoeff[2][1]=0.39; RiskCoeff[2][2]=0.88; RiskCoeff[2][3]=0.74; RiskCoeff[2][4]=0.78;
     RiskCoeff[3][1]=0.17; RiskCoeff[3][2]= -0.6; RiskCoeff[3][3]= -0.17; RiskCoeff[3][4]= -0.84;
     RiskCoeff[4][1]=0.09; RiskCoeff[4][2]= -0.07; RiskCoeff[4][3]= -0.52; RiskCoeff[4][4]=0.88;
     RiskCoeff[5][1]=0.78; RiskCoeff[5][2]=0.94; RiskCoeff[5][3]=0.43; RiskCoeff[5][4]= -0.58;
@@ -35,7 +43,7 @@ int main(int argc, const char * argv[])
     }
     
     // Create an empty robust model with T periods for the PB problem
-    ROCPPOptModelIF_Ptr PBModel(new ROCPPDDUOptModel(T, robust));
+    ROCPPOptModelIF_Ptr PBModel(new ROCPPOptModelDDID(T, robust));
     
     // Create map for the uncertain parameter of value
     map<uint, ROCPPUnc_Ptr> Value;
@@ -110,32 +118,44 @@ int main(int argc, const char * argv[])
     // Set objective (multiply by -1 for maximization)
     PBModel->set_objective(-1.0*PBObj);
 
-    uint K=2;
-        
-    // Construct the finite adaptability approximator with K candidate policies
-    ROCPPApproximator_Ptr pKAdaptaApprox(new ROCPPKadaptApprox(PBModel,K));
-    // Approximate the adaptive decisions using K-adaptability approximator and robustify
-    ROCPPMISOCP_Ptr PBModelKAdapt(pKAdaptaApprox->approximate(PBModel));
+    // Construct the reformulation orchestrator
+    ROCPPOrchestrator_Ptr pRO(new ReformulationOrchestrator());
+    
+    // Construct the finite adaptability reformulation strategy with 2 candidate policies in the each time stage
+    map<uint, uint> kMap = {{2, 2}, {3, 2}, {4, 2}};
+    ROCPPStrategy_Ptr pKADR(new KadaptabilityDecisionRule(kMap));
+    
+    // Construct the robustify engine reformulation strategy
+    ROCPPStrategy_Ptr pRE (new RobustifyEngine());
+    
+    //Copnstruct the linearization reformulation strategy with big M approach
+    ROCPPStrategy_Ptr pLinear (new BTR_bigM());
+    
+    // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
+    vector<ROCPPStrategy_Ptr> strategyVec {pKADR, pRE, pLinear};
+    ROCPPOptModelIF_Ptr PBModelKADRFinal = pRO->Reformulate(PBModel, strategyVec);
+    
     // Construct the solver; in this case, use the gurobi or SCIP solver as a deterministic solver
     SolverParams sparams = SolverParams();
 #ifdef USE_GUROBI
-    ROCPPSolver_Ptr pSolver(new GurobiModeller(sparams, false) );
+    ROCPPSolverInterface_Ptr pSolver(new GurobiModeller(sparams, false) );
 #elif defined(USE_SCIP)
-    ROCPPSolver_Ptr pSolver(new SCIPModeller(sparams, false) );
+    ROCPPSolverInterface_Ptr pSolver(new SCIPModeller(sparams, false) );
 #else
     throw MyException("Can not find your solver.");
 #endif
     // Solve the problem
-    pSolver->solve(PBModelKAdapt);
+    pSolver->solve(PBModelKADRFinal);
     
     // Retrieve the optimal solution from the solver
     map<string,double> optimalSln(pSolver->getSolution());
 
     // Print the optimal decision (from the original model)
-    // Prints decision rules for variable Keep_4_2 from the original problem automatically
-    pKAdaptaApprox->printOut(PBModelKAdapt, optimalSln, Keep[2][4]);
+    // Print decision rules for variable Keep_3_2 from the original problem automatically
+    ROCPPKAdapt_Ptr pKADRApprox = static_pointer_cast<KadaptabilityDecisionRule>(pKADR);
+    pKADRApprox->printOut(PBModel, optimalSln, Keep[3][2]);
     // Prints the observation decision for uncertainty Value_4 from the original problem automatically
-    pKAdaptaApprox->printOut(PBModel, optimalSln, Value[4]);
+    pKADRApprox->printOut(PBModel, optimalSln, Value[2]);
 
     return 0;
 }

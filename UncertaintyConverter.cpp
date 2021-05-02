@@ -26,14 +26,14 @@
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPOptModelIF_Ptr UncertaintyConverterIF::uncToVar(ROCPPOptModelIF_Ptr pIn, bool resetAndSave)
+ROCPPOptModelIF_Ptr UncertaintyConverterIF::convert(ROCPPOptModelIF_Ptr pIn, bool resetAndSave)
 {
     ROCPPOptModelIF_Ptr pOut = InstanciateModel(pIn->getType(),pIn->getNumTimeStages(),pIn->getObjType());
     
     uncContainer tmpContainer;
     findUncsToTranslate(pIn, tmpContainer);
     
-    map<string,ROCPPExpr_Ptr > translationMap;
+    map<string,ROCPPExpr_Ptr> translationMap;
     
     createTranslationMap(pIn,pOut,tmpContainer,translationMap);
     
@@ -62,10 +62,10 @@ ROCPPOptModelIF_Ptr UncertaintyConverterIF::uncToVar(ROCPPOptModelIF_Ptr pIn, bo
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-UncToVariableConverter::UncToVariableConverter(const map<string,ROCPPVarIF_Ptr >  &translationMap)
+UncToVariableConverter::UncToVariableConverter(const map<string,ROCPPVarIF_Ptr>  &translationMap)
 {
     // must convert decision variable to expression
-    for (map<string,ROCPPVarIF_Ptr >::const_iterator it = translationMap.begin(); it != translationMap.end(); it++)
+    for (map<string,ROCPPVarIF_Ptr>::const_iterator it = translationMap.begin(); it != translationMap.end(); it++)
     {
         ROCPPExpr_Ptr expr ( new LHSExpression() );
         (*expr) += it->second;
@@ -74,7 +74,7 @@ UncToVariableConverter::UncToVariableConverter(const map<string,ROCPPVarIF_Ptr >
     }
 }
 
-ROCPPConstraint_Ptr UncToVariableConverter::uncToVar(ROCPPConstraint_Ptr pCstr) const
+ROCPPConstraintIF_Ptr UncToVariableConverter::convert(ROCPPConstraintIF_Ptr pCstr) const
 {
     return pCstr->mapUncs( m_translationMap );
 }
@@ -87,11 +87,57 @@ void UncToVariableConverter::findUncsToTranslate(ROCPPOptModelIF_Ptr pIn, uncCon
     ROCPPUncOptModel_Ptr pInUnc = static_pointer_cast<UncertainOptimizationModel>(pIn);
     
     
-    for (map<string, ROCPPExpr_Ptr >::const_iterator it = m_translationMap.begin(); it != m_translationMap.end(); it++)
+    for (map<string, ROCPPExpr_Ptr>::const_iterator it = m_translationMap.begin(); it != m_translationMap.end(); it++)
         container += pInUnc->getUnc( it->first );
 }
 
-void UncToVariableConverter::createTranslationMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pOut, const uncContainer &tmpContainer, map<string,ROCPPExpr_Ptr > &translationMap) const
+void UncToVariableConverter::createTranslationMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pOut, const uncContainer &tmpContainer, map<string,ROCPPExpr_Ptr> &translationMap) const
+{
+    translationMap = m_translationMap;
+}
+
+
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%% UNCERTAINTY TO UNCERSTAINTY CONVERTER %%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+UncToUncConverter::UncToUncConverter(const map<string,ROCPPUnc_Ptr>  &translationMap)
+{
+    // must convert decision variable to expression
+    for (map<string,ROCPPUnc_Ptr>::const_iterator it = translationMap.begin(); it != translationMap.end(); it++)
+    {
+        ROCPPExpr_Ptr expr ( new LHSExpression() );
+        (*expr) += it->second;
+        
+        m_translationMap[it->first] = expr;
+    }
+}
+
+ROCPPConstraintIF_Ptr UncToUncConverter::convert(ROCPPConstraintIF_Ptr pCstr) const
+{
+    return pCstr->mapUncs( m_translationMap );
+}
+
+void UncToUncConverter::findUncsToTranslate(ROCPPOptModelIF_Ptr pIn, uncContainer &container)
+{
+    if (!pIn->isUncertainOptimizationModel())
+        throw MyException("would not work");
+    
+    ROCPPUncOptModel_Ptr pInUnc = static_pointer_cast<UncertainOptimizationModel>(pIn);
+    
+    
+    for (map<string, ROCPPExpr_Ptr>::const_iterator it = m_translationMap.begin(); it != m_translationMap.end(); it++)
+        container += pInUnc->getUnc( it->first );
+}
+
+void UncToUncConverter::createTranslationMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pOut, const uncContainer &tmpContainer, map<string,ROCPPExpr_Ptr> &translationMap) const
 {
     translationMap = m_translationMap;
 }

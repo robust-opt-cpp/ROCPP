@@ -67,7 +67,7 @@ public:
     virtual uncsIterator uncEnd() const = 0;
     
     /// Constant iterator to a collection of LHSExpressions defining the objective function
-    typedef vector<ROCPPExpr_Ptr >::const_iterator obj_fun_iterator;
+    typedef vector<ROCPPExpr_Ptr>::const_iterator obj_fun_iterator;
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
@@ -88,21 +88,21 @@ public:
     virtual void add_to_obj(ROCPPVarIF_Ptr pVar, double cost) = 0;
     
     /// Map the decision variables in this objective function to new variables
-    virtual ROCPPObjectiveIF_Ptr mapObjVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const = 0;
+    virtual ROCPPObjectiveIF_Ptr mapObjVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const = 0;
     
     /// Map the uncertain parameters in this objective function to new uncertain parameters
-    virtual ROCPPObjectiveIF_Ptr mapObjUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const = 0;
+    virtual ROCPPObjectiveIF_Ptr mapObjUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const = 0;
     
     /// Map the decision variables in this objective function to an expression
-    virtual ROCPPObjectiveIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const = 0;
+    virtual ROCPPObjectiveIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const = 0;
     
     /// Map the uncertain parameters in this objective function to an expression
-    virtual ROCPPObjectiveIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const = 0;
+    virtual ROCPPObjectiveIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const = 0;
     
     /// Convert the objective function to constraints using an epigraph reformulation
     /// @param epigraphVar epigraph variable used to write the problem in epigraph form
     /// @param epigraphConstraints will contain all the constraints used to write the objective function in epigraph form
-    virtual void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraint_Ptr > &epigraphConstraints) const = 0;
+    virtual void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraintIF_Ptr> &epigraphConstraints) const = 0;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -122,7 +122,7 @@ public:
     virtual size_t getNumTermsMaxObjective() const = 0;
     
     /// Get the vector of all objective functions
-    virtual vector<ROCPPExpr_Ptr > getObj() const = 0;
+    virtual vector<ROCPPExpr_Ptr> getObj() const = 0;
     
     /// Get the i th objective function expression
     /// @param i Number of the objective function
@@ -131,13 +131,13 @@ public:
     /// Get the number of times the term given in the multimap appears in this objective function
     /// @param term multimap from the name of the decision variable to the desicion variable used to define this term
     /// @note The same decision variable may appear many times in a term (indicating that we have a product of the same variable)
-    virtual uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const = 0;
+    virtual uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const = 0;
     
     /// Replace in this objective function the term given with the decision variable provided
     /// @param term map including the decision variables in the term to be replaced
     /// @param var variable used to replace the term
     /// @note Only replace the nonlinear term with variable
-    virtual ROCPPObjectiveIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const = 0;
+    virtual ROCPPObjectiveIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const = 0;
     
     /// Return true if this objective function is linear
     virtual bool isSimpleObjective() const {return false;}
@@ -242,27 +242,29 @@ public:
     /// @note Call LHExpression::add_int_vars() on the expression used to define the objective function
     void add_int_vars(dvContainer &dvs) const;
     
-    ROCPPObjectiveIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
+    ROCPPObjectiveIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
     
     /// @note Call LHExpression::mapExprVars() on the expression defining the objective function
-    ROCPPObjectiveIF_Ptr mapObjVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const;
+    ROCPPObjectiveIF_Ptr mapObjVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
     
     /// @note Call LHExpression::mapExprUnc() on the expression defining the objective function
-    ROCPPObjectiveIF_Ptr mapObjUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const;
+    ROCPPObjectiveIF_Ptr mapObjUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const;
     
     /// @note Call LHExpression::mapVars() for the expression defining the objective function
-    ROCPPObjectiveIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const;
+    ROCPPObjectiveIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
     
     /// @note Call LHExpression::mapUncs() for the expression defining the objective function
-    ROCPPObjectiveIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const;
+    ROCPPObjectiveIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const;
     
-    void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraint_Ptr > &epigraphConstraints) const;
+    void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraintIF_Ptr> &epigraphConstraints) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    vector<ROCPPExpr_Ptr > getObj() const;
+    vector<ROCPPExpr_Ptr> getObj() const;
+    
+    ROCPPExpr_Ptr getSimpleObj() const {return m_pObjFun;};
     
     /// @warning The input parameter for SimpleObjective must be 1
     ROCPPExpr_Ptr getObj(uint i) const;
@@ -270,7 +272,7 @@ public:
     /// @note Return 1 for SimpleObjective
     size_t getNumTermsMaxObjective() const {return 1;}
     
-    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const;
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const;
     
     /// @note Return true for SimpleObjective
     bool isSimpleObjective() const {return true;}
@@ -332,7 +334,7 @@ public:
     MaxObjective();
     
     /// Constructor of the MaxObjective class
-    MaxObjective(vector<ROCPPExpr_Ptr > objFuns);
+    MaxObjective(vector<ROCPPExpr_Ptr> objFuns);
     
     /// Destructor of the MaxObjective class
     ~MaxObjective(){}
@@ -354,7 +356,7 @@ public:
     uncsIterator uncEnd() const;
     
     /// Constant iterator on the parts of the objective function
-    typedef vector<ROCPPExpr_Ptr >::const_iterator obj_iterator;
+    typedef vector<ROCPPExpr_Ptr>::const_iterator obj_iterator;
     
     /// Return a constant iterator pointing to the beginning of the vector of objective functions
     obj_iterator objectiveBegin() const {return m_pObjFuns.begin();}
@@ -375,28 +377,28 @@ public:
     virtual void add_int_vars(dvContainer &dvs) const;
     
     /// @note Call LHExpression::mapExprVars() on every expression of the objective function
-    ROCPPObjectiveIF_Ptr mapObjVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const;
+    ROCPPObjectiveIF_Ptr mapObjVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
     
     /// @note Call LHExpression::mapExprUnc() on every expression of the objective function
-    ROCPPObjectiveIF_Ptr mapObjUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const;
+    ROCPPObjectiveIF_Ptr mapObjUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const;
     
     /// @note Call LHExpression::mapVars() on every expression of the objective function
-    ROCPPObjectiveIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const;
+    ROCPPObjectiveIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
     
     /// @note Call LHExpression::mapUncs() on every expression of the objective function
-    ROCPPObjectiveIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const;
+    ROCPPObjectiveIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const;
     
-    ROCPPObjectiveIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const;
+    ROCPPObjectiveIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
     
-    void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraint_Ptr > &epigraphConstraints) const;
+    void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraintIF_Ptr> &epigraphConstraints) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     size_t getNumTermsMaxObjective() const {return m_pObjFuns.size();}
-    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const;
-    vector<ROCPPExpr_Ptr > getObj() const;
+    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const;
+    vector<ROCPPExpr_Ptr> getObj() const;
     ROCPPExpr_Ptr getObj(uint i) const;
     
     bool isMaxObjective() const {return true;}
@@ -423,7 +425,7 @@ public:
     
 private:
     /// Vector of the objective expressions
-    vector<ROCPPExpr_Ptr > m_pObjFuns;
+    vector<ROCPPExpr_Ptr> m_pObjFuns;
     
     /// Decision variable container
     ROCPPdvContainer_Ptr m_dvContainer;
@@ -439,7 +441,7 @@ private:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ROCPPObjectiveIF_Ptr createObjective(ROCPPExpr_Ptr objFun);
-ROCPPObjectiveIF_Ptr creatMaxObjective(vector<ROCPPExpr_Ptr > objFuns);
+ROCPPObjectiveIF_Ptr creatMaxObjective(vector<ROCPPExpr_Ptr> objFuns);
 
 
 #endif /* ObjectiveFunction_hpp */

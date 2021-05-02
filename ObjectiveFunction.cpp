@@ -66,7 +66,7 @@ void SimpleObjective::add_to_obj(ROCPPVarIF_Ptr pVar, double cost)
 
 void SimpleObjective::add_vars_involved_in_prod(dvContainer &dvs) const
 {
-    vector<ROCPPExpr_Ptr > objvec(getObj());
+    vector<ROCPPExpr_Ptr> objvec(getObj());
     for (obj_fun_iterator it = objvec.begin(); it!= objvec.end(); it++)
         (*it)->add_vars_involved_in_prod(dvs);
 }
@@ -76,42 +76,42 @@ void SimpleObjective::add_int_vars(dvContainer &dvs) const
     m_pObjFun->getDVContainer()->add_int_vars(dvs);
 }
 
-ROCPPObjectiveIF_Ptr SimpleObjective::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
+ROCPPObjectiveIF_Ptr SimpleObjective::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
 {
     ROCPPObjectiveIF_Ptr newObj( new SimpleObjective(m_pObjFun->replaceTermWithVar(term, var)));
     
     return newObj;
 }
 
-ROCPPObjectiveIF_Ptr SimpleObjective::mapObjVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
+ROCPPObjectiveIF_Ptr SimpleObjective::mapObjVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
 {
     ROCPPObjectiveIF_Ptr newObj(new SimpleObjective( m_pObjFun->mapExprVars(mapFromOldToNewVars)));
     return newObj;
 }
 
-ROCPPObjectiveIF_Ptr SimpleObjective::mapObjUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const
+ROCPPObjectiveIF_Ptr SimpleObjective::mapObjUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const
 {
     ROCPPObjectiveIF_Ptr newObj(new SimpleObjective( m_pObjFun->mapExprUnc(mapFromOldToNewUnc)));
     return newObj;
 }
 
-ROCPPObjectiveIF_Ptr SimpleObjective::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
+ROCPPObjectiveIF_Ptr SimpleObjective::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const
 {
     ROCPPObjectiveIF_Ptr newObj(new SimpleObjective( m_pObjFun->mapVars(mapFromVarToExpression)));
     return newObj;
 }
 
-ROCPPObjectiveIF_Ptr SimpleObjective::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const
+ROCPPObjectiveIF_Ptr SimpleObjective::mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const
 {
     ROCPPObjectiveIF_Ptr newObj(new SimpleObjective( m_pObjFun->mapUncs(mapFromUncToExpression)));
     return newObj;
 }
 
-void SimpleObjective::convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraint_Ptr > &epigraphConstraints) const
+void SimpleObjective::convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraintIF_Ptr> &epigraphConstraints) const
 {
     epigraphConstraints.clear();
     
-    ROCPPConstraint_Ptr epicst(new IneqConstraint());
+    ROCPPConstraintIF_Ptr epicst(new IneqConstraint());
     epicst->add_lhs(m_pObjFun);
     epicst->add_lhs(-1., epigraphVar);
     
@@ -122,16 +122,16 @@ void SimpleObjective::convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPP
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-uint SimpleObjective::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const
+uint SimpleObjective::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const
 {
     uint out(m_pObjFun->getNumTimesTermAppears(term));
     
     return out;
 }
 
-vector<ROCPPExpr_Ptr > SimpleObjective::getObj() const
+vector<ROCPPExpr_Ptr> SimpleObjective::getObj() const
 {
-    vector<ROCPPExpr_Ptr > con;
+    vector<ROCPPExpr_Ptr> con;
     con.push_back(m_pObjFun);
     
     return con;
@@ -221,7 +221,7 @@ MaxObjective::MaxObjective() : ObjectiveFunctionIF(maxObj), m_dvContainer(new dv
     }
 }
 
-MaxObjective::MaxObjective(vector<ROCPPExpr_Ptr > objFuns) : ObjectiveFunctionIF(maxObj), m_dvContainer(new dvContainer()), m_uncContainer(new uncContainer())
+MaxObjective::MaxObjective(vector<ROCPPExpr_Ptr> objFuns) : ObjectiveFunctionIF(maxObj), m_dvContainer(new dvContainer()), m_uncContainer(new uncContainer())
 {
     for (obj_iterator obj = objFuns.begin(); obj != objFuns.end(); obj++){
         
@@ -281,9 +281,9 @@ void MaxObjective::add_int_vars(dvContainer &dvs) const
     m_dvContainer->add_int_vars(dvs);
 }
 
-ROCPPObjectiveIF_Ptr MaxObjective::mapObjVars(const map<string,ROCPPVarIF_Ptr > &mapFromOldToNewVars) const
+ROCPPObjectiveIF_Ptr MaxObjective::mapObjVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
 {
-    vector<ROCPPExpr_Ptr > newObjFuns;
+    vector<ROCPPExpr_Ptr> newObjFuns;
     
     for (obj_iterator objFun = objectiveBegin(); objFun != objectiveEnd(); objFun++){
         newObjFuns.push_back((*objFun)->mapExprVars(mapFromOldToNewVars));
@@ -293,9 +293,9 @@ ROCPPObjectiveIF_Ptr MaxObjective::mapObjVars(const map<string,ROCPPVarIF_Ptr > 
     return newObj;
 }
 
-ROCPPObjectiveIF_Ptr MaxObjective::mapObjUnc(const map<string,ROCPPUnc_Ptr > &mapFromOldToNewUnc) const
+ROCPPObjectiveIF_Ptr MaxObjective::mapObjUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const
 {
-    vector<ROCPPExpr_Ptr > newObjFuns;
+    vector<ROCPPExpr_Ptr> newObjFuns;
     
     for (obj_iterator objFun = objectiveBegin(); objFun != objectiveEnd(); objFun++){
         newObjFuns.push_back((*objFun)->mapExprUnc(mapFromOldToNewUnc));
@@ -305,9 +305,9 @@ ROCPPObjectiveIF_Ptr MaxObjective::mapObjUnc(const map<string,ROCPPUnc_Ptr > &ma
     return newObj;
 }
 
-ROCPPObjectiveIF_Ptr MaxObjective::mapVars(const map<string, ROCPPExpr_Ptr > &mapFromVarToExpression) const
+ROCPPObjectiveIF_Ptr MaxObjective::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const
 {
-    vector<ROCPPExpr_Ptr > newObjFuns;
+    vector<ROCPPExpr_Ptr> newObjFuns;
     
     for (obj_iterator objFun = objectiveBegin(); objFun != objectiveEnd(); objFun++){
         newObjFuns.push_back((*objFun)->mapVars(mapFromVarToExpression));
@@ -317,9 +317,9 @@ ROCPPObjectiveIF_Ptr MaxObjective::mapVars(const map<string, ROCPPExpr_Ptr > &ma
     return newObj;
 }
 
-ROCPPObjectiveIF_Ptr MaxObjective::mapUncs(const map<string, ROCPPExpr_Ptr > &mapFromUncToExpression) const
+ROCPPObjectiveIF_Ptr MaxObjective::mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const
 {
-    vector<ROCPPExpr_Ptr > newObjFuns;
+    vector<ROCPPExpr_Ptr> newObjFuns;
     
     for (obj_iterator objFun = objectiveBegin(); objFun != objectiveEnd(); objFun++){
         newObjFuns.push_back((*objFun)->mapUncs(mapFromUncToExpression));
@@ -329,11 +329,11 @@ ROCPPObjectiveIF_Ptr MaxObjective::mapUncs(const map<string, ROCPPExpr_Ptr > &ma
     return newObj;
 }
 
-ROCPPObjectiveIF_Ptr MaxObjective::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
+ROCPPObjectiveIF_Ptr MaxObjective::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
 {
-    vector<ROCPPExpr_Ptr > newObjs;
+    vector<ROCPPExpr_Ptr> newObjs;
     
-    vector<ROCPPExpr_Ptr >::const_iterator objIterator = m_pObjFuns.begin();
+    vector<ROCPPExpr_Ptr>::const_iterator objIterator = m_pObjFuns.begin();
     
     for(; objIterator != m_pObjFuns.end(); objIterator++)
         newObjs.push_back((*objIterator)->replaceTermWithVar(term, var));
@@ -343,13 +343,13 @@ ROCPPObjectiveIF_Ptr MaxObjective::replaceTermWithVar(const multimap<string, ROC
     return newObj;
 }
 
-void MaxObjective::convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraint_Ptr > &epigraphConstraints) const
+void MaxObjective::convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraintIF_Ptr> &epigraphConstraints) const
 {
     epigraphConstraints.clear();
     
-    for (vector<ROCPPExpr_Ptr >::const_iterator oit = m_pObjFuns.begin(); oit != m_pObjFuns.end(); oit++)
+    for (vector<ROCPPExpr_Ptr>::const_iterator oit = m_pObjFuns.begin(); oit != m_pObjFuns.end(); oit++)
     {
-        ROCPPConstraint_Ptr epicst(new IneqConstraint());
+        ROCPPConstraintIF_Ptr epicst(new IneqConstraint());
         epicst->add_lhs(*oit);
         epicst->add_lhs(-1., epigraphVar);
         
@@ -362,7 +362,7 @@ void MaxObjective::convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPCon
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-uint MaxObjective::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const
+uint MaxObjective::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const
 {
     uint out(0);
     obj_iterator o_it(m_pObjFuns.begin());
@@ -373,7 +373,7 @@ uint MaxObjective::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr 
     return out;
 }
 
-vector<ROCPPExpr_Ptr > MaxObjective::getObj() const
+vector<ROCPPExpr_Ptr> MaxObjective::getObj() const
 {
     return m_pObjFuns;
 }
@@ -458,7 +458,7 @@ bool MaxObjective::varIsInvolved(string varName, uint i) const
 
 ROCPPObjectiveIF_Ptr MaxObjective::Clone() const
 {
-    vector<ROCPPExpr_Ptr > newObjs;
+    vector<ROCPPExpr_Ptr> newObjs;
 
     obj_iterator o_it(m_pObjFuns.begin());
     
@@ -497,7 +497,7 @@ ROCPPObjectiveIF_Ptr createObjective(ROCPPExpr_Ptr objFun)
     return newObj;
 }
 
-ROCPPObjectiveIF_Ptr creatMaxObjective(vector<ROCPPExpr_Ptr > objFuns)
+ROCPPObjectiveIF_Ptr creatMaxObjective(vector<ROCPPExpr_Ptr> objFuns)
 {
     ROCPPObjectiveIF_Ptr newObj(new MaxObjective(objFuns));
     return newObj;

@@ -38,7 +38,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constant iterator into inverse map
-    typedef map<string, ROCPPVarIF_Ptr >::const_iterator const_iterator_inv;
+    typedef map<string, ROCPPVarIF_Ptr>::const_iterator const_iterator_inv;
     
     /// Return a constant iterator pointing to the pair of the given variable and the old variable associated with it
     const_iterator_inv findInv(string varName) const {return m_inverseMap.find(varName);}
@@ -65,10 +65,10 @@ public:
     /// @param origDVContainer Container of decision variables to be approximated
     /// @param toAdd Constraints after mapping
     /// @param toSet Objective after mapping
-    virtual void convertVar(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet,bool resetAndSave = false) = 0;
+    virtual void convertVar(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraintIF_Ptr> &toAdd, ROCPPObjectiveIF_Ptr &toSet,bool resetAndSave = false) = 0;
     
     /// Find the variable in the given ocnstraints and objective to be mapped and store them in the container
-    virtual void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container) = 0;
+    virtual void findVarsToTranslate(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container) = 0;
     
     /// Create the map m_inverseMap
     virtual void createInverseMap(const dvContainer &origDVContainer) = 0;
@@ -94,7 +94,7 @@ protected:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Map from the new variable name to old variable
-    map<string, ROCPPVarIF_Ptr > m_inverseMap; // maps new variable(for example variables in LHS) name to old dv that it helps parameterize
+    map<string, ROCPPVarIF_Ptr> m_inverseMap; // maps new variable(for example variables in LHS) name to old dv that it helps parameterize
 };
 
 
@@ -126,7 +126,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    typedef map<string,ROCPPVarIF_Ptr >::const_iterator const_iterator;
+    typedef map<string,ROCPPVarIF_Ptr>::const_iterator const_iterator;
     
     const_iterator find(string varName) const {return m_translationMap.find(varName);}
     
@@ -142,13 +142,13 @@ public:
     
     /// Approximate the original variable with a new variable or a constant for all variables in the input model
     /// @param resetAndSave Indicates whether to reset the translation map
-    void convertVar(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave = false);
+    void convertVar(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraintIF_Ptr> &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave = false);
     
     /// Create translation map for the variables in the given container
     /// @param tmpContainer Container contains variables to be mapped
     /// @param translationMap Map from the name of the variable to the new variable it will be mapped to
     /// @param toAdd Contains the upper and lower bounds of the original variables as constraints
-    virtual void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd) = 0; // translationMap: map from dv name in original problem to pair of coeff , int var so that dv = sum coeff * int var; //tmpMap: identifies the integer, non-binary variables involved in bilinear terms in pMI_BLP
+    virtual void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr>  &translationMap, vector<ROCPPConstraintIF_Ptr> &toAdd) = 0; // translationMap: map from dv name in original problem to pair of coeff , int var so that dv = sum coeff * int var; //tmpMap: identifies the integer, non-binary variables involved in bilinear terms in pMI_BLP
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -165,7 +165,7 @@ protected:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Map from name of the original variable to the new variable
-    map<string, ROCPPVarIF_Ptr > m_translationMap;
+    map<string, ROCPPVarIF_Ptr> m_translationMap;
 };
 
 
@@ -197,7 +197,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    typedef map<string,ROCPPExpr_Ptr >::const_iterator const_iterator;
+    typedef map<string,ROCPPExpr_Ptr>::const_iterator const_iterator;
     
     const_iterator find(string varName) const {return m_translationMap.find(varName);}
     
@@ -212,13 +212,13 @@ public:
     using VariableConverterIF::convertVar;
     
     /// Map the original variable to an expression for all variables in the input model
-    void convertVar(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraint_Ptr > &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave = false);
+    void convertVar(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, const dvContainer& origDVContainer, vector<ROCPPConstraintIF_Ptr> &toAdd, ROCPPObjectiveIF_Ptr &toSet, bool resetAndSave = false);
     
     /// Create m_translationMap for the variables in the given container
     /// @param tmpContainer Container contains the variables to be approximated
     /// @param translationMap Map from the name of the variable to the expression to which it will be mapped
     /// @param toAdd Contains the upper and lower bounds of the original variables as constraints
-    virtual void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd) = 0; // translationMap: map from dv name in original problem to pair of coeff , int var so that dv = sum coeff * int var; //tmpMap: identifies the integer, non-binary variables involved in bilinear terms in pMI_BLP
+    virtual void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr>  &translationMap, vector<ROCPPConstraintIF_Ptr> &toAdd) = 0; // translationMap: map from dv name in original problem to pair of coeff , int var so that dv = sum coeff * int var; //tmpMap: identifies the integer, non-binary variables involved in bilinear terms in pMI_BLP
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -235,7 +235,7 @@ protected:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Map from name of the original variable to the expression
-    map<string, ROCPPExpr_Ptr > m_translationMap;
+    map<string, ROCPPExpr_Ptr> m_translationMap;
 };
 
 
@@ -246,7 +246,7 @@ protected:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /// Converts bilinear mixed integer terms to bilinear mixed binary terms
-class Bilinear_MItoMB_Converter : public OneToExprVariableConverterIF
+class Bilinear_MItoMB_Converter : public OneToExprVariableConverterIF, public ReformulationStrategyIF
 {
 public:
     
@@ -256,7 +256,12 @@ public:
     /// Destructor of Bilinear_MItoMB_Converter class
     ~Bilinear_MItoMB_Converter(){}
     
-    void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
+    void findVarsToTranslate(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
+    
+    
+    ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn){return convertVar(pIn);}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const {return true;}
+    string getName() const {return "bilinear term mixed-integer to mixed-binary converter";}
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -272,7 +277,7 @@ public:
     UnaryConverter(){}
     ~UnaryConverter(){}
     
-    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd);//vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last,
+    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr>  &translationMap, vector<ROCPPConstraintIF_Ptr> &toAdd);//vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last,
 };
 
 
@@ -291,7 +296,7 @@ public:
     
     ~BinaryConverter(){}
     
-    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd);
+    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr>  &translationMap, vector<ROCPPConstraintIF_Ptr> &toAdd);
 };
 
 
@@ -319,9 +324,9 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
+    void findVarsToTranslate(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
     
-    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd);
+    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr>  &translationMap, vector<ROCPPConstraintIF_Ptr> &toAdd);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -337,8 +342,8 @@ private:
     //%%%%%%%%%%%%%%%%%%%%%%%% Private Member %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    map<string, ROCPPVarIF_Ptr > m_posPartMap;
-    map<string, ROCPPVarIF_Ptr > m_negPartMap;
+    map<string, ROCPPVarIF_Ptr> m_posPartMap;
+    map<string, ROCPPVarIF_Ptr> m_negPartMap;
 };
 
 
@@ -370,15 +375,16 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd);
+    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr>  &translationMap, vector<ROCPPConstraintIF_Ptr> &toAdd);
     
-    virtual void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
+    virtual void findVarsToTranslate(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     uint getNumBitsPerVar() const {return m_numBitsPerVariable;}
+    
     
 private:
     
@@ -400,7 +406,7 @@ private:
 /*!
  Approximates the real-valued decisions affecting the uncertainty set by weighted sums of binary variables
 */
-class UncertaintySetRealVarApproximator : public RealVarDiscretizer
+class UncertaintySetRealVarApproximator : public RealVarDiscretizer, public ReformulationStrategyIF
 {
 public:
     
@@ -410,7 +416,11 @@ public:
     /// Destructor of the UncertaintySetRealVarApproximator class
     ~UncertaintySetRealVarApproximator(){}
     
-    void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
+    void findVarsToTranslate(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
+    
+    ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn){return convertVar(pIn);}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const {return true;}
+    string getName() const {return "uncertainty set real variable approximator";}
 };
 
 
@@ -433,7 +443,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constructor of the PredefO2OVariableConverter class
-    PredefO2OVariableConverter(const map<string,ROCPPVarIF_Ptr >  &translationMap){m_translationMap=translationMap;}//, const dvContainer& origDVs);
+    PredefO2OVariableConverter(const map<string,ROCPPVarIF_Ptr>  &translationMap){m_translationMap=translationMap;}//, const dvContainer& origDVs);
     
     /// Destructor of the PredefO2OVariableConverter class
     ~PredefO2OVariableConverter(){}
@@ -444,11 +454,11 @@ public:
     
     using VariableConverterIF::convertVar;
     
-    ROCPPConstraint_Ptr convertVar(ROCPPConstraint_Ptr pCstr) const;
+    ROCPPConstraintIF_Ptr convertVar(ROCPPConstraintIF_Ptr pCstr) const;
     
-    void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
+    void findVarsToTranslate(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
     
-    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd);
+    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr>  &translationMap, vector<ROCPPConstraintIF_Ptr> &toAdd);
     
 private:
     
@@ -479,7 +489,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constructor of the PredefO2EVariableConverter class
-    PredefO2EVariableConverter(const map<string,ROCPPExpr_Ptr >  &translationMap){m_translationMap=translationMap;}//, const dvContainer& origDVs) : m_origDVs(origDVs) {m_translationMap=translationMap;}
+    PredefO2EVariableConverter(const map<string,ROCPPExpr_Ptr>  &translationMap){m_translationMap=translationMap;}//, const dvContainer& origDVs) : m_origDVs(origDVs) {m_translationMap=translationMap;}
     
     /// Destructor of the PredefO2EVariableConverter class
     ~PredefO2EVariableConverter(){}
@@ -490,11 +500,11 @@ public:
     
     using VariableConverterIF::convertVar;
     
-    ROCPPConstraint_Ptr convertVar(ROCPPConstraint_Ptr pCstr) const;
+    ROCPPConstraintIF_Ptr convertVar(ROCPPConstraintIF_Ptr pCstr) const;
     
-    void findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
+    void findVarsToTranslate(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container);
     
-    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd);
+    void createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr>  &translationMap, vector<ROCPPConstraintIF_Ptr> &toAdd);
     
 private:
     

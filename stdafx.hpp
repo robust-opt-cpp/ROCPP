@@ -1,9 +1,9 @@
 //
 //  stdafx.h
-//  RobustOptimizationNew
+//  RobustOptimizationPlatform
 //
-//  Created by Phebe Vayanos on 5/1/19.
-//  Copyright © 2019 Phebe Vayanos. All rights reserved.
+// This software is Copyright © 2020 Phebe Vayanos. All Rights Reserved.
+// Software created by Phebe Vayanos, Qing Jin, and George Elissaios
 //
 
 #ifndef stdafx_hpp

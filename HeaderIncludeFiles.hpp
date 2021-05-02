@@ -1,5 +1,5 @@
 //
-//  HeaderIncludeFiles.h
+//  HeaderIncludeFiles.hpp
 //  RobustOptimizationPlatform
 //
 // This software is Copyright © 2020 Phebe Vayanos. All Rights Reserved.
@@ -105,9 +105,9 @@ typedef map<string, ROCPPUnc_Ptr> uncMapType;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 class ConstraintTermIF;
-typedef ConstraintTermIF ROCPPCstrTerm;
-typedef shared_ptr<ROCPPCstrTerm> ROCPPCstrTerm_Ptr;
-typedef shared_ptr<const ROCPPCstrTerm> ROCPPconstCstrTerm_Ptr;
+typedef ConstraintTermIF ROCPPCstrTermIF;
+typedef shared_ptr<ROCPPCstrTermIF> ROCPPCstrTermIF_Ptr;
+typedef shared_ptr<const ROCPPCstrTermIF> ROCPPconstCstrTermIF_Ptr;
 
 class ProductTerm;
 typedef ProductTerm ROCPPProdTerm;
@@ -130,14 +130,27 @@ typedef shared_ptr<const ROCPPExpr> ROCPPconstExpr_Ptr;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 class ConstraintIF;
-typedef ConstraintIF ROCPPConstraint;
-typedef shared_ptr<ROCPPConstraint> ROCPPConstraint_Ptr;
+typedef ConstraintIF ROCPPConstraintIF;
+typedef shared_ptr<ROCPPConstraintIF> ROCPPConstraintIF_Ptr;
+
+class IneqConstraint;
+typedef IneqConstraint ROCPPIneqConstraint;
+typedef shared_ptr<ROCPPIneqConstraint> ROCPPIneqConstraint_Ptr;
+
+class EqConstraint;
+typedef IneqConstraint ROCPPEqConstraint;
+typedef shared_ptr<ROCPPEqConstraint> ROCPPEqConstraint_Ptr;
 
 class ClassicConstraintIF;
 typedef shared_ptr<ClassicConstraintIF> ROCPPClassicConstraint_Ptr;
 
 class SOSConstraint;
-typedef shared_ptr<SOSConstraint> ROCPPSOSConstraint_Ptr;
+typedef SOSConstraint ROCPPSOSConstraint;
+typedef shared_ptr<ROCPPSOSConstraint> ROCPPSOSConstraint_Ptr;
+
+class IfThenConstraint;
+typedef IfThenConstraint ROCPPIfThenConstraint;
+typedef shared_ptr<ROCPPIfThenConstraint> ROCPPIfThenConstraint_Ptr;
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -167,9 +180,9 @@ class OptimizationModelIF;
 typedef OptimizationModelIF ROCPPOptModelIF;
 typedef shared_ptr<ROCPPOptModelIF> ROCPPOptModelIF_Ptr;
 
-class DDUOptimizationModel;
-typedef DDUOptimizationModel ROCPPDDUOptModel;
-typedef shared_ptr<ROCPPDDUOptModel> ROCPPDDUOptModel_Ptr;
+class MultiStageOptModelDDID;
+typedef MultiStageOptModelDDID ROCPPOptModelDDID;
+typedef shared_ptr<ROCPPOptModelDDID> ROCPPOptModelDDID_Ptr;
 
 class DeterministicOptimizationModel;
 typedef DeterministicOptimizationModel ROCPPDetOptModel;
@@ -180,13 +193,17 @@ typedef UncertainOptimizationModel ROCPPUncOptModel;
 typedef shared_ptr<ROCPPUncOptModel> ROCPPUncOptModel_Ptr;
 typedef shared_ptr<const ROCPPUncOptModel> ROCPPconstUncOptModel_Ptr;
 
-class SimpleUncertainOptimizationModel;
-typedef SimpleUncertainOptimizationModel ROCPPSimpleUncOptModel;
-typedef shared_ptr<ROCPPSimpleUncOptModel> ROCPPSimpleUncOptModel_Ptr;
+class MultiStageOptModelExoID;
+typedef MultiStageOptModelExoID ROCPPOptModelExoID;
+typedef shared_ptr<ROCPPOptModelExoID> ROCPPOptModelExoID_Ptr;
 
 class UncertainSingleStageOptimizationModel;
 typedef UncertainSingleStageOptimizationModel ROCPPUncSSOptModel;
 typedef shared_ptr<ROCPPUncSSOptModel> ROCPPUncSSOptModel_Ptr;
+
+class UncertainMultiStageOptimizationModel;
+typedef UncertainMultiStageOptimizationModel ROCPPUncMSOptModel;
+typedef shared_ptr<ROCPPUncMSOptModel> ROCPPUncMSOptModel_Ptr;
 
 class Bilinear_MISOCP;
 typedef Bilinear_MISOCP ROCPPBilinMISOCP;
@@ -206,32 +223,72 @@ typedef shared_ptr<ROCPPCPLEXMISOCP> ROCPPCPLEXMISOCP_Ptr;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+class VariableConverterIF;
+typedef VariableConverterIF ROCPPVariableConverterIF;
+typedef shared_ptr<ROCPPVariableConverterIF> ROCPPVariableConverterIF_Ptr;
+
+class OneToOneVariableConverterIF;
+typedef OneToOneVariableConverterIF ROCPPOneToOneVarConverterIF;
+typedef shared_ptr<OneToOneVariableConverterIF> ROCPPOneToOneVarConverterIF_Ptr;
+
+class OneToExprVariableConverterIF;
+typedef OneToExprVariableConverterIF ROCPPOneToExprVarConverterIF;
+typedef shared_ptr<ROCPPOneToExprVarConverterIF> ROCPPOneToExprVarConverterIF_Ptr;
+
+
 class BilinearTermReformulatorIF;
 typedef shared_ptr<BilinearTermReformulatorIF> ROCPPBilinearReform_Ptr;
 
 class Bilinear_MItoMB_Converter;
+typedef Bilinear_MItoMB_Converter ROCPPMItoMB;
 typedef shared_ptr<Bilinear_MItoMB_Converter> ROCPPMItoMB_Ptr;
 
+class UnaryConverter;
+typedef shared_ptr<UnaryConverter> ROCPPUnaryMItoMB_Ptr;
+
+class BinaryConverter;
+typedef shared_ptr<BinaryConverter> ROCPPBinaryMItoMB_Ptr;
+
 class RealVarDiscretizer;
+typedef RealVarDiscretizer ROCPPRealVarDiscretizer;
 typedef shared_ptr<RealVarDiscretizer> ROCPPRealVarDiscretizer_Ptr;
 
 class UncertaintySetRealVarApproximator;
+typedef UncertaintySetRealVarApproximator ROCPPUncSetRealVarApprox;
 typedef shared_ptr<UncertaintySetRealVarApproximator> ROCPPUncSetRealVarApprox_Ptr;
 
 class PredefO2OVariableConverter;
-typedef shared_ptr<PredefO2OVariableConverter> ROCPPO2OVarConverter_Ptr;
+typedef PredefO2OVariableConverter ROCPPPredefO2OVarConverter;
+typedef shared_ptr<PredefO2OVariableConverter> ROCPPPredefO2OVarConverter_Ptr;
 
 class PredefO2EVariableConverter;
-typedef shared_ptr<PredefO2EVariableConverter> ROCPPO2EVarConverter_Ptr;
+typedef PredefO2EVariableConverter ROCPPPredefO2EVarConverter;
+typedef shared_ptr<PredefO2EVariableConverter> ROCPPPredefO2EVarConverter_Ptr;
 
-class OneToExprVariableConverterIF;
-typedef shared_ptr<OneToExprVariableConverterIF> ROCPPO2EVarConverterIF_Ptr;
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%% UNCERTAINTY CONVERTER TYPE DEFS %%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+class UncertaintyConverterIF;
+typedef UncertaintyConverterIF ROCPPUncertaintyConverterIF;
+typedef shared_ptr<ROCPPUncertaintyConverterIF> ROCPPUncertaintyConverterIF_Ptr;
+
+class UncertaintyToVariableConverter;
+typedef UncertaintyToVariableConverter ROCPPUncToVarConverter;
+typedef shared_ptr<ROCPPUncToVarConverter> ROCPPUncToVarConverter_Ptr;
+
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%% DECISION RULE TYPE DEFS %%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+class DecisionRuleIF;
+typedef DecisionRuleIF ROCPPDRIF;
+typedef shared_ptr<ROCPPDRIF> ROCPPDRIF_Ptr;
+
 class ContinuousVarsDRIF;
 typedef shared_ptr<ContinuousVarsDRIF> ROCPPContinuousVarsDR_Ptr;
 
@@ -246,6 +303,17 @@ class ConstantDecisionRule;
 typedef ConstantDecisionRule ROCPPConstantDR;
 typedef shared_ptr<ROCPPConstantDR> ROCPPConstantDR_Ptr;
 
+class PiecewiseDecisionRule;
+typedef PiecewiseDecisionRule ROCPPPWDR;
+typedef shared_ptr<ROCPPPWDR> ROCPPPWDR_Ptr;
+
+class KadaptabilityDecisionRule;
+typedef KadaptabilityDecisionRule ROCPPKAdapt;
+typedef shared_ptr<ROCPPKAdapt> ROCPPKAdapt_Ptr;
+
+class KadaptabilityPartitionEncoderMS;
+typedef shared_ptr<KadaptabilityPartitionEncoderMS> ROCPPKadaptEncoder_Ptr;
+
 class PartitionConstructorIF;
 typedef shared_ptr<PartitionConstructorIF> ROCPPParConstructor_Ptr;
 
@@ -254,38 +322,21 @@ typedef shared_ptr<PartitionConverter> ROCPPParConverter_Ptr;
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%% ROBUSTIFY ENGINE TYPE DEFS %%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%% REFORMULATION STRATGEY TYPE DEFS %%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+class ReformulationStrategyIF;
+typedef ReformulationStrategyIF ROCPPStrategy;
+typedef shared_ptr<ROCPPStrategy> ROCPPStrategy_Ptr;
+
+class ReformulationOrchestrator;
+typedef ReformulationOrchestrator ROCPPOrchestrator;
+typedef shared_ptr<ROCPPOrchestrator> ROCPPOrchestrator_Ptr;
 
 class RobustifyEngine;
 typedef RobustifyEngine ROCPPRobustifyEngine;
 typedef shared_ptr<RobustifyEngine> ROCPPRobustifyEngine_Ptr;
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%% DDU TYPE DEFS %%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-class DDUApproximatorIF;
-typedef DDUApproximatorIF ROCPPApproximator;
-typedef shared_ptr<ROCPPApproximator> ROCPPApproximator_Ptr;
-
-class KadaptabilityPartitionEncoderMS;
-typedef shared_ptr<KadaptabilityPartitionEncoderMS> ROCPPKadaptEncoder_Ptr;
-
-class KadaptabilityApproximatorMS;
-typedef KadaptabilityApproximatorMS ROCPPKadaptApprox;
-typedef shared_ptr<ROCPPKadaptApprox> ROCPPKadaptApprox_Ptr;
-
-class LDRCDRApproximator;
-typedef LDRCDRApproximator ROCPPLCDRApprox;
-typedef shared_ptr<ROCPPLCDRApprox> ROCPPLCDRApprox_Ptr;
-
-class PiecewiseApproximator;
-typedef PiecewiseApproximator ROCPPPiecewiseApprox;
-typedef shared_ptr<ROCPPPiecewiseApprox> ROCPPPiecewiseApprox_Ptr;
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -294,8 +345,8 @@ typedef shared_ptr<ROCPPPiecewiseApprox> ROCPPPiecewiseApprox_Ptr;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 class SolverModellerIF;
-typedef SolverModellerIF ROCPPSolver;
-typedef shared_ptr<SolverModellerIF> ROCPPSolver_Ptr;
+typedef SolverModellerIF ROCPPSolverInterface;
+typedef shared_ptr<SolverModellerIF> ROCPPSolverInterface_Ptr;
 
 class SolverParams;
 typedef SolverParams ROCPPSolverParams;

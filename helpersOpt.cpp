@@ -13,6 +13,7 @@
 #include "Constraint.hpp"
 #include "ObjectiveFunction.hpp"
 #include "OptimizationModel.hpp"
+#include "ReformulationOrchestrator.hpp"
 #include "VariableConverter.hpp"
 #include "OptModelConverters.hpp"
 #include "UncertaintyConverter.hpp"
@@ -53,7 +54,7 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
     
     // -----------------------------------------------------------------------------------------------------------------------------
     // build translation map for uncertainty converter
-    map<string,ROCPPVarIF_Ptr >  translationMapUnc;
+    map<string,ROCPPVarIF_Ptr>  translationMapUnc;
     
     // create a decision variable named after each of the uncertain parameters and add it to translation map
     for (UncertainOptimizationModel::uncertaintiesIterator u_it=pInUnc->uncertaintiesBegin(); u_it!=pInUnc->uncertaintiesEnd();u_it++)
@@ -62,7 +63,7 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
         translationMapUnc[u_it->second->getName()] = uvar;
     }
     
-    map<string,ROCPPVarIF_Ptr >  translationMapVar;
+    map<string,ROCPPVarIF_Ptr>  translationMapVar;
     
     // create a non-adaptive variable of the same type as the variable in the original problem
     for (OptimizationModelIF::varsIterator v_it=pModel->varsBegin(); v_it!=pModel->varsEnd();v_it++)
@@ -126,8 +127,8 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
                 throw MyException("uncertainty set should only contain classic constraints");
             
             
-            ROCPPConstraint_Ptr pTmpCstr ( U2Vconverter.uncToVar( *c_it ) );
-            ROCPPConstraint_Ptr pTmpCstr2 ( V2Vconverter.convertVar(pTmpCstr) );
+            ROCPPConstraintIF_Ptr pTmpCstr ( U2Vconverter.convert( *c_it ) );
+            ROCPPConstraintIF_Ptr pTmpCstr2 ( V2Vconverter.convertVar(pTmpCstr) );
             
             
             if (!pTmpCstr2->isClassicConstraint())
@@ -216,7 +217,7 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
                 
                 
                 SolverParams sparams = SolverParams();
-                ROCPPSolver_Ptr pModeller;
+                ROCPPSolverInterface_Ptr pModeller;
 //                if (solver == "gurobi")
 //                    pModeller =  ROCPPSolver_Ptr(new GurobiModeller(sparams, false) );
 //                else if (solver == "SCIP")
@@ -224,7 +225,7 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
 //                else
 //                    throw MyException("Can not find your solver.");
 #ifdef USE_GUROBI
-                pModeller =  ROCPPSolver_Ptr(new GurobiModeller(sparams, false) );
+                pModeller =  ROCPPSolverInterface_Ptr(new GurobiModeller(sparams, false) );
 #elif defined(USE_SCIP)
                 pModeller =  ROCPPSolver_Ptr(new SCIPModeller(sparams, false) );
 #else
@@ -327,6 +328,8 @@ double calculateArea(const map<string,pair<double,double> > &allMap)
     
     map<string,pair<double,double> >::const_iterator m_it(allMap.begin());
     for (; m_it != allMap.end(); m_it++) {
+        if (DoublesAreEssentiallyEqual(m_it->second.second, m_it->second.first, 0.0001))
+            continue;
         area *= (m_it->second.second - m_it->second.first);
     }
     

@@ -1,6 +1,6 @@
 //
 //  SCIPModeller.cpp
-//  ROCPP
+//  RobustOptimizationPlatform
 //
 // This software is Copyright © 2020 Phebe Vayanos. All Rights Reserved.
 // Software created by Phebe Vayanos, Qing Jin, and George Elissaios
@@ -74,20 +74,25 @@ void SCIPModeller::solve(ROCPPOptModelIF_Ptr pModelIn, bool writeSlnToFile, stri
 {
     Reset();
     
+    if (!isApplicable(pModelIn))
+        throw MyException("The problem in its current form cannot be solved by Gurobi; use the reformulators to bring it to a suitable form");
+    
+    
     ROCPPCPLEXMISOCP_Ptr pCplex;
     
     if(pModelIn->getType() == cplexmisocpType)
         pCplex = dynamic_pointer_cast<CPLEXMISOCP>(pModelIn);
     
-    else{
+    else {
         ROCPPMISOCP_Ptr pInNew(new MISOCP());
         
-        if(pModelIn->getType() == misocpType){
-            pInNew = dynamic_pointer_cast<MISOCP>(pModelIn);
+        ROCPPOptModelIF_Ptr pModelInNew = convertToMISOCP(pModelIn);
+        
+        if (pModelIn->getType() == misocpType){
+            pInNew = dynamic_pointer_cast<MISOCP>(pModelInNew);
             pCplex = ROCPPCPLEXMISOCP_Ptr( new CPLEXMISOCP(pInNew) );
         }
-        
-        else{
+        else {
             throw MyException("Wrong model type, please use the function convertToMISOCP() to convert and check your model before solving");
         }
         
@@ -328,7 +333,7 @@ SCIP_RETCODE SCIPModeller::addSCIPdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, SCIP
     return SCIP_OKAY;
 }
 
-SCIP_RETCODE SCIPModeller::addConstraint(SCIP* scip, ROCPPConstraint_Ptr pCstrIn, uint num)
+SCIP_RETCODE SCIPModeller::addConstraint(SCIP* scip, ROCPPConstraintIF_Ptr pCstrIn, uint num)
 {
     if ( pCstrIn->isClassicConstraint() )
     {

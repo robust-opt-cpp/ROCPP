@@ -74,20 +74,26 @@ void GurobiModeller::solve(ROCPPOptModelIF_Ptr pModelIn, bool writeSlnToFile,  s
 {
     Reset();
     
+    if (!isApplicable(pModelIn))
+        throw MyException("The problem in its current form cannot be solved by Gurobi; use the reformulators to bring it to a suitable form");
+
+
+
     ROCPPCPLEXMISOCP_Ptr pCplex;
     
-    if(pModelIn->getType() == cplexmisocpType)
+    if (pModelIn->getType() == cplexmisocpType)
         pCplex = dynamic_pointer_cast<CPLEXMISOCP>(pModelIn);
     
-    else{
+    else {
         ROCPPMISOCP_Ptr pInNew(new MISOCP());
         
-        if(pModelIn->getType() == misocpType){
-            pInNew = dynamic_pointer_cast<MISOCP>(pModelIn);
+        ROCPPOptModelIF_Ptr pModelInNew = convertToMISOCP(pModelIn);
+        
+        if (pModelInNew->getType() == misocpType){
+            pInNew = dynamic_pointer_cast<MISOCP>(pModelInNew);
             pCplex = ROCPPCPLEXMISOCP_Ptr( new CPLEXMISOCP(pInNew) );
         }
-        
-        else{
+        else {
             throw MyException("Wrong model type, please use the function convertToMISOCP() to convert and check your model before solving");
         }
         
@@ -345,7 +351,7 @@ void GurobiModeller::addGUROBIdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, GRBEnv &
     
 }
 
-void GurobiModeller::addConstraint(GRBEnv &env, GRBModel& Model,ROCPPConstraint_Ptr pCstrIn) const
+void GurobiModeller::addConstraint(GRBEnv &env, GRBModel& Model,ROCPPConstraintIF_Ptr pCstrIn) const
 {
     if ( pCstrIn->isClassicConstraint() )
     {

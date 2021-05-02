@@ -10,6 +10,9 @@
 #define OptModelConverters_hpp
 
 #include "HeaderIncludeFiles.hpp"
+#include "ReformulationOrchestrator.hpp"
+
+class ReformulationStrategyIF;
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -18,7 +21,7 @@
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-class BilinearTermReformulatorIF  // creates MILP if original problem containts only bilinear terms involving at least one binary variable; creates convex relaxation otherwise
+class BilinearTermReformulatorIF : public ReformulationStrategyIF // creates MILP if original problem containts only bilinear terms involving at least one binary variable; creates convex relaxation otherwise
 {
 public:
     
@@ -33,9 +36,14 @@ public:
     
     ROCPPOptModelIF_Ptr linearize(ROCPPOptModelIF_Ptr pIn, const map<string,pair<double,double> >& variableBounds = (map<string,pair<double,double> >()));
     
-    virtual void getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr newdv,  vector<ROCPPConstraint_Ptr > &cstrvec, map<string,pair<double,double> > &variableBounds) = 0;
+    
+    virtual void getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr newdv,  vector<ROCPPConstraintIF_Ptr> &cstrvec, map<string,pair<double,double> > &variableBounds) = 0;
     
     uint getAuxVarCnt() const {return m_auxVarCnt;}
+    
+    ROCPPOptModelIF_Ptr Reformulate(ROCPPOptModelIF_Ptr pIn){return linearize(pIn);}
+    bool isApplicable(ROCPPOptModelIF_Ptr pIn) const {return true;}
+    string getName() const {return "bilinear term reformulator";}
     
 private:
     
@@ -58,7 +66,7 @@ public:
     BTR_bigM(string aux_var_nme = "bl", string aux_var_sffx = "", uint auxVarCnt=0, double M = 1.e2) : BilinearTermReformulatorIF(aux_var_nme,aux_var_sffx,auxVarCnt), m_M(M) {}
     ~BTR_bigM(){}
     
-    void getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr newdv, vector<ROCPPConstraint_Ptr > &cstrvec, map<string,pair<double,double> > &variableBounds);
+    void getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr newdv, vector<ROCPPConstraintIF_Ptr> &cstrvec, map<string,pair<double,double> > &variableBounds);
     
 private:
     

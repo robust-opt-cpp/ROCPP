@@ -74,6 +74,7 @@ public:
     
     void solve(ROCPPOptModelIF_Ptr pModelIn, bool writeSlnToFile = false, string fileName = "", bool writeSlnToConsle = true, const map<string, double>& WSvars = (map<string, double>()), const map<string,int>& priorities = (map<string,int>()), bool deleteModel=false);
     
+    
     void Reset();
     
 private:
@@ -97,7 +98,7 @@ private:
     
     void createGUROBImodel(ROCPPCPLEXMISOCP_Ptr pModel,GRBEnv &env,GRBModel &Model); //  IloNumVarArray &contVars,IloBoolVarArray &boolVars, IloIntVarArray &intVars,
     void addGUROBIdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, GRBEnv &env, GRBModel &Model);
-    void addConstraint(GRBEnv &env, GRBModel& Model, ROCPPConstraint_Ptr pCstrIn) const;
+    void addConstraint(GRBEnv &env, GRBModel& Model, ROCPPConstraintIF_Ptr pCstrIn) const;
     void addObjective(GRBEnv &env, GRBModel& Model, ROCPPObjectiveIF_Ptr pObjIn) const;
     void addGUROBIwarmstart(const map<string,double>& WSvars) const;
 };

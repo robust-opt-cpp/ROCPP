@@ -9,127 +9,7 @@
 #ifndef DDUApproximatorOther_hpp
 #define DDUApproximatorOther_hpp
 
-
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%% K-ADAPTABILITY PARTITION ENCODER %%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-//! K-adapatability partition encorder class
-/*!
- Class for encoding the contingency plans in k-adaptability
-*/
-class KadaptabilityPartitionEncoderMS // used to encode the choice of xi e.g, (k_1,k_2,...,k_T) \in \mathcal K^T
-{
-public:
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// Construct encoder with different values of K_t in each time stage
-    /// @param numPartitionsStr String encoding the number of contingency plans for each time period from 1 to T
-    KadaptabilityPartitionEncoderMS(ROCPPOptModelIF_Ptr pIn, string numPartitionsStr);
-    
-    /// Construct encoder with different values of K_t in each time stage
-    /// @param numPartitionsMap Map from each time period to a value of K for that period
-    KadaptabilityPartitionEncoderMS(const map<uint,uint> &numPartitionsMap); // maps each time period to a value of K
-    
-    /// Construct encoder with same K across all time stages
-    /// @param T Total number of time stages
-    /// @param K Value of K
-    KadaptabilityPartitionEncoderMS(uint T, uint K); // same value of K for all time periods
-    
-    /// Destructor of K-Adaptability partition encoder
-    ~KadaptabilityPartitionEncoderMS(){}
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// Constant iterator for m_mapPartitionNme_to_mapTime_to_k
-    typedef map<string, map<uint, uint> >::const_iterator Kmap_iterator;
-    
-    /// Return the constant iterator pointing to the beginning of the m_mapPartitionNme_to_mapTime_to_k
-    Kmap_iterator Kmap_iteratorBegin() const {return m_mapPartitionNme_to_mapTime_to_k.begin();}
-    
-    /// Return the constant iterator pointing to the end of the m_mapPartitionNme_to_mapTime_to_k
-    Kmap_iterator Kmap_iteratorEnd() const {return m_mapPartitionNme_to_mapTime_to_k.end();}
-    
-    /// Constant iterator for m_mapt_mapPartitionNme_to_mapTime_to_k
-    typedef map< uint , map< string, map<uint, uint> > >::const_iterator Klargemap_iterator;
-    
-    /// Return the constant iterator pointing to the beginning of m_mapt_mapPartitionNme_to_mapTime_to_k
-    Klargemap_iterator Klargemap_iteratorBegin() const {return m_mapt_mapPartitionNme_to_mapTime_to_k.begin();}
-    
-    /// Return the constant iterator pointing to the end of m_mapt_mapPartitionNme_to_mapTime_to_k
-    Klargemap_iterator Klargemap_iteratorEnd() const {return m_mapt_mapPartitionNme_to_mapTime_to_k.end();}
-    
-    /// Constant iterator for m_numPartitionsMap
-    typedef map<uint,uint>::const_iterator numPartitionMap_iterator;
-    
-    /// Return the constant iterator pointing to the beginning of the m_numPartitionsMap
-    numPartitionMap_iterator numPartitionMap_iteratorBegin() const {return m_numPartitionsMap.begin();}
-    
-    /// Return the constant iterator pointing to the end of the m_numPartitionsMap
-    numPartitionMap_iterator numPartitionMap_iteratorEnd() const {return m_numPartitionsMap.end();}
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// Construct the encoder, build the maps
-    void getReady();
-    
-    /// Convert the contingency plan in the input vector to a string
-    /// @param partition Vector of number of case for each time stage
-    string convertPartitionToString(const vector<uint> &partition) const;
-    
-    /// Convert the contingency plan in the input map to a string
-    /// @param partitionMap Map of time stage to number of case on that partition
-    string convertPartitionToString(const map<uint,uint> &partitionMap) const;
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// Return the total number of contingency plans for the given time stage
-    uint getKt(uint t) const;
-    
-    /// Return the contingency plan for this time stage for the given contigency plan for the entire planning horizon
-    uint getkt(string partition, uint t) const;
-    
-    /// Return the length of the planning horizon
-    uint getT() const {return m_numPartitionsMap.rbegin()->first;};
-    
-    /// Return the total number of contingency plans
-    size_t getKmapSize() const {return m_mapPartitionNme_to_mapTime_to_k.size();}
-    
-    /// Get the subset of the given partition map up to the given time stage
-    string getPartitionSubset(const map<uint,uint> &partitionMap, uint t) const;
-    
-    /// Get the first subset in this encoder
-    string getBasicPartition() const {return m_mapPartitionNme_to_mapTime_to_k.begin()->first;}
-    
-    string getMaxPartitionString() const {return convertPartitionToString(m_numPartitionsMap);}
-    
-private:
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%% Private Members %%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// Map from time period to value of K for that time-period
-    map<uint,uint> m_numPartitionsMap; // map from time period to value of K for that time-period
-    
-    /// Map from partition name to map from time period to value of k for that period
-    map<string, map<uint, uint> > m_mapPartitionNme_to_mapTime_to_k; // map from partition name to map from time period to value of k for that period
-    
-    /// Map from time t sub-partition name to map from time period to value of k for that period
-    map< uint , map< string, map<uint, uint> > > m_mapt_mapPartitionNme_to_mapTime_to_k; // map from time t sub-partition name to map from time period to value of k for that period
-};
+#include "HeaderIncludeFiles.hpp"
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -263,13 +143,13 @@ protected:
     ROCPPKadaptEncoder_Ptr m_pPartitionEncoder;
     
     /// Map from original decision variable name to partition string to new decision variable
-    map<string, map<string, ROCPPVarIF_Ptr > > m_DVmap; // map from original decision variable name to partition string to new decision variable
+    map<string, map<string, ROCPPVarIF_Ptr> > m_DVmap; // map from original decision variable name to partition string to new decision variable
     
     /// Map from partition to map from original variable name to new variable on that partition
-    map< string, map<string, ROCPPVarIF_Ptr > > m_mapPartitionEnc_mapOrigDVtoDVonPartition;
+    map< string, map<string, ROCPPVarIF_Ptr> > m_mapPartitionEnc_mapOrigDVtoDVonPartition;
     
     /// Map from pair of partition and time stage to the map from uncertainty name to the uncertainty on that partition at specific time stage
-    map< pair<string,uint> , map<string, ROCPPUnc_Ptr > > m_mapPartitionEncandt_mapOrigUnctoUnconPartition;
+    map< pair<string,uint> , map<string, ROCPPUnc_Ptr> > m_mapPartitionEncandt_mapOrigUnctoUnconPartition;
     
     ROCPPBilinearReform_Ptr m_pBTR;
     
@@ -352,17 +232,5 @@ private:
     /// Number of bits to approximate the real-valued variables affecting the uncertainty set
     uint m_numBits;
 };
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%% TOOL FUNCTION %%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void createAllPartitionsKadapt(vector<vector<uint> > &BPconfigs, uint T, const map<uint, uint> &numPartitionsMap);
-
-void appendPartitionsKadapt(vector<vector<uint> > &BPconfigs, uint t, const map<uint, uint> &numPartitionsMap);
-
-
 
 #endif /* DDUApproximatorOther_hpp */

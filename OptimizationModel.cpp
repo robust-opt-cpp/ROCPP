@@ -57,7 +57,7 @@ OptimizationModelIF::uncertaintiesIterator OptimizationModelIF::uncertaintiesEnd
 //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void OptimizationModelIF::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
+void OptimizationModelIF::checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const
 {
     if ( pConstraint->hasProdsUncertainties() )
         throw MyException("products of uncertainties not allowed");
@@ -88,7 +88,7 @@ void OptimizationModelIF::checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void OptimizationModelIF::add_constraint(ROCPPConstraint_Ptr pConstraint)
+void OptimizationModelIF::add_constraint(ROCPPConstraintIF_Ptr pConstraint, string blockNme)
 {
     if ( !pConstraint->isWellDefined() )
         throw MyException( "attempted to add a badly defined constraint to optimization model");
@@ -108,12 +108,12 @@ void OptimizationModelIF::add_constraint(ROCPPConstraint_Ptr pConstraint)
     
     checkCompatibility(pConstraint);
     
-    map<string, ROCPPVarIF_Ptr > varMap = createVarMap(pConstraint);
-    ROCPPConstraint_Ptr tempConstraint = pConstraint->mapVars(varMap);
+    map<string, ROCPPVarIF_Ptr> varMap = createVarMap(pConstraint);
+    ROCPPConstraintIF_Ptr tempConstraint = pConstraint->mapVars(varMap);
     
-    map<string, ROCPPUnc_Ptr > uncMap = createUncMap(pConstraint);
+    map<string, ROCPPUnc_Ptr> uncMap = createUncMap(pConstraint);
     
-    ROCPPConstraint_Ptr newConstraint;
+    ROCPPConstraintIF_Ptr newConstraint;
     
     if(uncMap.size() >= 1){
         newConstraint = tempConstraint->mapUnc(uncMap);
@@ -125,23 +125,38 @@ void OptimizationModelIF::add_constraint(ROCPPConstraint_Ptr pConstraint)
     push_constraint(newConstraint);
     if(newConstraint->definesUncertaintySet() )
         m_uncertaintySet.push_back(newConstraint);
+    
+    
+    // find this block and add to it or create it if it does not exist
+    map<string, vector<ROCPPConstraintIF_Ptr> >::iterator mit = m_mapBlockConstraints.find(blockNme);
+    
+    if (mit == m_mapBlockConstraints.end())
+    {
+        vector<ROCPPConstraintIF_Ptr> usvec;
+        usvec.push_back(newConstraint);
+        m_mapBlockConstraints.insert(make_pair(blockNme, usvec));
+    }
+    else
+    {
+        mit->second.push_back(newConstraint);
+    }
 }
 
-void OptimizationModelIF::add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr > &otherVars)
+void OptimizationModelIF::add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr> &otherVars, string blockNme)
 {
     ROCPPClassicConstraint_Ptr cstr( new IneqConstraint() );
     
     if (!otherVars.empty())
     {
-        vector<ROCPPExpr_Ptr > vec;
-        for (vector<ROCPPVarIF_Ptr >::const_iterator it = otherVars.begin(); it != otherVars.end(); it++)
+        vector<ROCPPExpr_Ptr> vec;
+        for (vector<ROCPPVarIF_Ptr>::const_iterator it = otherVars.begin(); it != otherVars.end(); it++)
         {
             ROCPPExpr_Ptr exp(new LHSExpression() );
-            exp->add( ROCPPCstrTerm_Ptr( new ProductTerm(1.,*it)));
+            exp->add( ROCPPCstrTermIF_Ptr( new ProductTerm(1.,*it)));
             vec.push_back(exp);
         }
         
-        ROCPPCstrTerm_Ptr pNT( new NormTerm(vec) );
+        ROCPPCstrTermIF_Ptr pNT( new NormTerm(vec) );
         
         cstr->add_lhs(pNT);
     }
@@ -155,20 +170,34 @@ void OptimizationModelIF::add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vect
     
     cstr->add_lhs(-1.,coneHead);
     cstr->set_rhs(make_pair(0.,true));
-    add_constraint(cstr);
+    add_constraint(cstr, blockNme);
+    
 }
 
-void OptimizationModelIF::add_constraints(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last)
+void OptimizationModelIF::add_constraints(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, string blockNme)
 {
-    for (vector<ROCPPConstraint_Ptr >::const_iterator it = first; it != last; it++)
-        add_constraint(*it);
+    for (vector<ROCPPConstraintIF_Ptr>::const_iterator it = first; it != last; it++)
+        add_constraint(*it, blockNme);
 }
 
 void OptimizationModelIF::add_epigraph()
 {
-    ROCPPVarIF_Ptr pEpi(new VariableDouble("epigraph") );
+    
+    // no need to write in epigraph form if objective function is linear and stochastic
+    if ( (getObjType() == stochastic) && (getObj()->getObj().size() <= 1) )
+        return;
+    
+    // else, write in epigraph form; epigraph should be adaptive variable if the problem is stochastic
+    ROCPPVarIF_Ptr pEpi;
+    if (getObjType() == robust)
+        pEpi = shared_ptr<DecisionVariableIF>( new VariableDouble("epigraph") );
+    else if (getObjType() == stochastic)
+        pEpi = shared_ptr<DecisionVariableIF>( new AdaptVarDouble("epigraph", getNumTimeStages()) );
+    else
+        throw MyException("unknown objective type");
+    
     for (auto& lhs : getObj()->getObj() ){
-        ROCPPConstraint_Ptr pCstr(new IneqConstraint() );
+        ROCPPConstraintIF_Ptr pCstr(new IneqConstraint() );
         pCstr->add_lhs(lhs);
         pCstr->add_lhs(-1.,pEpi);
         pCstr->set_rhs(make_pair(0.,true));
@@ -180,6 +209,38 @@ void OptimizationModelIF::add_epigraph()
     set_objective(newObj);
 }
 
+//void OptimizationModelIF::add_constraint(ROCPPConstraintIF_Ptr pConstraint, vector<ROCPPConstraintIF_Ptr> pUncertaintySet)
+//{
+//    // check that pConstraint is a regular constraint (does not define uncertainty set)
+//    if (pConstraint->definesUncertaintySet())
+//        throw MyException("The constraint being added cannot define the uncertainty set");
+//    
+//    // add this constraint to the problem and return it (assumes it's the last constraint in the problem)
+//    add_constraint(pConstraint);
+//    ROCPPConstraintIF_Ptr pConstraintNew( (*(m_constraints.end()--)) );
+//    
+//    // first identify the index of this constraint
+//    size_t idx(getNumConstraints());
+//    
+//    vector<ROCPPConstraintIF_Ptr> pUSNew;
+//    
+//    // iterate through all the constraints in the uncertainty set, add them to the problem, and add them to the uncertainty set vector for this constraint
+//    for (vector<ROCPPConstraintIF_Ptr>::const_iterator vus_it = pUncertaintySet.begin(); vus_it != pUncertaintySet.end(); vus_it++)
+//    {
+//        add_constraint_uncset(*vus_it);
+//        pUSNew.push_back( (*(m_constraints.end()--)) );
+//    }
+//    
+//    // add the pair with the constraint index and associated uncertainty set constraints to the appropriate map
+//    m_mapCstrIdxToUncertaintySet.insert(make_pair(idx, pUSNew));
+//    
+//    m_numIndividualUSconstraints += pUSNew.size();
+//    
+//    if ( (m_numIndividualUSconstraints!=m_uncertaintySet.size()) && (m_numIndividualUSconstraints!=0) )
+//        throw MyException("Not allowable to add both joint and individual uncertainty set constraints");
+//    
+//}
+
 void OptimizationModelIF::add_ddu(ROCPPUnc_Ptr pUncertainty, uint firstTimeStageObservable, uint lastTimeStageObservable, const map<uint, double> &obsCosts)
 {
     throw MyException("No ddu in the non ddu type model");
@@ -189,7 +250,7 @@ void OptimizationModelIF::set_ddu(ROCPPOptModelIF_Ptr pIn)
 {
 }
 
-void OptimizationModelIF::set_ddu(const map< pair<string,uint>, measPair > &dduToMeasMap, const map< string, pair<uint,uint> > &dduStagesObs)
+void OptimizationModelIF::set_ddu(const map< pair<string,uint>, measPair> &dduToMeasMap, const map< string, pair<uint,uint> > &dduStagesObs)
 {
 }
 
@@ -203,11 +264,11 @@ void OptimizationModelIF::pair_uncertainties(ROCPPUnc_Ptr u1, ROCPPUnc_Ptr u2)
     throw MyException("No ddu in the non ddu type model");
 }
 
-void OptimizationModelIF::add_constraint_uncset(ROCPPConstraint_Ptr pUncCstr)
+void OptimizationModelIF::add_constraint_uncset(ROCPPConstraintIF_Ptr pUncCstr, string blockNme)
 {
     pUncCstr->setParams(true, false);
     
-    add_constraint(pUncCstr);
+    add_constraint(pUncCstr, blockNme);
 }
 
 void OptimizationModelIF::set_objective(ROCPPObjectiveIF_Ptr pObj)
@@ -215,9 +276,9 @@ void OptimizationModelIF::set_objective(ROCPPObjectiveIF_Ptr pObj)
     
     checkCompatibility(pObj);
     
-    map<string, ROCPPVarIF_Ptr > varMap = createVarMap(pObj);
+    map<string, ROCPPVarIF_Ptr> varMap = createVarMap(pObj);
     ROCPPObjectiveIF_Ptr tempObjFun = pObj->mapObjVars(varMap);
-    map<string, ROCPPUnc_Ptr > uncMap = createUncMap(pObj);
+    map<string, ROCPPUnc_Ptr> uncMap = createUncMap(pObj);
     
     ROCPPObjectiveIF_Ptr newObjFun;
     if(uncMap.size() >= 1){
@@ -236,14 +297,14 @@ void OptimizationModelIF::set_objective(ROCPPExpr_Ptr objFun)
     set_objective(newObj);
 }
 
-void OptimizationModelIF::set_objective(vector<ROCPPExpr_Ptr > objFuns)
+void OptimizationModelIF::set_objective(vector<ROCPPExpr_Ptr> objFuns)
 {
     ROCPPObjectiveIF_Ptr newObj(new MaxObjective(objFuns));
     set_objective(newObj);
 }
 
 
-ROCPPOptModelIF_Ptr OptimizationModelIF::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr > &term, ROCPPVarIF_Ptr var) const
+ROCPPOptModelIF_Ptr OptimizationModelIF::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
 {
     ROCPPOptModelIF_Ptr pOut;
     if (isUncertainOptimizationModel())
@@ -267,9 +328,9 @@ ROCPPOptModelIF_Ptr OptimizationModelIF::replaceTermWithVar(const multimap<strin
     return pOut;
 }
 
-map<string, ROCPPVarIF_Ptr > OptimizationModelIF::createVarMap(ROCPPConstraint_Ptr pConstraint)
+map<string, ROCPPVarIF_Ptr> OptimizationModelIF::createVarMap(ROCPPConstraintIF_Ptr pConstraint)
 {
-    map<string, ROCPPVarIF_Ptr > varMap;
+    map<string, ROCPPVarIF_Ptr> varMap;
     
     for(ConstraintIF::varsIterator vit = pConstraint->varsBegin(); vit != pConstraint->varsEnd(); vit++)
     {
@@ -286,9 +347,9 @@ map<string, ROCPPVarIF_Ptr > OptimizationModelIF::createVarMap(ROCPPConstraint_P
     return varMap;
 }
 
-map<string, ROCPPVarIF_Ptr > OptimizationModelIF::createVarMap(ROCPPObjectiveIF_Ptr objFun)
+map<string, ROCPPVarIF_Ptr> OptimizationModelIF::createVarMap(ROCPPObjectiveIF_Ptr objFun)
 {
-    map<string, ROCPPVarIF_Ptr > varMap;
+    map<string, ROCPPVarIF_Ptr> varMap;
     
     for(ConstraintTermIF::dvIterator vit = objFun->varsBegin(); vit != objFun->varsEnd(); vit++)
     {
@@ -305,16 +366,16 @@ map<string, ROCPPVarIF_Ptr > OptimizationModelIF::createVarMap(ROCPPObjectiveIF_
     return varMap;
 }
 
-map<string, ROCPPUnc_Ptr > OptimizationModelIF::createUncMap(ROCPPConstraint_Ptr pConstraint)
+map<string, ROCPPUnc_Ptr> OptimizationModelIF::createUncMap(ROCPPConstraintIF_Ptr pConstraint)
 {
-    map<string, ROCPPUnc_Ptr > uncMap;
+    map<string, ROCPPUnc_Ptr> uncMap;
     
     return uncMap;
 }
 
-map<string, ROCPPUnc_Ptr > OptimizationModelIF::createUncMap(ROCPPObjectiveIF_Ptr objFun)
+map<string, ROCPPUnc_Ptr> OptimizationModelIF::createUncMap(ROCPPObjectiveIF_Ptr objFun)
 {
-    map<string, ROCPPUnc_Ptr > uncMap;
+    map<string, ROCPPUnc_Ptr> uncMap;
     
     return uncMap;
 }
@@ -379,7 +440,7 @@ ROCPPUnc_Ptr OptimizationModelIF::getUnc(string uncName) const
     throw MyException("Deterministic model does not have uncertainty");
 }
 
-uint OptimizationModelIF::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr > &term) const
+uint OptimizationModelIF::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const
 {
     uint out(0);
     
@@ -391,13 +452,13 @@ uint OptimizationModelIF::getNumTimesTermAppears(const multimap<string, ROCPPVar
     return out;
 }
 
-void OptimizationModelIF::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr > > &termMap) const
+void OptimizationModelIF::getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const
 {
     for (constraintIterator c_it = constraintBegin(); c_it != constraintEnd(); c_it++)
         (*c_it)->getAllProductsOf2Variables(freqMap,termMap);
 }
 
-map< pair<string,uint>, measPair > OptimizationModelIF::getDDUToMeasMap() const
+map< pair<string,uint>, measPair> OptimizationModelIF::getDDUToMeasMap() const
 {
     throw MyException("No DDU map in non-ddu type model");
 }
@@ -450,6 +511,11 @@ bool OptimizationModelIF::hasRectangularUncertaintySet() const
     throw MyException("This model doesn't have uncertainty set");
 }
 
+size_t OptimizationModelIF::getNumUncertainties() const
+{
+    return m_pUncContainer->getNumUncertainties();
+}
+
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -462,8 +528,14 @@ ROCPPOptModelIF_Ptr OptimizationModelIF::Clone() const
     else
         pOut = InstanciateModel(getType(),getNumTimeStages(),robust);
     
-    for (OptimizationModelIF::constraintIterator cit = constraintBegin(); cit != constraintEnd(); cit++)
-        pOut->add_constraint( (*cit)->Clone() );
+    // to add the constraints, sufficient to iterate over the map from block name to constraints
+    for (map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator mit = m_mapBlockConstraints.begin(); mit != m_mapBlockConstraints.end(); mit++)
+    {
+        for (vector<ROCPPConstraintIF_Ptr>::const_iterator vit = mit->second.begin(); vit != mit->second.end(); vit++)
+        {
+            pOut->add_constraint(*vit,mit->first);
+        }
+    }
     
     pOut->set_objective(getObj());
      
@@ -505,48 +577,53 @@ void OptimizationModelIF::WriteToFile(string folderName, string fileName) const
     ofs << endl;
     ofs << endl;
     
-    // write constraints
+    // write constraints (by block)
     
     ofs << "Constraints:" << endl;
-    uint ccnt(0);
-    for (constraintIterator c_it = constraintBegin(); c_it != constraintEnd(); c_it++)
-    {
-        if ( !(*c_it)->definesUncertaintySet() )
-        {
-            if ( (*c_it)->isClassicConstraint() )
-                (*c_it)->WriteToStream(ofs,ccnt++);
-        }
-    }
+    ofs << endl;
     
-    ccnt=0;
-    for (constraintIterator c_it = constraintBegin(); c_it != constraintEnd(); c_it++)
+    uint ccnt(0);
+    
+    for (map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
     {
-        if ( !(*c_it)->definesUncertaintySet() )
+        ofs << "Subset " << bit->first << ":" << endl;
+        ofs << endl;
+        
+        for (vector<ROCPPConstraintIF_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
         {
-            if ( !(*c_it)->isClassicConstraint() )
-                (*c_it)->WriteToStream(ofs,ccnt++);
+            if ( !(*cit)->definesUncertaintySet() )
+                (*cit)->WriteToStream(ofs,ccnt++);
+                    
         }
     }
     
     ofs << endl;
+    ofs << endl;
     
-    if(isUncertainOptimizationModel())
+    if (isUncertainOptimizationModel())
     {
         ofs << "Uncertainty Set:" << endl;
+        ofs << endl;
         
         ccnt=0;
-        for (constraintIterator c_it = constraintBegin(); c_it != constraintEnd(); c_it++)
+        
+        for (map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
         {
-            if ( (*c_it)->definesUncertaintySet() )
+            ofs << "Subset " << bit->first << ":" << endl;
+            ofs << endl;
+            
+            for (vector<ROCPPConstraintIF_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
             {
-                (*c_it)->WriteToStream(ofs,ccnt++);
+                if ( (*cit)->definesUncertaintySet() )
+                    (*cit)->WriteToStream(ofs,ccnt++);
+                        
             }
         }
-        
-        ofs << endl;
     }
+
     
     ofs << "Decision Variables:" << endl;
+    ofs << endl;
     
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++)
     {
@@ -558,6 +635,7 @@ void OptimizationModelIF::WriteToFile(string folderName, string fileName) const
     
     ofs << endl;
     ofs << "Bounds:" << endl;
+    ofs << endl;
     
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++)
     {
@@ -571,6 +649,7 @@ void OptimizationModelIF::WriteToFile(string folderName, string fileName) const
         
         ofs << endl;
         ofs << "Uncertainties:" << endl;
+        ofs << endl;
         
         for (UncertainOptimizationModel::uncertaintiesIterator u_it = pModelUnc->uncertaintiesBegin(); u_it != pModelUnc->uncertaintiesEnd(); u_it++)
         {
@@ -604,10 +683,19 @@ void OptimizationModelIF::add_ddu_obj(ROCPPVarIF_Ptr pVar, double cost)
     m_pObj->add_to_obj(pVar, cost);
 }
 
-void OptimizationModelIF::push_constraint(ROCPPConstraint_Ptr pConstraint)
+void OptimizationModelIF::push_constraint(ROCPPConstraintIF_Ptr pConstraint)
 {
     m_constraints.push_back(pConstraint);
 }
+
+ptrdiff_t OptimizationModelIF::getConstraintIdx(constraintIterator pConstraintIt) const
+{
+    // pConstraintIt must be an iterator in m_constraints
+    return ( pConstraintIt - m_constraints.begin() + 1 );
+}
+
+
+
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -619,7 +707,7 @@ void OptimizationModelIF::push_constraint(ROCPPConstraint_Ptr pConstraint)
 //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void DeterministicOptimizationModel::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
+void DeterministicOptimizationModel::checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const
 {
     if (!pConstraint->isDeterministic())
         throw MyException("cannot add non deterministic constraint to a simple optimization model");
@@ -681,7 +769,7 @@ OptimizationModelIF::uncertaintiesIterator UncertainOptimizationModel::uncertain
 //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void UncertainOptimizationModel::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
+void UncertainOptimizationModel::checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const
 {
     if (!pConstraint->definesUncertaintySet())
     {
@@ -709,9 +797,9 @@ void UncertainOptimizationModel::checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-map<string, ROCPPUnc_Ptr > UncertainOptimizationModel:: createUncMap(ROCPPConstraint_Ptr pConstraint)
+map<string, ROCPPUnc_Ptr> UncertainOptimizationModel:: createUncMap(ROCPPConstraintIF_Ptr pConstraint)
 {
-    map<string, ROCPPUnc_Ptr > uncMap;
+    map<string, ROCPPUnc_Ptr> uncMap;
     
     for(ConstraintIF::uncertaintiesIterator uit = pConstraint->uncertaintiesBegin(); uit != pConstraint->uncertaintiesEnd(); uit++)
     {
@@ -728,9 +816,9 @@ map<string, ROCPPUnc_Ptr > UncertainOptimizationModel:: createUncMap(ROCPPConstr
     return uncMap;
 }
 
-map<string, ROCPPUnc_Ptr > UncertainOptimizationModel:: createUncMap(ROCPPObjectiveIF_Ptr objFun)
+map<string, ROCPPUnc_Ptr> UncertainOptimizationModel:: createUncMap(ROCPPObjectiveIF_Ptr objFun)
 {
-    map<string, ROCPPUnc_Ptr > uncMap;
+    map<string, ROCPPUnc_Ptr> uncMap;
     
     for(ConstraintTermIF::uncIterator uit = objFun->uncBegin(); uit != objFun->uncEnd(); uit++)
     {
@@ -765,7 +853,7 @@ void UncertainOptimizationModel::getExpectation()
     
     double meanValue;
     
-    map<string, ROCPPExpr_Ptr > mapFromUncToExpression;
+    map<string, ROCPPExpr_Ptr> mapFromUncToExpression;
     
     for(; uit!=getObj()->uncEnd(); uit++)
     {
@@ -849,6 +937,28 @@ bool UncertainOptimizationModel::hasRectangularUncertaintySet() const
     return out;
 }
 
+bool UncertainOptimizationModel::hasRealVarsInUncertaintySet() const
+{
+    for (uncertaintySetIterator us_it = uncertaintySetBegin(); us_it != uncertaintySetEnd(); us_it++)
+    {
+        size_t nu((*us_it)->getNumAdaptiveContVars() + (*us_it)->getNumContVars());
+        if (nu > 1)
+            return true;
+    }
+    return false;
+}
+
+bool UncertainOptimizationModel::hasDecisionDependentUncertaintySet() const
+{
+    for (uncertaintySetIterator us_it = uncertaintySetBegin(); us_it != uncertaintySetEnd(); us_it++)
+    {
+        size_t nu((*us_it)->getNumIntVars() + (*us_it)->getNumBoolVars() + (*us_it)->getNumContVars() + (*us_it)->getNumAdaptiveVars() );
+        if (nu > 1)
+            return true;
+    }
+    return false;
+}
+
 ROCPPUnc_Ptr UncertainOptimizationModel::getUnc(string uncName) const
 {
     return ( m_pUncContainer->findthrow(uncName)->second );
@@ -867,6 +977,72 @@ ROCPPuncContainer_Ptr UncertainOptimizationModel::getObsUncContainer() const
     
     return out;
     
+}
+
+UncertainOptimizationModel::uncertaintySetIterator UncertainOptimizationModel::uncertaintySetBegin(string blockNme) const
+{
+    map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator mit = m_mapBlockConstraints.find(blockNme);
+    
+    if (mit==m_mapBlockConstraints.end())
+        throw MyException("block name not found");
+    
+    return (mit->second.begin());
+
+}
+
+
+
+//ROCPPOptModelIF_Ptr UncertainOptimizationModel::Clone() const
+//{
+//    ROCPPOptModelIF_Ptr pOut = OptimizationModelIF::Clone();
+//    
+//    // if some constraints have their own uncertainty set, add only the constraints that do not define the uncertainty set and then add the uncertainty set for each constraint
+//    if (m_mapCstrIdxToUncertaintySet.size()!=0)
+//    {
+//        for (OptimizationModelIF::constraintIterator cit = constraintBegin(); cit != constraintEnd(); cit++)
+//        {
+//            if ((*cit)->isDeterministic())
+//            {
+//                pOut->add_constraint(*cit);
+//            }
+//            else
+//            {
+//                if (!(*cit)->definesUncertaintySet())
+//                {
+//                    // find the idx of the constraint in map and return the vector of uncertainty set constraints
+//                    ptrdiff_t idx = getConstraintIdx(cit);
+//                    
+//                    map<ptrdiff_t, vector<ROCPPConstraintIF_Ptr> >::const_iterator mit = m_mapCstrIdxToUncertaintySet.find(idx);
+//                    
+//                    if (mit==m_mapCstrIdxToUncertaintySet.end())
+//                        throw MyException("Constraint index not found in m_mapCstrIdxToUncertaintySet");
+//                    
+//                    pOut->add_constraint(*cit, mit->second);
+//                    
+//                }
+//            }
+//        }
+//    }
+//    
+//    // check that we have the right number of constraints (if not, we had uncertainty set constraints that were imposed over individual constraints and over all constraints at the same time
+//    
+//    if (getNumConstraints()!=pOut->getNumConstraints())
+//        throw MyException("Clone operation failed");
+//    
+//     
+//    return pOut;
+//}
+
+
+UncertainOptimizationModel::uncertaintySetIterator UncertainOptimizationModel::uncertaintySetEnd(string blockNme) const
+{
+    map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator mit = m_mapBlockConstraints.find(blockNme);
+    
+    if (mit==m_mapBlockConstraints.end())
+        throw MyException("block name not found");
+    
+    return (mit->second.end());
+
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -889,34 +1065,6 @@ void UncertainOptimizationModel::add_uncertainties(ROCPPconstuncContainer_Ptr pU
         add_uncertainty(it->second);
 }
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%% Simple Uncertain Optimization Model %%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void SimpleUncertainOptimizationModel::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
-{
-    UncertainOptimizationModel::checkCompatibility(pConstraint);
-    
-    if (pConstraint->hasNonlinearities())
-        throw MyException("SimpleUncertainOptimizationModel should not have bilinear terms");
-
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%% Simple Uncertain Single Stage Optimization Model %%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void SimpleUncertainSingleStageOptimizationModel::checkCompatibility(ROCPPVarIF_Ptr pVariable) const
-{
-    OptimizationModelIF::checkCompatibility(pVariable);
-    
-    if (pVariable->isAdaptive())
-        throw MyException("cannot add adaptive variable to single stage model");
-}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -943,7 +1091,7 @@ void UncertainSingleStageOptimizationModel::checkCompatibility(ROCPPVarIF_Ptr pV
 //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void MISOCP::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
+void MISOCP::checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const
 {
     DeterministicOptimizationModel::checkCompatibility(pConstraint);
     
@@ -972,7 +1120,7 @@ void MISOCP::checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void Bilinear_MISOCP::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
+void Bilinear_MISOCP::checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const
 {
     DeterministicOptimizationModel::checkCompatibility(pConstraint);
 }
@@ -1020,7 +1168,7 @@ CPLEXMISOCP::CPLEXMISOCP(ROCPPMISOCP_Ptr pIn, string baseVarNme) : m_baseVarNme(
                 
                 if ( (conehead_expr->getNumTerms()==1) && (!(*conehead_expr->begin())->hasNonlinearities() ) )
                 {
-                    ROCPPCstrTerm_Ptr tmp( *conehead_expr->begin() );
+                    ROCPPCstrTermIF_Ptr tmp( *conehead_expr->begin() );
                     if (!tmp->isProductTerm())
                         throw MyException("linear part should not involve norm term");
                     
@@ -1039,7 +1187,7 @@ CPLEXMISOCP::CPLEXMISOCP(ROCPPMISOCP_Ptr pIn, string baseVarNme) : m_baseVarNme(
                 
                 // then build variables for norm term elements
                 
-                vector<ROCPPProdTerm_Ptr > nonHeadVarsVec;
+                vector<ROCPPProdTerm_Ptr> nonHeadVarsVec;
                 ROCPPNormTerm_Ptr pNT( pClassic->getNormTerm() );
                 
                 uint tnum(0);
@@ -1050,7 +1198,7 @@ CPLEXMISOCP::CPLEXMISOCP(ROCPPMISOCP_Ptr pIn, string baseVarNme) : m_baseVarNme(
                     
                     if ( (nonhead_expr->getNumTerms()==1) && (!(*nonhead_expr->begin())->hasNonlinearities() ) )
                     {
-                        ROCPPCstrTerm_Ptr tmp( *nonhead_expr->begin() );
+                        ROCPPCstrTermIF_Ptr tmp( *nonhead_expr->begin() );
                         if (!tmp->isProductTerm())
                             throw MyException("norm term expression should not involve norm term");
                         
@@ -1089,7 +1237,7 @@ CPLEXMISOCP::CPLEXMISOCP(ROCPPMISOCP_Ptr pIn, string baseVarNme) : m_baseVarNme(
 //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void CPLEXMISOCP::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
+void CPLEXMISOCP::checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const
 {
     DeterministicOptimizationModel::checkCompatibility(pConstraint);
 }
@@ -1108,12 +1256,12 @@ void CPLEXMISOCP::checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const
 //%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr > &otherVars)
+void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr> &otherVars)
 {
     ROCPPProdTerm_Ptr pPTconeHead( new ProductTerm(1., coneHead) );
-    vector< ROCPPProdTerm_Ptr > pPTother;
+    vector<ROCPPProdTerm_Ptr> pPTother;
     
-    for (vector<ROCPPVarIF_Ptr >::const_iterator it = otherVars.begin(); it != otherVars.end(); it++)
+    for (vector<ROCPPVarIF_Ptr>::const_iterator it = otherVars.begin(); it != otherVars.end(); it++)
     {
         pPTother.push_back( ROCPPProdTerm_Ptr( new ProductTerm( 1., *it) ) );
     }
@@ -1121,7 +1269,7 @@ void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPVarIF_Ptr coneHead, const vector<
     add_cplexsoc_constraint( pPTconeHead, pPTother );
 }
 
-void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vector<ROCPPProdTerm_Ptr > &otherVars)
+void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vector<ROCPPProdTerm_Ptr> &otherVars)
 {
     // this is correct, but it will imply that we cannot have soc constraints in MISOCP problems since they involve nonlinearities
     {
@@ -1135,7 +1283,7 @@ void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vect
         {
             ROCPPClassicConstraint_Ptr cstr( new IneqConstraint() );
             ROCPPExpr_Ptr expr( new LHSExpression() );
-            (*expr) += ROCPPCstrTerm_Ptr(coneHead);
+            (*expr) += ROCPPCstrTermIF_Ptr(coneHead);
             (*expr) *= -1.;
             cstr->add_lhs( expr );
             cstr->set_rhs( make_pair(0.,true) );
@@ -1148,13 +1296,13 @@ void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vect
         
         {
             ROCPPExpr_Ptr expr( new LHSExpression() );
-            (*expr) += ROCPPCstrTerm_Ptr(coneHead);
-            (*expr) *= ROCPPCstrTerm_Ptr(coneHead);
+            (*expr) += ROCPPCstrTermIF_Ptr(coneHead);
+            (*expr) *= ROCPPCstrTermIF_Ptr(coneHead);
             (*expr) *= -1.;
             cstr->add_lhs( expr );
         }
         
-        for (vector<ROCPPProdTerm_Ptr >::const_iterator vit = otherVars.begin(); vit != otherVars.end(); vit++)
+        for (vector<ROCPPProdTerm_Ptr>::const_iterator vit = otherVars.begin(); vit != otherVars.end(); vit++)
         {
             if ((*vit)->hasNonlinearities())
                 throw MyException("this term cannot have nonlinearities");
@@ -1163,8 +1311,8 @@ void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vect
                 throw MyException("this term cannot have uncertainties");
             
             ROCPPExpr_Ptr expr( new LHSExpression() );
-            (*expr) += ROCPPCstrTerm_Ptr(*vit);
-            (*expr) *= ROCPPCstrTerm_Ptr(*vit);
+            (*expr) += ROCPPCstrTermIF_Ptr(*vit);
+            (*expr) *= ROCPPCstrTermIF_Ptr(*vit);
             cstr->add_lhs( expr );
         }
         
@@ -1183,8 +1331,8 @@ void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vect
 //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-DDUOptimizationModel::DDUOptimizationModel(uint numTimeStages, uncOptModelObjType objType) :
-UncertainOptimizationModel(numTimeStages,objType)
+MultiStageOptModelDDID::MultiStageOptModelDDID(uint numTimeStages, uncOptModelObjType objType) :
+UncertainMultiStageOptimizationModel(numTimeStages,objType)
 {
 //    if(objType != robust)
 //    {
@@ -1196,33 +1344,33 @@ UncertainOptimizationModel(numTimeStages,objType)
 //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-DDUOptimizationModel::dduIterator DDUOptimizationModel::dduBegin() const
+MultiStageOptModelDDID::dduIterator MultiStageOptModelDDID::dduBegin() const
 {
     return m_dduContainer->begin();
 }
 
-DDUOptimizationModel::dduIterator DDUOptimizationModel::dduEnd() const
+MultiStageOptModelDDID::dduIterator MultiStageOptModelDDID::dduEnd() const
 {
     return m_dduContainer->end();
 }
 
-DDUOptimizationModel::nondduIterator DDUOptimizationModel::nondduBegin() const
+MultiStageOptModelDDID::nondduIterator MultiStageOptModelDDID::nondduBegin() const
 {
     return m_nondduContainer->begin();
 }
 
 
-DDUOptimizationModel::nondduIterator DDUOptimizationModel::nondduEnd() const
+MultiStageOptModelDDID::nondduIterator MultiStageOptModelDDID::nondduEnd() const
 {
     return m_nondduContainer->end();
 }
 
-DDUOptimizationModel::dduToMeasMapIterator DDUOptimizationModel::dduToMeasMapBegin() const
+MultiStageOptModelDDID::dduToMeasMapIterator MultiStageOptModelDDID::dduToMeasMapBegin() const
 {
     return m_dduToMeasMap.begin();
 }
 
-DDUOptimizationModel::dduToMeasMapIterator DDUOptimizationModel::dduToMeasMapEnd() const
+MultiStageOptModelDDID::dduToMeasMapIterator MultiStageOptModelDDID::dduToMeasMapEnd() const
 {
     return m_dduToMeasMap.end();
 }
@@ -1231,7 +1379,7 @@ DDUOptimizationModel::dduToMeasMapIterator DDUOptimizationModel::dduToMeasMapEnd
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void DDUOptimizationModel::add_ddu(ROCPPUnc_Ptr pUncertainty, uint firstTimeStageObservable, uint lastTimeStageObservable, const map<uint, double> &obsCosts)
+void MultiStageOptModelDDID::add_ddu(ROCPPUnc_Ptr pUncertainty, uint firstTimeStageObservable, uint lastTimeStageObservable, const map<uint, double> &obsCosts)
 {
     
     ROCPPUnc_Ptr newUnc = pUncertainty->Clone();
@@ -1362,7 +1510,7 @@ void DDUOptimizationModel::add_ddu(ROCPPUnc_Ptr pUncertainty, uint firstTimeStag
     }
 }
 
-void DDUOptimizationModel::set_objective(ROCPPObjectiveIF_Ptr pObj)
+void MultiStageOptModelDDID::set_objective(ROCPPObjectiveIF_Ptr pObj)
 {
     OptimizationModelIF::set_objective(pObj);
     
@@ -1382,7 +1530,7 @@ void DDUOptimizationModel::set_objective(ROCPPObjectiveIF_Ptr pObj)
 }
 
 
-void DDUOptimizationModel::pair_uncertainties(ROCPPUnc_Ptr u1, ROCPPUnc_Ptr u2)
+void MultiStageOptModelDDID::pair_uncertainties(ROCPPUnc_Ptr u1, ROCPPUnc_Ptr u2)
 {
     string u1name(u1->getName());
     string u2name(u2->getName());
@@ -1410,12 +1558,12 @@ void DDUOptimizationModel::pair_uncertainties(ROCPPUnc_Ptr u1, ROCPPUnc_Ptr u2)
     }
 }
 
-void DDUOptimizationModel::set_ddu(ROCPPOptModelIF_Ptr pIn)
+void MultiStageOptModelDDID::set_ddu(ROCPPOptModelIF_Ptr pIn)
 {
     set_ddu(pIn->getDDUToMeasMap(), pIn->getdduStagesObs());
 }
 
-void DDUOptimizationModel::set_ddu(const map< pair<string,uint>, measPair > &dduToMeasMap, const map< string, pair<uint,uint> > &dduStagesObs)
+void MultiStageOptModelDDID::set_ddu(const map< pair<string,uint>, measPair> &dduToMeasMap, const map< string, pair<uint,uint> > &dduStagesObs)
 {
     m_dduStagesObs.clear();
     
@@ -1434,7 +1582,7 @@ void DDUOptimizationModel::set_ddu(const map< pair<string,uint>, measPair > &ddu
     
     ROCPPuncContainer_Ptr nonddu = ROCPPuncContainer_Ptr(new uncContainer() );
     
-    for(map<string, ROCPPUnc_Ptr >::const_iterator uit = uncertaintiesBegin(); uit != uncertaintiesEnd(); uit++)
+    for(map<string, ROCPPUnc_Ptr>::const_iterator uit = uncertaintiesBegin(); uit != uncertaintiesEnd(); uit++)
     {
         if( dduStagesObs.find(uit->first) != dduStagesObs.end() ){
             *m_dduContainer += uit->second;
@@ -1451,7 +1599,7 @@ void DDUOptimizationModel::set_ddu(const map< pair<string,uint>, measPair > &ddu
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-DDUOptimizationModel::dduToMeasMapIterator DDUOptimizationModel::find(string uncName, uint timeStage) const
+MultiStageOptModelDDID::dduToMeasMapIterator MultiStageOptModelDDID::find(string uncName, uint timeStage) const
 {
     dduToMeasMapIterator it = m_dduToMeasMap.find( make_pair(uncName,timeStage) );
     if (it==dduToMeasMapEnd())
@@ -1460,12 +1608,12 @@ DDUOptimizationModel::dduToMeasMapIterator DDUOptimizationModel::find(string unc
     return it;
 }
 
-DDUOptimizationModel::measVarsIterator DDUOptimizationModel::find(string varName) const
+MultiStageOptModelDDID::measVarsIterator MultiStageOptModelDDID::find(string varName) const
 {
     return (m_measVars.find(varName));
 }
 
-bool DDUOptimizationModel::isMeasVar(string varName) const
+bool MultiStageOptModelDDID::isMeasVar(string varName) const
 {
     if (varIsDefined(varName))
     {
@@ -1479,7 +1627,7 @@ bool DDUOptimizationModel::isMeasVar(string varName) const
     return true;
 }
 
-bool DDUOptimizationModel::isDDU(string uncName) const
+bool MultiStageOptModelDDID::isDDU(string uncName) const
 {
     uncContainer::const_iterator ddu_it( m_dduContainer->find( uncName ) );
     
@@ -1489,7 +1637,7 @@ bool DDUOptimizationModel::isDDU(string uncName) const
     return true;
 }
 
-uint DDUOptimizationModel::getFirstStageObservable(string uncName) const
+uint MultiStageOptModelDDID::getFirstStageObservable(string uncName) const
 {
     map<string, pair<uint,uint> >::const_iterator obs_it( m_dduStagesObs.find(uncName) );
     if (obs_it == m_dduStagesObs.end() )
@@ -1498,7 +1646,7 @@ uint DDUOptimizationModel::getFirstStageObservable(string uncName) const
     return (obs_it->second.first);
 }
 
-uint DDUOptimizationModel::getLastStageObservable(string uncName) const
+uint MultiStageOptModelDDID::getLastStageObservable(string uncName) const
 {
     map<string, pair<uint,uint> >::const_iterator obs_it( m_dduStagesObs.find(uncName) );
     if (obs_it == m_dduStagesObs.end() )
@@ -1507,9 +1655,9 @@ uint DDUOptimizationModel::getLastStageObservable(string uncName) const
     return (obs_it->second.second);
 }
 
-size_t DDUOptimizationModel::getNumDDUncertainties() const {return m_dduContainer->getNumUncertainties();}
+size_t MultiStageOptModelDDID::getNumDDUncertainties() const {return m_dduContainer->getNumUncertainties();}
 
-ROCPPVarIF_Ptr DDUOptimizationModel::getMeasVar(string dduncName, uint timeStage) const
+ROCPPVarIF_Ptr MultiStageOptModelDDID::getMeasVar(string dduncName, uint timeStage) const
 {
     dduToMeasMapIterator m_it( find( dduncName,timeStage) );
     
@@ -1519,7 +1667,7 @@ ROCPPVarIF_Ptr DDUOptimizationModel::getMeasVar(string dduncName, uint timeStage
     return (m_it->second.m_measVar);
 }
 
-ROCPPUnc_Ptr DDUOptimizationModel::getAssociatedUncertainty(string measVar) const
+ROCPPUnc_Ptr MultiStageOptModelDDID::getAssociatedUncertainty(string measVar) const
 {
     if (!isMeasVar(measVar))
         throw MyException("this is not a measurement variable");
@@ -1527,7 +1675,7 @@ ROCPPUnc_Ptr DDUOptimizationModel::getAssociatedUncertainty(string measVar) cons
     return ((m_measVars.find(measVar))->second.m_ddu);
 }
 
-void DDUOptimizationModel::add_uncertainty( ROCPPUnc_Ptr pUnc)
+void MultiStageOptModelDDID::add_uncertainty( ROCPPUnc_Ptr pUnc)
 {
     if (pUnc->getTimeStage() > getNumTimeStages())
         throw MyException("time stage of uncertainty should be no more than number of stages in the model");
@@ -1542,7 +1690,7 @@ void DDUOptimizationModel::add_uncertainty( ROCPPUnc_Ptr pUnc)
 //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void DDUOptimizationModel::WriteToFile(string folderName, string fileName) const
+void MultiStageOptModelDDID::WriteToFile(string folderName, string fileName) const
 {
     string filePath = folderName;
     if (folderName!="")
@@ -1570,43 +1718,55 @@ void DDUOptimizationModel::WriteToFile(string folderName, string fileName) const
     ofs << endl;
     ofs << endl;
     
-    // write constraints
+    // write constraints (by block)
     
-    ofs << "Constraints" << endl;
+    ofs << "Constraints:" << endl;
+    ofs << endl;
+    
     uint ccnt(0);
-    for (constraintIterator c_it = constraintBegin(); c_it != constraintEnd(); c_it++)
-    {
-        if ( !(*c_it)->definesUncertaintySet() )
-        {
-            if ( (*c_it)->isClassicConstraint() )
-                (*c_it)->WriteToStream(ofs,ccnt++);
-        }
-    }
     
-    ccnt=0;
-    for (constraintIterator c_it = constraintBegin(); c_it != constraintEnd(); c_it++)
+    for (map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
     {
-        if ( !(*c_it)->definesUncertaintySet() )
+        ofs << "Subset " << bit->first << ":" << endl;
+        ofs << endl;
+        
+        for (vector<ROCPPConstraintIF_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
         {
-            if ( !(*c_it)->isClassicConstraint() )
-                (*c_it)->WriteToStream(ofs,ccnt++);
+            if ( !(*cit)->definesUncertaintySet() )
+                (*cit)->WriteToStream(ofs,ccnt++);
+                    
         }
     }
     
     ofs << endl;
-    ofs << "Uncertainty Set:" << endl;
+    ofs << endl;
     
-    ccnt=0;
-    for (constraintIterator c_it = constraintBegin(); c_it != constraintEnd(); c_it++)
+    if (isUncertainOptimizationModel())
     {
-        if ( (*c_it)->definesUncertaintySet() )
+        ofs << "Uncertainty Set:" << endl;
+        ofs << endl;
+        
+        ccnt=0;
+        
+        for (map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
         {
-            (*c_it)->WriteToStream(ofs,ccnt++);
+            ofs << "Subset " << bit->first << ":" << endl;
+            ofs << endl;
+            
+            for (vector<ROCPPConstraintIF_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
+            {
+                if ( (*cit)->definesUncertaintySet() )
+                    (*cit)->WriteToStream(ofs,ccnt++);
+                        
+            }
         }
     }
     
     ofs << endl;
+    ofs << endl;
+    
     ofs << "Decision Variables:" << endl;
+    ofs << endl;
     
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++)
     {
@@ -1627,6 +1787,7 @@ void DDUOptimizationModel::WriteToFile(string folderName, string fileName) const
     
     ofs << endl;
     ofs << "Bounds:" << endl;
+    ofs << endl;
     
     for (varsIterator v_it = varsBegin(); v_it != varsEnd(); v_it++)
     {
@@ -1640,6 +1801,7 @@ void DDUOptimizationModel::WriteToFile(string folderName, string fileName) const
         
         ofs << endl;
         ofs << "Uncertainties:" << endl;
+        ofs << endl;
         
         for (UncertainOptimizationModel::uncertaintiesIterator u_it = m_nondduContainer->begin(); u_it != m_nondduContainer->end(); u_it++)
         {
@@ -1661,18 +1823,21 @@ void DDUOptimizationModel::WriteToFile(string folderName, string fileName) const
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPOptModelIF_Ptr DDUOptimizationModel::Clone() const
+ROCPPOptModelIF_Ptr MultiStageOptModelDDID::Clone() const
 {
-    ROCPPOptModelIF_Ptr pOut;
-    if (isUncertainOptimizationModel())
-        pOut = InstanciateModel(getType(),getNumTimeStages(),getObjType());
-    else
-        pOut = InstanciateModel(getType(),getNumTimeStages(),robust);
+//    ROCPPOptModelIF_Ptr pOut;
+//    if (isUncertainOptimizationModel())
+//        pOut = InstanciateModel(getType(),getNumTimeStages(),getObjType());
+//    else
+//        pOut = InstanciateModel(getType(),getNumTimeStages(),robust);
+//
+//    for (OptimizationModelIF::constraintIterator cit = constraintBegin(); cit != constraintEnd(); cit++)
+//        pOut->add_constraint( (*cit)->Clone() );
+//
+//    pOut->set_objective(getObj());
     
-    for (OptimizationModelIF::constraintIterator cit = constraintBegin(); cit != constraintEnd(); cit++)
-        pOut->add_constraint( (*cit)->Clone() );
+    ROCPPOptModelIF_Ptr pOut = UncertainOptimizationModel::Clone();
     
-    pOut->set_objective(getObj());
     pOut->set_ddu(getDDUToMeasMap(), getdduStagesObs());
     
     return pOut;
@@ -1690,13 +1855,11 @@ ROCPPOptModelIF_Ptr InstanciateModel( problemType type, uint numTimeStages, uncO
     if (type==uncertainType)
         return ROCPPOptModelIF_Ptr( new  UncertainOptimizationModel(numTimeStages,objType) );
     else if (type == dduType)
-        return ROCPPOptModelIF_Ptr( new  DDUOptimizationModel(numTimeStages,objType) );
-    else if (type == simpleuType)
-        return ROCPPOptModelIF_Ptr( new  SimpleUncertainOptimizationModel(numTimeStages,objType) );
+        return ROCPPOptModelIF_Ptr( new  MultiStageOptModelDDID(numTimeStages,objType) );
     else if (type == uncertainssType)
         return ROCPPOptModelIF_Ptr( new  UncertainSingleStageOptimizationModel(objType) );
-    else if (type == suncertainssType)
-        return ROCPPOptModelIF_Ptr( new  SimpleUncertainSingleStageOptimizationModel(objType) );
+    else if (type == uncertainmsType)
+        return ROCPPOptModelIF_Ptr( new  UncertainMultiStageOptimizationModel(numTimeStages, objType) );
     if (type==deterministicType)
         return ROCPPOptModelIF_Ptr( new  DeterministicOptimizationModel() );
     else if (type == misocpType)

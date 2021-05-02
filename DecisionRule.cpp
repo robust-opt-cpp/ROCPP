@@ -13,6 +13,7 @@
 #include "Constraint.hpp"
 #include "ObjectiveFunction.hpp"
 #include "OptimizationModel.hpp"
+#include "ReformulationOrchestrator.hpp"
 #include "VariableConverter.hpp"
 #include "OptModelConverters.hpp"
 #include "RobustifyEngine.hpp"
@@ -33,7 +34,7 @@
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void ContinuousVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
+void ContinuousVarsDRIF::findVarsToTranslate(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
 {
     for (ObjectiveFunctionIF::varsIterator vit = obj->varsBegin(); vit != obj->varsEnd(); vit++)
     {
@@ -41,7 +42,7 @@ void ContinuousVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const
             container += vit->second;
     }
     
-    for (vector<ROCPPConstraint_Ptr >::const_iterator cit = first; cit != last; cit++)
+    for (vector<ROCPPConstraintIF_Ptr>::const_iterator cit = first; cit != last; cit++)
     {
         for (ConstraintIF::varsIterator vit = (*cit)->varsBegin(); vit != (*cit)->varsEnd(); vit++)
         {
@@ -61,6 +62,48 @@ void ContinuousVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+bool LinearDecisionRule::isApplicable(ROCPPOptModelIF_Ptr pIn) const
+{
+    if (!pIn->isUncertainOptimizationModel())
+    {
+        cout << "Cannot apply LinearDecisionRule to deterministic model" << endl;
+        return false;
+    }
+    
+    if ((pIn->getObjType() == stochastic) && ( (!pIn->hasRectangularUncertaintySet()) || (pIn->hasDecisionDependentUncertaintySet()) ) )
+    {
+        cout << "LinearDecisionRule approximator is only applicable to stochastic problems with rectangular and decision-independent uncertainty set or to robust problems" << endl;
+        return false;
+    }
+    
+    if (pIn->hasRealVarsInUncertaintySet())
+    {
+        cout << "LinearDecisionRule approximator does not apply to problems with uncertainty set affected by real valued decisions" << endl;
+        return false;
+    }
+    
+    vector<ROCPPExpr_Ptr> objs(pIn->getObj()->getObj());
+    
+    vector<ROCPPExpr_Ptr>::const_iterator obj(objs.begin());
+    
+    for(; obj != objs.end(); obj++)
+    {
+        if((*obj)->hasProdsUncertainties())
+        {
+            cout << "Cannot deal with products of uncertainties at this time" << endl;
+            return false;
+        }
+    }
+    
+    if ( (pIn->hasNonlinearities()) ) // here also will need to check if we have real valued decisions affecting the uncertainty set
+    {
+        cout << "Cannot handle nonlinear problem at present" << endl;
+        return false;
+    }
+    
+    return true;
+}
+
 ROCPPOptModelIF_Ptr LinearDecisionRule::convertVar(ROCPPOptModelIF_Ptr pIn, bool resetAndSave)
 {
     ROCPPUncOptModel_Ptr pInUnc = static_pointer_cast<UncertainOptimizationModel>(pIn);
@@ -69,7 +112,80 @@ ROCPPOptModelIF_Ptr LinearDecisionRule::convertVar(ROCPPOptModelIF_Ptr pIn, bool
     return VariableConverterIF::convertVar(pIn,resetAndSave);
 }
 
-void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd)
+ROCPPOptModelIF_Ptr LinearDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
+{
+    cout << endl;
+    cout << "=========================================================================== " << endl;
+    cout << "=========================================================================== " << endl;
+    cout << "======================== APPROXIMATING USING LDR ========================== " << endl;
+    cout << "=========================================================================== " << endl;
+    cout << "=========================================================================== " << endl;
+    cout << endl;
+    
+    auto start = chrono::high_resolution_clock::now();
+    
+    ROCPPOptModelIF_Ptr pModel(pIn->Clone());
+    
+    if (pIn->getObjType() == robust)
+        pModel->add_epigraph();
+    
+    // do linear decision rule
+    ROCPPOptModelIF_Ptr pLDRModel(convertVar(pModel, true) );
+
+
+    if ( pLDRModel->getNumAdaptiveContVars() != 0 )
+        throw MyException("Adaptive continous variables should have been eliminated by now");
+    
+    if (pIn->getObjType() == stochastic)
+        pLDRModel->getExpectation();
+
+    
+    if(pIn->isMultiStageOptModelDDID() )
+    {
+        ROCPPOptModelDDID_Ptr pIn_DDU( static_pointer_cast<MultiStageOptModelDDID>(pIn));
+        
+        // ---------------- DECISION-DEPENDENT NON-ANTICIPATIVITY CONSTRAINTS -----------------------------------------------
+        
+        // |Y_{t,ij}| <= M x_{t-1,j} \forall i,j,t
+        for (OneToExprVariableConverterIF::const_iterator tmldr_it=begin(); tmldr_it!=end(); tmldr_it++)
+        {
+            ROCPPVarIF_Ptr odv( pIn_DDU->getVar( tmldr_it->first ) );//Y_{t,i}
+            
+            for (MultiStageOptModelDDID::dduIterator ddu_it = pIn_DDU->dduBegin(); ddu_it != pIn_DDU->dduEnd(); ddu_it++)
+            {
+                ROCPPVarIF_Ptr mv( pIn_DDU->getMeasVar(ddu_it->first,odv->getTimeStage()-1) );//x_{t-1, j}
+                
+                ROCPPVarIF_Ptr ldrCoeff (getCoeffDV( odv->getName(),ddu_it->second->getName()) );//Y_{t, ij}
+                
+                // add non-anticipativity constraints
+                ROCPPConstraintIF_Ptr pConstraint1( new IneqConstraint(false,true) );
+                pConstraint1->add_lhs(1.,ldrCoeff);
+                pConstraint1->add_lhs(-1.*m_bigM, mv);
+                pConstraint1->set_rhs(make_pair(0.,true));
+                pLDRModel->add_constraint(pConstraint1);
+                
+                ROCPPConstraintIF_Ptr pConstraint2( new IneqConstraint(false,true) );
+                pConstraint2->add_lhs(-1.,ldrCoeff);
+                pConstraint2->add_lhs(-1.*m_bigM, mv);
+                pConstraint2->set_rhs(make_pair(0.,true));
+                pLDRModel->add_constraint(pConstraint2);
+            }
+        }
+    }
+    auto stop = chrono::high_resolution_clock::now();
+    
+    auto duration = std::chrono::duration_cast<chrono::seconds>(stop - start);
+    
+    cout << endl;
+    cout << "Total time to approximate: " << duration.count() << " seconds" << endl;
+    cout << "=========================================================================== " << endl;
+    cout << endl;
+    
+    
+    return pLDRModel;
+}
+
+void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPExpr_Ptr>  &translationMap, vector<ROCPPConstraintIF_Ptr> &toAdd)
 {
     if (!m_uncContSet)
         throw MyException("uncertainty container in LDR is not set");
@@ -96,7 +212,7 @@ void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, m
             if ( (uit->second->isObservable() ) && (uit->second->getTimeStage() <= vit->second->getTimeStage() ) && (uit->second->getTimeStage() + getMemory() > vit->second->getTimeStage() ) )
             {
                 ROCPPVarIF_Ptr dv ( new VariableDouble( vit->second->getName() + "_" + uit->second->getName() ) );
-                (*ldr) += ROCPPCstrTerm_Ptr (new ProductTerm( 1., uit->second, dv ) );
+                (*ldr) += ROCPPCstrTermIF_Ptr (new ProductTerm( 1., uit->second, dv ) );
                 cnt++;
                 
                 m_mapOrigDVUncPairToCoeffDV.insert( make_pair( make_pair(vit->second->getName(), uit->second->getName() ), dv) );
@@ -144,7 +260,7 @@ void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, m
 
 ROCPPVarIF_Ptr LinearDecisionRule::getCoeffDV(string dvName, string uncName) const
 {
-    map< pair<string,string>, ROCPPVarIF_Ptr >::const_iterator it ( m_mapOrigDVUncPairToCoeffDV.find(make_pair(dvName,uncName)) );
+    map< pair<string,string>, ROCPPVarIF_Ptr>::const_iterator it ( m_mapOrigDVUncPairToCoeffDV.find(make_pair(dvName,uncName)) );
     
     if (it==m_mapOrigDVUncPairToCoeffDV.end())
         throw MyException("this pair " + dvName + " " + uncName + " is not available in the linear decision rule");
@@ -164,12 +280,12 @@ void LinearDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<strin
         return;
     }
     
-    map<string, ROCPPVarIF_Ptr > expression;
-    multimap<string, pair<string, ROCPPVarIF_Ptr > > copy = getLDRExpr();
+    map<string, ROCPPVarIF_Ptr> expression;
+    multimap<string, pair<string, ROCPPVarIF_Ptr> > copy = getLDRExpr();
     
     cout << name <<" = ";
     double value;
-    multimap<string, pair<string, ROCPPVarIF_Ptr > >::iterator term = copy.find(name);
+    multimap<string, pair<string, ROCPPVarIF_Ptr> >::iterator term = copy.find(name);
     string sign;
     
     while(term != copy.end())
@@ -202,6 +318,44 @@ void LinearDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<strin
     cout << sign << abs(value) << setprecision(4) << endl;
 }
 
+void LinearDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc)
+{
+    uint t;
+    string name = unc->getName();
+    
+    if(!pIn->isMultiStageOptModelDDID()){
+        cout << "This is not a decision dependent uncertain model." << endl;
+        return;
+    }
+    
+    if (!pIn->isDDU(name))
+        throw MyException("Uncertain parameter "+ name + " does not have a time of revelation that is decision-dependent");
+    
+    ROCPPVarIF_Ptr meas;
+    //bool value;
+    double value;
+    
+    for(t = 1; t < pIn->getNumTimeStages(); t++)
+    {
+        meas = pIn->getMeasVar(name, t);
+        value = resultIn.find(meas->getName())->second;
+        bool observed;
+        if (abs(value - 1.0) <= 0.01)
+            observed = true;
+        else if (abs(value - 0.0) <= 0.01)
+            observed = false;
+        else
+            throw MyException("Wrong result for boolean variable.");
+        
+        if(observed){
+            cout << "Uncertain parameter " << name << " is observed at stage " << t << endl;
+            return;
+        }
+    }
+    
+    cout << "Uncertain parameter " << name << " is never observed" << endl;
+}
+
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%% DISCRETE VARIABLE APPROXIMATOR INTERFACE %%%%%%%%%%%%
@@ -212,7 +366,49 @@ void LinearDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<strin
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void DiscreteVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_iterator first, vector<ROCPPConstraint_Ptr >::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
+bool ConstantDecisionRule::isApplicable(ROCPPOptModelIF_Ptr pIn) const
+{
+    if (!pIn->isUncertainOptimizationModel())
+    {
+        cout << "Cannot apply LinearDecisionRule to deterministic model" << endl;
+        return false;
+    }
+    
+    if ((pIn->getObjType() == stochastic) && ( (!pIn->hasRectangularUncertaintySet()) || (pIn->hasDecisionDependentUncertaintySet()) ) )
+    {
+        cout << "LinearDecisionRule approximator is only applicable to stochastic problems with rectangular and decision-independent uncertainty set or to robust problems" << endl;
+        return false;
+    }
+    
+    if (pIn->hasRealVarsInUncertaintySet())
+    {
+        cout << "LinearDecisionRule approximator does not apply to problems with uncertainty set affected by real valued decisions" << endl;
+        return false;
+    }
+    
+    vector<ROCPPExpr_Ptr> objs(pIn->getObj()->getObj());
+    
+    vector<ROCPPExpr_Ptr>::const_iterator obj(objs.begin());
+    
+    for(; obj != objs.end(); obj++)
+    {
+        if((*obj)->hasProdsUncertainties())
+        {
+            cout << "Cannot deal with products of uncertainties at this time" << endl;
+            return false;
+        }
+    }
+    
+    if ( (pIn->hasNonlinearities()) ) // here also will need to check if we have real valued decisions affecting the uncertainty set
+    {
+        cout << "Cannot handle nonlinear problem at present" << endl;
+        return false;
+    }
+    
+    return true;
+}
+
+void DiscreteVarsDRIF::findVarsToTranslate(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, ROCPPObjectiveIF_Ptr obj, dvContainer &container)
 {
     for (ObjectiveFunctionIF::varsIterator vit = obj->varsBegin(); vit != obj->varsEnd(); vit++)
     {
@@ -220,7 +416,7 @@ void DiscreteVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_i
             container += vit->second;
     }
     
-    for (vector<ROCPPConstraint_Ptr >::const_iterator cit = first; cit != last; cit++)
+    for (vector<ROCPPConstraintIF_Ptr>::const_iterator cit = first; cit != last; cit++)
     {
         for (ConstraintIF::varsIterator vit = (*cit)->varsBegin(); vit != (*cit)->varsEnd(); vit++)
         {
@@ -239,7 +435,7 @@ void DiscreteVarsDRIF::findVarsToTranslate(vector<ROCPPConstraint_Ptr >::const_i
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void ConstantDecisionRule::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr >  &translationMap, vector<ROCPPConstraint_Ptr > &toAdd)
+void ConstantDecisionRule::createTranslationMap(const dvContainer &tmpContainer, map<string,ROCPPVarIF_Ptr>  &translationMap, vector<ROCPPConstraintIF_Ptr> &toAdd)
 {
     // iterate through variables to convert
     for (dvContainer::const_iterator vit = tmpContainer.begin(); vit != tmpContainer.end(); vit++)
@@ -262,6 +458,50 @@ void ConstantDecisionRule::createTranslationMap(const dvContainer &tmpContainer,
     }
 }
 
+
+ROCPPOptModelIF_Ptr ConstantDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
+{
+    cout << endl;
+    cout << "=========================================================================== " << endl;
+    cout << "=========================================================================== " << endl;
+    cout << "======================== APPROXIMATING USING CDR ========================== " << endl;
+    cout << "=========================================================================== " << endl;
+    cout << "=========================================================================== " << endl;
+    cout << endl;
+    
+    auto start = chrono::high_resolution_clock::now();
+    
+    ROCPPOptModelIF_Ptr pModel(pIn->Clone());
+    
+    if (pIn->getObjType() == robust)
+        pModel->add_epigraph();
+    
+    // do linear decision rule
+    ROCPPOptModelIF_Ptr pCDRModel(convertVar(pModel, true) );
+
+
+    if ( (pCDRModel->getNumAdaptiveVars() - pCDRModel->getNumAdaptiveContVars()) != 0 )
+        throw MyException("Adaptive integer and binary variables should have been eliminated by now");
+    
+    if (pIn->getObjType() == stochastic)
+        pCDRModel->getExpectation();
+
+    
+    auto stop = chrono::high_resolution_clock::now();
+    
+    auto duration = std::chrono::duration_cast<chrono::seconds>(stop - start);
+    
+    cout << endl;
+    cout << "Total time to approximate: " << duration.count() << " seconds" << endl;
+    cout << "=========================================================================== " << endl;
+    cout << endl;
+    
+    
+    return pCDRModel;
+}
+
+
+
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -278,415 +518,42 @@ void ConstantDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<str
         cout << name << " = " << value << endl;
 }
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%% PARTITION CONVERTER %%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-string PartitionConverter::convertPartitionToString(uint partition) const
+void ConstantDecisionRule::printOut(const ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc)
 {
-    string tmp2( to_string(partition) );
-    string tmp1;
-    for (uint i=1; i+tmp2.length() <= m_numEls; i++)
-        tmp1 += "0";
+    uint t;
+    string name = unc->getName();
     
-    string out(tmp1);
-    out += tmp2;
-    return out;
-}
-
-string PartitionConverter::convertPartitionToString(const map<string,uint> &partitionIn, ROCPPOptModelIF_Ptr pModel) const
-{
-    if (!pModel->isUncertainOptimizationModel())
-        throw MyException("only applicable to uncertain models");
-    
-    ROCPPconstUncOptModel_Ptr pInUnc = static_pointer_cast<const UncertainOptimizationModel>(pModel);
-    
-    
-    string out;
-    for (map<string,uint>::const_iterator mit = partitionIn.begin(); mit!=partitionIn.end(); mit++)
-    {
-        ROCPPUnc_Ptr unc( pInUnc->getUnc( mit->first ) );
-        if (unc->isObservable())
-            out += convertPartitionToString(mit->second);
+    if(!pIn->isMultiStageOptModelDDID()){
+        cout << "This is not a decision dependent uncertain model." << endl;
+        return;
     }
-    return out;
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-// if it can be observe, then itself is the basic partition; if not then it must be euqal to the first segment so that the variable for all segment will be the same(equal to we do not have partition on that uncertainty in this time stage)
-
-string PartitionConverter::getBasicPartition(const map<string,uint> &partitionIn, uint t, ROCPPOptModelIF_Ptr pModel, uint memory) const
-{
-    map<string,uint> partitionOut;
     
-    if (!pModel->isUncertainOptimizationModel())
-        throw MyException("only applicable to uncertain models");
+    if (!pIn->isDDU(name))
+        throw MyException("Uncertain parameter "+ name + " does not have a time of revelation that is decision-dependent");
     
-    ROCPPconstUncOptModel_Ptr pInUnc = static_pointer_cast<const UncertainOptimizationModel>(pModel);
+    ROCPPVarIF_Ptr meas;
+    //bool value;
+    double value;
     
-    map<string, pair<uint, uint> > timeStage = pInUnc->getdduStagesObs();
-    
-    for (map<string,uint>::const_iterator mit = partitionIn.begin(); mit!=partitionIn.end(); mit++)
+    for(t = 1; t < pIn->getNumTimeStages(); t++)
     {
-        ROCPPUnc_Ptr unc( pInUnc->getUnc( mit->first ) );
-
-        //For ordinary uncertain model, the fisrt observable is the time stage of the uncertainty, the last one is the time stage of the model
-        if (  (unc->isObservable() ) && (unc->getTimeStage() <= t) && (unc->getTimeStage()+memory > t) )
-            partitionOut.insert( make_pair(mit->first, mit->second ) );
+        meas = pIn->getMeasVar(name, t);
+        value = resultIn.find(meas->getName())->second;
+        bool observed;
+        if (abs(value - 1.0) <= 0.01)
+            observed = true;
+        else if (abs(value - 0.0) <= 0.01)
+            observed = false;
         else
-            partitionOut.insert( make_pair(mit->first, 1 ) );
-    }
-    
-    return convertPartitionToString(partitionOut,pModel);
-    
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%% PARTITION CONSTRUCTOR INTERFACE %%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-PartitionConstructorIF::PartitionConstructorIF(const map<string,uint> &numPartitionsMap) :
-m_numPartitionsMap(numPartitionsMap),
-m_bpdvs ( new dvContainer() )
-{}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-PartitionConstructorIF::usconstraints_iterator PartitionConstructorIF::USCbegin(string partition) const
-{
-    map< string, vector< ROCPPConstraint_Ptr > >::const_iterator mit( m_partitionUSconstraints.find(partition) );
-    
-    if (mit == m_partitionUSconstraints.end() )
-        throw MyException("partition not found");
-    
-    return (mit->second.begin());
-}
-
-PartitionConstructorIF::usconstraints_iterator PartitionConstructorIF::USCend(string partition) const
-{
-    map< string, vector< ROCPPConstraint_Ptr > >::const_iterator mit( m_partitionUSconstraints.find(partition) );
-    
-    if (mit == m_partitionUSconstraints.end() )
-        throw MyException("partition not found");
-    
-    return (mit->second.end());
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void PartitionConstructorIF::getReady(ROCPPOptModelIF_Ptr pIn, ROCPPParConverter_Ptr pPartConverter, ROCPPMItoMB_Ptr pMIMBConverter, map<string, pair<double,double> > &margSupp, const map<string,pair<double,double> >& OAmargSupp, string solver)
-{
-    
-    constructPartitionsMap(pIn,pPartConverter);
-    findMarginalSupportUncertaintySet(pIn,margSupp,pMIMBConverter,m_numPartitionsMap,solver,true,false,OAmargSupp);
-    
-    constructUncToBreakpointMap(margSupp);
-    
-    if (!pIn->isUncertainOptimizationModel())
-        throw MyException("only applicable to uncertain problems");
-    
-    ROCPPconstUncOptModel_Ptr pInUnc = static_pointer_cast<const UncertainOptimizationModel>(pIn);
-    
-    
-    for (map<string, map<string,uint> >::const_iterator pm_it=m_partitionsMap.begin(); pm_it!=m_partitionsMap.end(); pm_it++)
-    {
-        vector<ROCPPConstraint_Ptr > tmp;
+            throw MyException("Wrong result for boolean variable.");
         
-        for (UncertainOptimizationModel::uncertaintiesIterator u_it=pInUnc->uncertaintiesBegin(); u_it!=pInUnc->uncertaintiesEnd();u_it++)
-        {
-            map<string,uint>::const_iterator loc1( (*pm_it).second.find( u_it->second->getName() ) );
-            // break point number (p_i: goes from 1 to r_i)
-            uint bpNum(loc1->second);
-            // number of partitions in direction of \xi_i (r_i)
-            
-            map<string,uint>::const_iterator c_loc = m_numPartitionsMap.find( u_it->second->getName() );
-            uint r(0);
-            if (c_loc == m_numPartitionsMap.end())
-                r=1;
-            else
-                r=(*c_loc).second;
-    
-            
-            if (bpNum+1<=r)
-            {
-                map<pair<string,uint>, ROCPPExpr_Ptr >::const_iterator loc2( m_uncToBreakpointMap.find( make_pair(u_it->second->getName(), bpNum) ) );
-                if (loc2==m_uncToBreakpointMap.end())
-                    throw MyException("pair not found in m_uncToBreakpointMap");
-                
-                ROCPPClassicConstraint_Ptr pOutConstraint(new IneqConstraint(true));
-                
-                pOutConstraint->add_lhs( 1. , u_it->second );
-                ROCPPExpr_Ptr expr( loc2->second->Clone() );
-                (*expr) *= -1.;
-                pOutConstraint->add_lhs( expr );
-                pOutConstraint->set_rhs(make_pair(0.,true));
-                
-                
-                tmp.push_back( pOutConstraint );
-            }
-            if (bpNum>1)
-            {
-                map<pair<string,uint>, ROCPPExpr_Ptr >::const_iterator loc2( m_uncToBreakpointMap.find( make_pair(u_it->second->getName(), bpNum-1) ) );
-                if (loc2==m_uncToBreakpointMap.end())
-                    throw MyException("pair not found in m_uncToBreakpointMap");
-                
-                ROCPPClassicConstraint_Ptr pOutConstraint(new IneqConstraint(true));
-                
-                pOutConstraint->add_lhs( -1. , u_it->second );
-                ROCPPExpr_Ptr expr( loc2->second->Clone() );
-                pOutConstraint->add_lhs( expr );
-                pOutConstraint->set_rhs(make_pair(0.,true));
-                
-                
-                tmp.push_back( pOutConstraint );
-            }
-        }
-        m_partitionUSconstraints[pm_it->first] = tmp;
-    }
-}
-
-uint PartitionConstructorIF::getNumSubsets(string uncNme) const
-{
-    map<string,uint>::const_iterator it ( m_numPartitionsMap.find(uncNme) );
-    if (it==m_numPartitionsMap.end())
-        throw MyException("uncertainty not found");
-    return it->second;
-}
-
-uint PartitionConstructorIF::getPos(string partition, string uncNme) const
-{
-    map<string, map<string,uint> >::const_iterator pos( m_partitionsMap.find(partition));
-    
-    if (pos == m_partitionsMap.end())
-        throw MyException("Partition not found");
-    
-    if (pos->second.find(uncNme) == pos->second.end())
-        return 1;
-    else
-        return pos->second.find(uncNme)->second;
-}
-
-bool PartitionConstructorIF::hasPartition(string uncNme) const
-{
-    if (m_numPartitionsMap.find(uncNme) == m_numPartitionsMap.end())
-        return false;
-    
-    else if (m_numPartitionsMap.find(uncNme)->second == 1)
-        return false;
-    
-    return true;
-}
-
-ROCPPExpr_Ptr PartitionConstructorIF::getBp(pair<string, uint> uncOnPartition) const
-{
-    map< pair<string,uint>, ROCPPExpr_Ptr > ::const_iterator bp(m_uncToBreakpointMap.find(uncOnPartition));
-    
-    if (bp == m_uncToBreakpointMap.end())
-        throw MyException("Partition and uncertainty pair not found");
-        
-    return bp->second;
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%% Protected Function %%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void PartitionConstructorIF::constructPartitionsMap(ROCPPOptModelIF_Ptr pIn, ROCPPParConverter_Ptr pPartConverter)
-{
-    m_partitionsMap.clear();
-    
-    if (!pIn->isUncertainOptimizationModel())
-        throw MyException("only applicable to uncertain problems");
-    
-    
-    ROCPPconstUncOptModel_Ptr pInUnc = static_pointer_cast<const UncertainOptimizationModel>(pIn);
-    
-    
-    size_t k( pInUnc->getNumUncertainties() );
-    
-    
-    // calculate total number of partitions
-    vector<uint> incr_vals(k,0);
-    uint numParts(1);
-    uint j(0);
-    for (UncertainOptimizationModel::uncertaintiesIterator n_it=pInUnc->uncertaintiesBegin(); n_it!=pInUnc->uncertaintiesEnd();n_it++)
-    {
-        
-        map<string,uint>::const_iterator tmp_it( m_numPartitionsMap.find( n_it->first ) );
-        if (tmp_it==m_numPartitionsMap.end())
-            throw MyException("uncertainty " + n_it->first + " not found in partitions map");
-        
-        if (j==0)
-            incr_vals[j] = tmp_it->second;
-        else
-            incr_vals[j] = incr_vals[j-1]*tmp_it->second;
-        if (!n_it->second->isObservable() && tmp_it->second >1)
-            throw MyException("cannot partition along a direction that is not observable");
-        
-        numParts *= tmp_it->second;
-        
-        j++;
-    }
-    
-    // populate matrix of partitions
-    vector<vector<uint> > mat( vector<vector<uint> >(numParts, vector<uint>( k, 1) ) );
-    
-    
-    
-    // for each row of the matrix other than the first row
-    for (uint i=1; i<mat.size(); i++)
-    {
-        uint j(0);
-        bool increment_next(true);
-        
-        // for each column of the matrix
-        for (UncertainOptimizationModel::uncertaintiesIterator n_it=pInUnc->uncertaintiesBegin(); n_it!=pInUnc->uncertaintiesEnd();n_it++)
-        {
-            map<string,uint>::const_iterator tmp_it( m_numPartitionsMap.find( n_it->first ) );
-            
-            
-            // first, set the element equal to its value in the previous row
-            uint tmp = increment_next ? 1:0;
-            mat[i][j] = mat[i-1][j] + tmp;
-            
-            // check whether it must be set to 1 or kept the same
-            if ( (i) % incr_vals[j] == 0 )
-            {
-                mat[i][j] = 1;
-                increment_next = true;
-            }
-            else
-                increment_next = false;
-            
-            
-            j++;
+        if(observed){
+            cout << "Uncertain parameter " << name << " is observed at stage " << t << endl;
+            return;
         }
     }
     
-    
-    
-    for (uint i=0; i<mat.size(); i++)
-    {
-        string partitionName("");
-        uint j(0);
-        map<string,uint> subMap;
-        for (UncertainOptimizationModel::uncertaintiesIterator n_it=pInUnc->uncertaintiesBegin(); n_it!=pInUnc->uncertaintiesEnd();n_it++)
-        {
-            if (n_it->second->isObservable())
-                partitionName += pPartConverter->convertPartitionToString(mat[i][j]);
-            
-            pair<map<string,uint>::iterator,bool> subret = subMap.insert(pair<string,uint>( n_it->second->getName(), mat[i][j] ) );
-            if (subret.second==false)
-                throw MyException("element already existed");
-            
-            j++;
-        }
-        
-        pair<map<string,map<string,uint> >::iterator,bool> ret = m_partitionsMap.insert(pair<string,map<string,uint> >(partitionName,subMap));
-        if (ret.second==false)
-            throw MyException("partition already existed");
-    }
-    
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%% STATIC PARTITION CONSTRUCTOR %%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void StaticPartitionConstructor::constructUncToBreakpointMap(const map<string,pair<double,double> > &margSupp)
-{
-    m_uncToBreakpointMap.clear();
-    
-    // iterate through margSupp
-    map<string,pair<double,double> >::const_iterator ms_it(margSupp.begin());
-    for (; ms_it!=margSupp.end(); ms_it++)
-    {
-        map<string,uint>::const_iterator c_loc = m_numPartitionsMap.find( (*ms_it).first );
-        uint cNumP(0);
-        if (c_loc == m_numPartitionsMap.end())
-            cNumP=1;
-        else
-            cNumP=(*c_loc).second;
-        
-        
-        double step = ( (*ms_it).second.second ) - ( (*ms_it).second.first );
-        step /= static_cast<double>(cNumP);
-        
-        for (uint i=1; i<cNumP; i++)
-        {
-            ROCPPExpr_Ptr expr ( new LHSExpression() );
-            double tmp( ( (*ms_it).second.first ) + ( (static_cast<double>(i))*step) );
-            (*expr) += ROCPPCstrTerm_Ptr( new ProductTerm( tmp ) ) ;
-            m_uncToBreakpointMap[make_pair( (*ms_it).first, i)] = expr;
-        }
-    }
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%% ADAPTIVE PARTITION CONSTRUCTOR %%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void AdaptivePartitionConstructor::constructUncToBreakpointMap(const map<string,pair<double,double> > &margSupp)
-{
-    m_uncToBreakpointMap.clear();
-    
-    // iterate through margSupp
-    map<string,pair<double,double> >::const_iterator ms_it(margSupp.begin());
-    for (; ms_it!=margSupp.end(); ms_it++)
-    {
-        map<string,uint>::const_iterator c_loc = m_numPartitionsMap.find( (*ms_it).first );
-        uint cNumP(0);
-        if (c_loc == m_numPartitionsMap.end())
-            cNumP=1;
-        else
-            cNumP=(*c_loc).second;
-        
-        ROCPPVarIF_Ptr prevbpdv;
-        for (uint i=1; i<cNumP; i++)
-        {
-            ROCPPExpr_Ptr expr ( new LHSExpression() );
-            ROCPPVarIF_Ptr bpdv( new VariableDouble( "bp_"+ms_it->first+"_"+to_string(i), ms_it->second.first , ms_it->second.second) );
-            
-            *m_bpdvs += bpdv;
-            
-            (*expr) += bpdv;
-            m_uncToBreakpointMap[make_pair( (*ms_it).first, i)] = expr;
-            
-            if (i>1) // add constraint on breakpoint ordering
-            {
-                ROCPPClassicConstraint_Ptr cst( new IneqConstraint() );
-                cst->add_lhs(1.,bpdv);
-                cst->add_lhs(-1.,prevbpdv);
-                cst->set_rhs(make_pair(0.,true));
-                m_additionalConstraints.push_back(cst);
-            }
-            
-            prevbpdv = bpdv;
-        }
-    }
+    cout << "Uncertain parameter " << name << " is never observed" << endl;
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

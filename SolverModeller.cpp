@@ -7,6 +7,7 @@
 //
 
 #include "IncludeFiles.hpp"
+#include "OptimizationModel.hpp"
 #include "SolverModeller.hpp"
 #include <thread>
 
@@ -73,9 +74,36 @@ string SolverParams::getParams(string delimitter) const
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+bool SolverModellerIF::isApplicable(ROCPPOptModelIF_Ptr pModelIn) const
+{
+    // basically need to check that this problem can be converted to a deterministic single stage optimization problem
+    if (pModelIn->getNumAdaptiveVars()>0)
+    {
+        cout << "Solver modeller not applicable to problem with adaptive decision variables" << endl;
+        return false;
+    }
+    
+    if (pModelIn->getNumUncertainties()>0)
+    {
+        cout << "Solver modeller not applicable to problem with uncertain parameters" << endl;
+        return false;
+    }
+    
+    if (pModelIn->hasNonlinearities())
+    {
+        cout << "Solver modeller not applicable to problems involving products of decision variables" << endl;
+        return false;
+    }
+    
+    return true;
+}
+
+
+
 double SolverModellerIF::getSolution(string dvName) const
 {
-    if(m_solution.find(dvName) == m_solution.end())
+    if (m_solution.find(dvName) == m_solution.end())
         throw MyException("Decision variable does not exist");
     
     return m_solution.find(dvName)->second;
