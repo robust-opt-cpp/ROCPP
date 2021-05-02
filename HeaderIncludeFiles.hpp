@@ -180,9 +180,9 @@ typedef UncertainOptimizationModel ROCPPUncOptModel;
 typedef shared_ptr<ROCPPUncOptModel> ROCPPUncOptModel_Ptr;
 typedef shared_ptr<const ROCPPUncOptModel> ROCPPconstUncOptModel_Ptr;
 
-//class SimpleUncertainOptimizationModel;
-//typedef SimpleUncertainOptimizationModel ROCPPSimpleUncOptModel;
-//typedef shared_ptr<ROCPPSimpleUncOptModel> ROCPPSimpleUncOptModel_Ptr;
+class MultiStageOptModelExoID;
+typedef MultiStageOptModelExoID ROCPPOptModelExoID;
+typedef shared_ptr<ROCPPOptModelExoID> ROCPPOptModelExoID_Ptr;
 
 class UncertainSingleStageOptimizationModel;
 typedef UncertainSingleStageOptimizationModel ROCPPUncSSOptModel;

@@ -74,7 +74,7 @@ UncToVariableConverter::UncToVariableConverter(const map<string,ROCPPVarIF_Ptr> 
     }
 }
 
-ROCPPConstraint_Ptr UncToVariableConverter::convert(ROCPPConstraint_Ptr pCstr) const
+ROCPPConstraintIF_Ptr UncToVariableConverter::convert(ROCPPConstraintIF_Ptr pCstr) const
 {
     return pCstr->mapUncs( m_translationMap );
 }
@@ -120,7 +120,7 @@ UncToUncConverter::UncToUncConverter(const map<string,ROCPPUnc_Ptr>  &translatio
     }
 }
 
-ROCPPConstraint_Ptr UncToUncConverter::convert(ROCPPConstraint_Ptr pCstr) const
+ROCPPConstraintIF_Ptr UncToUncConverter::convert(ROCPPConstraintIF_Ptr pCstr) const
 {
     return pCstr->mapUncs( m_translationMap );
 }

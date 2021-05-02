@@ -102,7 +102,7 @@ public:
     /// Convert the objective function to constraints using an epigraph reformulation
     /// @param epigraphVar epigraph variable used to write the problem in epigraph form
     /// @param epigraphConstraints will contain all the constraints used to write the objective function in epigraph form
-    virtual void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraint_Ptr> &epigraphConstraints) const = 0;
+    virtual void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraintIF_Ptr> &epigraphConstraints) const = 0;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -256,7 +256,7 @@ public:
     /// @note Call LHExpression::mapUncs() for the expression defining the objective function
     ROCPPObjectiveIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const;
     
-    void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraint_Ptr> &epigraphConstraints) const;
+    void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraintIF_Ptr> &epigraphConstraints) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -390,7 +390,7 @@ public:
     
     ROCPPObjectiveIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
     
-    void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraint_Ptr> &epigraphConstraints) const;
+    void convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraintIF_Ptr> &epigraphConstraints) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%

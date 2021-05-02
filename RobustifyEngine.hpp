@@ -38,7 +38,7 @@ public:
     /// @param pCstr Constraint to be robustified
     /// @param dualVars Store dual variable for each linear expression(outside and in the norm term) in each constraint defining uncertainty set and store it in this vector
     /// @param feasible Indicate whether the given constraint is feasible or not, only set to false when we dualize an infeasible problem
-    void createDualVars(ROCPPBilinMISOCP_Ptr pOut, ROCPPConstraint_Ptr pCstr, vector<vector<ROCPPVarIF_Ptr> >& dualVars, bool feasible = true);
+    void createDualVars(ROCPPBilinMISOCP_Ptr pOut, ROCPPConstraintIF_Ptr pCstr, vector<vector<ROCPPVarIF_Ptr> >& dualVars, bool feasible = true);
     
     /// Robusify the given constraint
     /// @param pConstraint Constraint to be robustified
@@ -46,7 +46,7 @@ public:
     /// @param feasible Indicate whether the given constraint is feasible or not, only set to false when we dualize an infeasible problem
     /// @note First create the dual variables being used for robustifying this constraint, then add the dual constraint into the output model
     /// @see createDualVars
-    void robustifyConstraint(ROCPPConstraint_Ptr pConstraint, ROCPPUncSSOptModel_Ptr const pIn, ROCPPBilinMISOCP_Ptr pOut, bool feasible = true);
+    void robustifyConstraint(ROCPPConstraintIF_Ptr pConstraint, ROCPPUncSSOptModel_Ptr const pIn, ROCPPBilinMISOCP_Ptr pOut, bool feasible = true);
     
     /// Get the number of dual variables
     uint getDualVarsCnt() const {return m_dualVarsCounter;}

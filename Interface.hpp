@@ -181,184 +181,184 @@ ROCPPExpr_Ptr operator*(double real, ROCPPconstCstrTerm_Ptr term);
 
 // REAL + ...
 // expr <= real
-ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr, double real);
+ROCPPConstraintIF_Ptr operator<=(ROCPPExpr_Ptr expr, double real);
 // expr>= real
-ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr, double real);
+ROCPPConstraintIF_Ptr operator>=(ROCPPExpr_Ptr expr, double real);
 // expr == real
-ROCPPConstraint_Ptr operator==(ROCPPExpr_Ptr expr, double real);
+ROCPPConstraintIF_Ptr operator==(ROCPPExpr_Ptr expr, double real);
 
 // real <= expr
-ROCPPConstraint_Ptr operator<=(double real, ROCPPExpr_Ptr expr);
+ROCPPConstraintIF_Ptr operator<=(double real, ROCPPExpr_Ptr expr);
 // real >= expr
-ROCPPConstraint_Ptr operator>=(double real, ROCPPExpr_Ptr expr);
+ROCPPConstraintIF_Ptr operator>=(double real, ROCPPExpr_Ptr expr);
 // real == expr
-ROCPPConstraint_Ptr operator==(double real, ROCPPExpr_Ptr expr);
+ROCPPConstraintIF_Ptr operator==(double real, ROCPPExpr_Ptr expr);
 
 
 // var <= real
-ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var, double real);
+ROCPPConstraintIF_Ptr operator<=(ROCPPVarIF_Ptr var, double real);
 // var>= real
-ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var, double real);
+ROCPPConstraintIF_Ptr operator>=(ROCPPVarIF_Ptr var, double real);
 // var == real
-ROCPPConstraint_Ptr operator==(ROCPPVarIF_Ptr var, double real);
+ROCPPConstraintIF_Ptr operator==(ROCPPVarIF_Ptr var, double real);
 
 // real <= var
-ROCPPConstraint_Ptr operator<=(double real, ROCPPVarIF_Ptr var);
+ROCPPConstraintIF_Ptr operator<=(double real, ROCPPVarIF_Ptr var);
 // real >= var
-ROCPPConstraint_Ptr operator>=(double real, ROCPPVarIF_Ptr var);
+ROCPPConstraintIF_Ptr operator>=(double real, ROCPPVarIF_Ptr var);
 // real == var
-ROCPPConstraint_Ptr operator==(double real, ROCPPVarIF_Ptr var);
+ROCPPConstraintIF_Ptr operator==(double real, ROCPPVarIF_Ptr var);
 
 
 // unc <= real
-ROCPPConstraint_Ptr operator<=(ROCPPUnc_Ptr unc, double real);
+ROCPPConstraintIF_Ptr operator<=(ROCPPUnc_Ptr unc, double real);
 // unc >= real
-ROCPPConstraint_Ptr operator>=(ROCPPUnc_Ptr unc, double real);
+ROCPPConstraintIF_Ptr operator>=(ROCPPUnc_Ptr unc, double real);
 // unc == real
-ROCPPConstraint_Ptr operator==(ROCPPUnc_Ptr unc, double real);
+ROCPPConstraintIF_Ptr operator==(ROCPPUnc_Ptr unc, double real);
 
 // real <= unc
-ROCPPConstraint_Ptr operator<=(double real, ROCPPUnc_Ptr unc);
+ROCPPConstraintIF_Ptr operator<=(double real, ROCPPUnc_Ptr unc);
 // real >= unc
-ROCPPConstraint_Ptr operator>=(double real, ROCPPUnc_Ptr unc);
+ROCPPConstraintIF_Ptr operator>=(double real, ROCPPUnc_Ptr unc);
 // real == unc
-ROCPPConstraint_Ptr operator==(double real, ROCPPUnc_Ptr unc);
+ROCPPConstraintIF_Ptr operator==(double real, ROCPPUnc_Ptr unc);
 
 
 // term <= real
-ROCPPConstraint_Ptr operator<=(ROCPPCstrTerm_Ptr term, double real);
+ROCPPConstraintIF_Ptr operator<=(ROCPPCstrTerm_Ptr term, double real);
 // term >= real
-ROCPPConstraint_Ptr operator>=(ROCPPCstrTerm_Ptr term, double real);
+ROCPPConstraintIF_Ptr operator>=(ROCPPCstrTerm_Ptr term, double real);
 // term == real
-ROCPPConstraint_Ptr operator==(ROCPPCstrTerm_Ptr term, double real);
+ROCPPConstraintIF_Ptr operator==(ROCPPCstrTerm_Ptr term, double real);
 
 // real <= term
-ROCPPConstraint_Ptr operator<=(double real, ROCPPCstrTerm_Ptr term);
+ROCPPConstraintIF_Ptr operator<=(double real, ROCPPCstrTerm_Ptr term);
 // real >= term
-ROCPPConstraint_Ptr operator>=(double real, ROCPPCstrTerm_Ptr term);
+ROCPPConstraintIF_Ptr operator>=(double real, ROCPPCstrTerm_Ptr term);
 // real == term
-ROCPPConstraint_Ptr operator==(double real, ROCPPCstrTerm_Ptr term);
+ROCPPConstraintIF_Ptr operator==(double real, ROCPPCstrTerm_Ptr term);
 
 
 
 // EXPR + ...
 // expr <= var
-ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var);
+ROCPPConstraintIF_Ptr operator<=(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var);
 // expr>= var
-ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var);
+ROCPPConstraintIF_Ptr operator>=(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var);
 // expr == var
-ROCPPConstraint_Ptr operator==(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var);
+ROCPPConstraintIF_Ptr operator==(ROCPPExpr_Ptr expr, ROCPPVarIF_Ptr var);
 
 // var <= expr
-ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var, ROCPPExpr_Ptr expr);
+ROCPPConstraintIF_Ptr operator<=(ROCPPVarIF_Ptr var, ROCPPExpr_Ptr expr);
 // var>= expr
-ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var, ROCPPExpr_Ptr expr);
+ROCPPConstraintIF_Ptr operator>=(ROCPPVarIF_Ptr var, ROCPPExpr_Ptr expr);
 // var == expr
-ROCPPConstraint_Ptr operator==(ROCPPVarIF_Ptr var, ROCPPExpr_Ptr expr);
+ROCPPConstraintIF_Ptr operator==(ROCPPVarIF_Ptr var, ROCPPExpr_Ptr expr);
 
 
 // expr <= unc
-ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr, ROCPPUnc_Ptr unc);
+ROCPPConstraintIF_Ptr operator<=(ROCPPExpr_Ptr expr, ROCPPUnc_Ptr unc);
 // expr>= unc
-ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr, ROCPPUnc_Ptr unc);
+ROCPPConstraintIF_Ptr operator>=(ROCPPExpr_Ptr expr, ROCPPUnc_Ptr unc);
 // expr == unc
-ROCPPConstraint_Ptr operator==(ROCPPExpr_Ptr expr, ROCPPUnc_Ptr unc);
+ROCPPConstraintIF_Ptr operator==(ROCPPExpr_Ptr expr, ROCPPUnc_Ptr unc);
 
 // unc <= expr
-ROCPPConstraint_Ptr operator<=(ROCPPUnc_Ptr unc, ROCPPExpr_Ptr expr);
+ROCPPConstraintIF_Ptr operator<=(ROCPPUnc_Ptr unc, ROCPPExpr_Ptr expr);
 // unc >= expr
-ROCPPConstraint_Ptr operator>=(ROCPPUnc_Ptr unc, ROCPPExpr_Ptr expr);
+ROCPPConstraintIF_Ptr operator>=(ROCPPUnc_Ptr unc, ROCPPExpr_Ptr expr);
 // unc == expr
-ROCPPConstraint_Ptr operator==(ROCPPUnc_Ptr unc, ROCPPExpr_Ptr expr);
+ROCPPConstraintIF_Ptr operator==(ROCPPUnc_Ptr unc, ROCPPExpr_Ptr expr);
 
 
 // expr <= expr
-ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr1, ROCPPExpr_Ptr expr2);
+ROCPPConstraintIF_Ptr operator<=(ROCPPExpr_Ptr expr1, ROCPPExpr_Ptr expr2);
 // expr>= expr
-ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr1, ROCPPExpr_Ptr expr2);
+ROCPPConstraintIF_Ptr operator>=(ROCPPExpr_Ptr expr1, ROCPPExpr_Ptr expr2);
 // expr == expr
-ROCPPConstraint_Ptr operator==(ROCPPExpr_Ptr expr1, ROCPPExpr_Ptr expr2);
+ROCPPConstraintIF_Ptr operator==(ROCPPExpr_Ptr expr1, ROCPPExpr_Ptr expr2);
 
 
 // term <= expr
-ROCPPConstraint_Ptr operator<=(ROCPPCstrTerm_Ptr term, ROCPPExpr_Ptr expr);
+ROCPPConstraintIF_Ptr operator<=(ROCPPCstrTerm_Ptr term, ROCPPExpr_Ptr expr);
 // term >= expr
-ROCPPConstraint_Ptr operator>=(ROCPPCstrTerm_Ptr term, ROCPPExpr_Ptr expr);
+ROCPPConstraintIF_Ptr operator>=(ROCPPCstrTerm_Ptr term, ROCPPExpr_Ptr expr);
 // term == expr
-ROCPPConstraint_Ptr operator==(ROCPPCstrTerm_Ptr term, ROCPPExpr_Ptr expr);
+ROCPPConstraintIF_Ptr operator==(ROCPPCstrTerm_Ptr term, ROCPPExpr_Ptr expr);
 
 // expr <= term
-ROCPPConstraint_Ptr operator<=(ROCPPExpr_Ptr expr, ROCPPCstrTerm_Ptr term);
+ROCPPConstraintIF_Ptr operator<=(ROCPPExpr_Ptr expr, ROCPPCstrTerm_Ptr term);
 // expr>= term
-ROCPPConstraint_Ptr operator>=(ROCPPExpr_Ptr expr, ROCPPCstrTerm_Ptr term);
+ROCPPConstraintIF_Ptr operator>=(ROCPPExpr_Ptr expr, ROCPPCstrTerm_Ptr term);
 // expr == term
-ROCPPConstraint_Ptr operator==(ROCPPExpr_Ptr expr, ROCPPCstrTerm_Ptr term);
+ROCPPConstraintIF_Ptr operator==(ROCPPExpr_Ptr expr, ROCPPCstrTerm_Ptr term);
 
 
 
 // VAR + ...
 // var <= var
-ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var1, ROCPPVarIF_Ptr var2);
+ROCPPConstraintIF_Ptr operator<=(ROCPPVarIF_Ptr var1, ROCPPVarIF_Ptr var2);
 // var>= var
-ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var1, ROCPPVarIF_Ptr var2);
+ROCPPConstraintIF_Ptr operator>=(ROCPPVarIF_Ptr var1, ROCPPVarIF_Ptr var2);
 // var == var
-ROCPPConstraint_Ptr operator==(ROCPPVarIF_Ptr var1, ROCPPVarIF_Ptr var2);
+ROCPPConstraintIF_Ptr operator==(ROCPPVarIF_Ptr var1, ROCPPVarIF_Ptr var2);
 
 
 // var <= unc
-ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc);
+ROCPPConstraintIF_Ptr operator<=(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc);
 // var>= unc
-ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc);
+ROCPPConstraintIF_Ptr operator>=(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc);
 // var == unc
-ROCPPConstraint_Ptr operator==(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc);
+ROCPPConstraintIF_Ptr operator==(ROCPPVarIF_Ptr var, ROCPPUnc_Ptr unc);
 
 // unc <= var
-ROCPPConstraint_Ptr operator<=(ROCPPUnc_Ptr unc, ROCPPVarIF_Ptr var);
+ROCPPConstraintIF_Ptr operator<=(ROCPPUnc_Ptr unc, ROCPPVarIF_Ptr var);
 // unc >= var
-ROCPPConstraint_Ptr operator>=(ROCPPUnc_Ptr unc, ROCPPVarIF_Ptr var);
+ROCPPConstraintIF_Ptr operator>=(ROCPPUnc_Ptr unc, ROCPPVarIF_Ptr var);
 // unc == var
-ROCPPConstraint_Ptr operator==(ROCPPUnc_Ptr unc, ROCPPVarIF_Ptr var);
+ROCPPConstraintIF_Ptr operator==(ROCPPUnc_Ptr unc, ROCPPVarIF_Ptr var);
 
 
 // term <= var
-ROCPPConstraint_Ptr operator<=(ROCPPCstrTerm_Ptr term, ROCPPVarIF_Ptr var);
+ROCPPConstraintIF_Ptr operator<=(ROCPPCstrTerm_Ptr term, ROCPPVarIF_Ptr var);
 // term >= var
-ROCPPConstraint_Ptr operator>=(ROCPPCstrTerm_Ptr term, ROCPPVarIF_Ptr var);
+ROCPPConstraintIF_Ptr operator>=(ROCPPCstrTerm_Ptr term, ROCPPVarIF_Ptr var);
 // term == var
-ROCPPConstraint_Ptr operator==(ROCPPCstrTerm_Ptr term, ROCPPVarIF_Ptr var);
+ROCPPConstraintIF_Ptr operator==(ROCPPCstrTerm_Ptr term, ROCPPVarIF_Ptr var);
 
 // var <= term
-ROCPPConstraint_Ptr operator<=(ROCPPVarIF_Ptr var, ROCPPCstrTerm_Ptr term);
+ROCPPConstraintIF_Ptr operator<=(ROCPPVarIF_Ptr var, ROCPPCstrTerm_Ptr term);
 // var>= term
-ROCPPConstraint_Ptr operator>=(ROCPPVarIF_Ptr var, ROCPPCstrTerm_Ptr term);
+ROCPPConstraintIF_Ptr operator>=(ROCPPVarIF_Ptr var, ROCPPCstrTerm_Ptr term);
 // var == term
-ROCPPConstraint_Ptr operator==(ROCPPVarIF_Ptr var, ROCPPCstrTerm_Ptr term);
+ROCPPConstraintIF_Ptr operator==(ROCPPVarIF_Ptr var, ROCPPCstrTerm_Ptr term);
 
 
 
 // UNC + ...
 
 // unc <= unc
-ROCPPConstraint_Ptr operator<=(ROCPPUnc_Ptr unc1, ROCPPUnc_Ptr unc2);
+ROCPPConstraintIF_Ptr operator<=(ROCPPUnc_Ptr unc1, ROCPPUnc_Ptr unc2);
 // unc >= unc
-ROCPPConstraint_Ptr operator>=(ROCPPUnc_Ptr unc1, ROCPPUnc_Ptr unc2);
+ROCPPConstraintIF_Ptr operator>=(ROCPPUnc_Ptr unc1, ROCPPUnc_Ptr unc2);
 // unc == unc
-ROCPPConstraint_Ptr operator==(ROCPPUnc_Ptr unc1, ROCPPUnc_Ptr unc2);
+ROCPPConstraintIF_Ptr operator==(ROCPPUnc_Ptr unc1, ROCPPUnc_Ptr unc2);
 
 
 // term <= unc
-ROCPPConstraint_Ptr operator<=(ROCPPCstrTerm_Ptr term, ROCPPUnc_Ptr unc);
+ROCPPConstraintIF_Ptr operator<=(ROCPPCstrTerm_Ptr term, ROCPPUnc_Ptr unc);
 // term >= unc
-ROCPPConstraint_Ptr operator>=(ROCPPCstrTerm_Ptr term, ROCPPUnc_Ptr unc);
+ROCPPConstraintIF_Ptr operator>=(ROCPPCstrTerm_Ptr term, ROCPPUnc_Ptr unc);
 // term == unc
-ROCPPConstraint_Ptr operator==(ROCPPCstrTerm_Ptr term, ROCPPUnc_Ptr unc);
+ROCPPConstraintIF_Ptr operator==(ROCPPCstrTerm_Ptr term, ROCPPUnc_Ptr unc);
 
 // unc <= term
-ROCPPConstraint_Ptr operator<=(ROCPPUnc_Ptr unc, ROCPPCstrTerm_Ptr term);
+ROCPPConstraintIF_Ptr operator<=(ROCPPUnc_Ptr unc, ROCPPCstrTerm_Ptr term);
 // unc >= term
-ROCPPConstraint_Ptr operator>=(ROCPPUnc_Ptr unc, ROCPPCstrTerm_Ptr term);
+ROCPPConstraintIF_Ptr operator>=(ROCPPUnc_Ptr unc, ROCPPCstrTerm_Ptr term);
 // unc == term
-ROCPPConstraint_Ptr operator==(ROCPPUnc_Ptr unc, ROCPPCstrTerm_Ptr term);
+ROCPPConstraintIF_Ptr operator==(ROCPPUnc_Ptr unc, ROCPPCstrTerm_Ptr term);
 
 
 

@@ -333,7 +333,7 @@ SCIP_RETCODE SCIPModeller::addSCIPdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, SCIP
     return SCIP_OKAY;
 }
 
-SCIP_RETCODE SCIPModeller::addConstraint(SCIP* scip, ROCPPConstraint_Ptr pCstrIn, uint num)
+SCIP_RETCODE SCIPModeller::addConstraint(SCIP* scip, ROCPPConstraintIF_Ptr pCstrIn, uint num)
 {
     if ( pCstrIn->isClassicConstraint() )
     {

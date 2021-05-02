@@ -26,7 +26,7 @@ ROCPPBilinMISOCP_Ptr RobustifyEngine::robustify(ROCPPUncSSOptModel_Ptr pIn, bool
     size_t numCstr(pIn->getNumProblemConstraints());
     uint ratio((uint)numCstr/10);
     
-    map<string, vector<ROCPPConstraint_Ptr> >::const_iterator blockIt(pIn->blockMapBegin());
+    map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator blockIt(pIn->blockMapBegin());
     
     for (; blockIt != pIn->blockMapEnd(); blockIt++) {
         ROCPPUncSSOptModel_Ptr pRobust(new ROCPPUncSSOptModel());
@@ -190,7 +190,7 @@ void RobustifyEngine::calculateUncertaintySetMatrices(ROCPPUncSSOptModel_Ptr con
 }
 
 
-void RobustifyEngine::createDualVars(ROCPPBilinMISOCP_Ptr pOut, ROCPPConstraint_Ptr pCstr, vector<vector<ROCPPVarIF_Ptr> >& dualVars, bool feasible)
+void RobustifyEngine::createDualVars(ROCPPBilinMISOCP_Ptr pOut, ROCPPConstraintIF_Ptr pCstr, vector<vector<ROCPPVarIF_Ptr> >& dualVars, bool feasible)
 {
     dualVars.clear();
     
@@ -275,7 +275,7 @@ void RobustifyEngine::createDualVars(ROCPPBilinMISOCP_Ptr pOut, ROCPPConstraint_
     }
 }
 
-void RobustifyEngine::robustifyConstraint(ROCPPConstraint_Ptr pConstraint, ROCPPUncSSOptModel_Ptr const pIn, ROCPPBilinMISOCP_Ptr pOut, bool feasible)
+void RobustifyEngine::robustifyConstraint(ROCPPConstraintIF_Ptr pConstraint, ROCPPUncSSOptModel_Ptr const pIn, ROCPPBilinMISOCP_Ptr pOut, bool feasible)
 {
     if (pConstraint->definesUncertaintySet())
         return;

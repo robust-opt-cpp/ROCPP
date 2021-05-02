@@ -30,6 +30,8 @@ enum problemType{
     uncertainssType,
     /// Uncertain multi-stage problem
     uncertainmsType,
+    /// Uncertain multi-stage problem exogenous information discovery
+    uncertainmsexoType,
     /// MISOCP problem
     misocpType,
     /// Bilinear MISOCP problem
@@ -103,7 +105,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constant iterator for optimization model constraints
-    typedef vector<ROCPPConstraint_Ptr>::const_iterator constraintIterator;
+    typedef vector<ROCPPConstraintIF_Ptr>::const_iterator constraintIterator;
     
     /// Constant iterator for optimization model decision variable map
     typedef dvMapType::const_iterator varsIterator;
@@ -132,10 +134,10 @@ public:
     virtual uncertaintiesIterator uncertaintiesEnd() const;
     
     /// Return a constant iterator pointing to the begining of the block map
-    map<string, vector<ROCPPConstraint_Ptr> >::const_iterator blockMapBegin() const {return m_mapBlockConstraints.begin();}
+    map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator blockMapBegin() const {return m_mapBlockConstraints.begin();}
     
     /// Return a constant iterator pointing to the end of the block map
-    map<string, vector<ROCPPConstraint_Ptr> >::const_iterator blockMapEnd() const {return m_mapBlockConstraints.end();}
+    map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator blockMapEnd() const {return m_mapBlockConstraints.end();}
     
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -143,7 +145,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Check compatibility for the given constraint of this optimization model
-    virtual void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
+    virtual void checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const;
     
     /// Check compatibility for the given decision variable of this optimization model
     virtual void checkCompatibility(ROCPPVarIF_Ptr pVariable) const;
@@ -158,9 +160,9 @@ public:
     
     /// Add a constraint into the optimization model after setting the constraint attributes
     /// @note We first map all the variables and uncertainties to make sure they are not used in any other model and then add the new constraint to the model
-    /// @see ConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr>), ConstraintIF::mapUnc(), OptimizationModelIF::createVarMap(ROCPPConstraint_Ptr), OptimizationModelIF::createUncMap(ROCPPConstraint_Ptr), OptimizationModelIF::push_constraint()
+    /// @see ConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr>), ConstraintIF::mapUnc(), OptimizationModelIF::createVarMap(ROCPPConstraintIF_Ptr), OptimizationModelIF::createUncMap(ROCPPConstraintIF_Ptr), OptimizationModelIF::push_constraint()
     /// blockNme allows to add a constraint
-    void add_constraint(ROCPPConstraint_Ptr pConstraint, string blockNme = "main");
+    void add_constraint(ROCPPConstraintIF_Ptr pConstraint, string blockNme = "main");
     
     /// Add a soc constraint into the optimization model
     /// @param coneHead Cone head decision variable
@@ -168,10 +170,10 @@ public:
     void add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vector<ROCPPVarIF_Ptr> &otherVars, string blockNme = "main");
     
     /// Add constraints into the optimization model
-    void add_constraints(vector<ROCPPConstraint_Ptr>::const_iterator first, vector<ROCPPConstraint_Ptr>::const_iterator last, string blockNme = "main");
+    void add_constraints(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, string blockNme = "main");
     
     /// Add a constraint defining the uncertainty set into the model
-    void add_constraint_uncset(ROCPPConstraint_Ptr pUncCstr, string blockNme = "main");
+    void add_constraint_uncset(ROCPPConstraintIF_Ptr pUncCstr, string blockNme = "main");
     
     /// Add an epipragh variable as the objective function and an epigraph constraint into this model
     void add_epigraph();
@@ -180,7 +182,7 @@ public:
     
     /// Set the given objective as the objective function of the model
     /// @note We first map all the variables and uncertainties to make sure they are not used in any other model and then set the new objective
-    /// @see ConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr>), ConstraintIF::mapUnc(), OptimizationModelIF::createVarMap(ROCPPConstraint_Ptr), OptimizationModelIF::createUncMap(ROCPPConstraint_Ptr)
+    /// @see ConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr>), ConstraintIF::mapUnc(), OptimizationModelIF::createVarMap(ROCPPConstraintIF_Ptr), OptimizationModelIF::createUncMap(ROCPPConstraintIF_Ptr)
     virtual void set_objective(ROCPPObjectiveIF_Ptr pObj);
     
     /// Create an objective function using the given expression and add it to the optimization model
@@ -207,7 +209,7 @@ public:
     /// Iterate through all variables in the given constraint. If a variable with the same name exists in the model, use the old one. If a variables with the same name does not exist, create a new variable and add it into the model.
     /// @return A map from the variable name to the variable
     /// @see OptimizationModelIF::varIsDefined(), OptimizationModelIF::add_var()
-    map<string, ROCPPVarIF_Ptr> createVarMap(ROCPPConstraint_Ptr pConstraint);
+    map<string, ROCPPVarIF_Ptr> createVarMap(ROCPPConstraintIF_Ptr pConstraint);
     
     /// Create the variable map for the given objective function
     /// Iterate through all variables in the given objective function. If a variable with the same name exists in the model, use the old one. If a variables with the same name does not exist, create a new variable and add it into the model.
@@ -216,7 +218,7 @@ public:
     map<string, ROCPPVarIF_Ptr> createVarMap(ROCPPObjectiveIF_Ptr objFun);
     
     /// @note Only valid in uncertain model
-    virtual map<string, ROCPPUnc_Ptr> createUncMap(ROCPPConstraint_Ptr pConstraint);
+    virtual map<string, ROCPPUnc_Ptr> createUncMap(ROCPPConstraintIF_Ptr pConstraint);
     
     /// @note Only valid in uncertain model
     virtual map<string, ROCPPUnc_Ptr> createUncMap(ROCPPObjectiveIF_Ptr objFun);
@@ -366,7 +368,7 @@ private:
     ROCPPdvContainer_Ptr m_pDVContainer;
     
     /// Vector of constraints in this model
-    vector<ROCPPConstraint_Ptr> m_constraints;
+    vector<ROCPPConstraintIF_Ptr> m_constraints;
     
     /// Objective function of this model
     ROCPPObjectiveIF_Ptr m_pObj;
@@ -388,7 +390,7 @@ protected:
     void add_ddu_obj(ROCPPVarIF_Ptr pVar, double cost);
     
     /// Push the constraint back into the vector of constraints of this model
-    void push_constraint(ROCPPConstraint_Ptr pConstraint);
+    void push_constraint(ROCPPConstraintIF_Ptr pConstraint);
     
     /// Get index of the given constraint in the m_mapCstrIdxToUncertaintySet map
     ptrdiff_t getConstraintIdx(constraintIterator pConstraintIt) const;
@@ -401,7 +403,7 @@ protected:
     uint m_numTimeStages;
     
     /// Vector collecting the uncertainty set constraints of this model
-    vector<ROCPPConstraint_Ptr> m_uncertaintySet;
+    vector<ROCPPConstraintIF_Ptr> m_uncertaintySet;
     
     /// Uncertain parameter container of this model
     ROCPPuncContainer_Ptr m_pUncContainer;
@@ -422,7 +424,7 @@ protected:
     map<string, pair<uint,uint> > m_dduStagesObs;
     
     /// Map from block name to vector of problem constraint indices
-    map<string, vector<ROCPPConstraint_Ptr> > m_mapBlockConstraints;
+    map<string, vector<ROCPPConstraintIF_Ptr> > m_mapBlockConstraints;
     
 };
 
@@ -452,7 +454,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// @warning Cannot add uncertain constraint into a deterministic model
-    void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
+    void checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const;
     
     /// @warning Cannot add adaptive variable into a deterministic model
     void checkCompatibility(ROCPPVarIF_Ptr pVariable) const;
@@ -494,7 +496,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Const iterator in the uncertainty set constraints of this model
-    typedef vector<ROCPPConstraint_Ptr>::const_iterator uncertaintySetIterator;
+    typedef vector<ROCPPConstraintIF_Ptr>::const_iterator uncertaintySetIterator;
     
     /// Return a constant iterator pointing to the beginning of the uncertain parameter container
     uncertaintiesIterator uncertaintiesBegin() const;
@@ -521,7 +523,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// @warning Cannot add constraint which has norm term but does not define uncertainty set into the model
-    virtual void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
+    virtual void checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const;
     virtual void checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -530,7 +532,7 @@ public:
     
     /// Create the uncertain parameter map for the given constraint
     /// Iterate through all uncertainties in the given constraint. If an uncertain parameter with the same name exists in the model, use the old one. If no parameter with the same name exists, create a new one and add it to the model.
-    virtual map<string, ROCPPUnc_Ptr> createUncMap(ROCPPConstraint_Ptr pConstraint);
+    virtual map<string, ROCPPUnc_Ptr> createUncMap(ROCPPConstraintIF_Ptr pConstraint);
     
     /// Create the uncertainty map for the given objective function
     /// Iterate through all uncertainties in the given objective function. If an uncertain parameter with the same name exists in the model, use the old one. If no parameter with the same name exists, create a new one and add it to the model.
@@ -675,7 +677,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// @warning No uncertainty and bilinearity is allowed in this model
-    void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
+    void checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const;
     
     /// @warning No adaptive decision variable is allowed in this model
     void checkCompatibility(ROCPPVarIF_Ptr pVariable) const;
@@ -717,7 +719,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// @warning No uncertainty is allowed in this model
-    void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
+    void checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const;
     
     /// @warning No adaptive decision variable is allowed in this model
     void checkCompatibility(ROCPPVarIF_Ptr pVariable) const;
@@ -761,7 +763,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// @warning No uncertainty is allowed in this model
-    void checkCompatibility(ROCPPConstraint_Ptr pConstraint) const;
+    void checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const;
     
     /// @warning No adaptive decision variable is allowed in this model
     void checkCompatibility(ROCPPVarIF_Ptr pVariable) const;
@@ -832,6 +834,46 @@ public:
     
     virtual problemType getType() const {return uncertainmsType;}
 };
+
+
+
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%% Uncertain Multi Stage Optimization Model Exogenous ID %%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/// Multi stage uncertain optimization model with exogenous uncertainty
+class MultiStageOptModelExoID : public UncertainMultiStageOptimizationModel
+{
+public:
+    
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    /// Constructor of UncertainSingleStageOptimizationModel
+    MultiStageOptModelExoID(uint numTimeStages = 1, uncOptModelObjType objType = robust) :
+    UncertainMultiStageOptimizationModel(numTimeStages,objType)
+    {}
+    
+    /// Destructor of UncertainSingleStageOptimizationModel
+    ~MultiStageOptModelExoID(){}
+    
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    
+    
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    virtual problemType getType() const {return uncertainmsexoType;}
+};
+
 
 
 

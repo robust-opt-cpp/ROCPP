@@ -127,8 +127,8 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
                 throw MyException("uncertainty set should only contain classic constraints");
             
             
-            ROCPPConstraint_Ptr pTmpCstr ( U2Vconverter.convert( *c_it ) );
-            ROCPPConstraint_Ptr pTmpCstr2 ( V2Vconverter.convertVar(pTmpCstr) );
+            ROCPPConstraintIF_Ptr pTmpCstr ( U2Vconverter.convert( *c_it ) );
+            ROCPPConstraintIF_Ptr pTmpCstr2 ( V2Vconverter.convertVar(pTmpCstr) );
             
             
             if (!pTmpCstr2->isClassicConstraint())

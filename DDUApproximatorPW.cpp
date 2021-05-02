@@ -155,7 +155,7 @@ void PiecewiseApproximator::InitializeMe(ROCPPOptModelIF_Ptr pIn, const map<stri
     m_pBPA = ROCPPUncSetRealVarApprox_Ptr( new UncertaintySetRealVarApproximator(0));
 }
 
-void PiecewiseApproximator::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraint_Ptr>& vecNACs)
+void PiecewiseApproximator::createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraintIF_Ptr>& vecNACs)
 {
 
     // iterate through the variables in pMiddle
@@ -343,17 +343,17 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
     // w_i
     ROCPPconstdvContainer_Ptr bpdvs( m_pPartConstructor->getBPDVContainer() );// );ROCPPdvContainer_Ptr( new dvContainer() )
     map<string,ROCPPExpr_Ptr>  BPDVTranslationMap;
-    vector<ROCPPConstraint_Ptr> BPtoAdd;
+    vector<ROCPPConstraintIF_Ptr> BPtoAdd;
     m_pBPA->createTranslationMap(*bpdvs,BPDVTranslationMap,BPtoAdd);
     
-    for (vector<ROCPPConstraint_Ptr>::const_iterator cit = BPtoAdd.begin(); cit != BPtoAdd.end(); cit++)
+    for (vector<ROCPPConstraintIF_Ptr>::const_iterator cit = BPtoAdd.begin(); cit != BPtoAdd.end(); cit++)
         pOutTmp->add_constraint(*cit);
     
     // create one to one converter using BPDVTranslationMap
     ROCPPO2EVarConverter_Ptr pO2OBPDVS( ROCPPO2EVarConverter_Ptr( new PredefO2EVariableConverter(BPDVTranslationMap) ) );
     pO2OBPDVS->createInverseMap(*bpdvs);
     
-    vector<ROCPPConstraint_Ptr> vecNACs;
+    vector<ROCPPConstraintIF_Ptr> vecNACs;
     createVariableMap(pInNew,pMiddle,vecNACs);
     
     // robustify model on each partition
@@ -488,13 +488,13 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
                     ROCPPVarIF_Ptr ldrCoeffp( getVarOnPartition(mp_it->first, ldrCoeff->getName()) );//Y_{t, ij}^p
                     
                     // add non-anticipativity constraints
-                    ROCPPConstraint_Ptr pConstraint1( new IneqConstraint(false,true) );
+                    ROCPPConstraintIF_Ptr pConstraint1( new IneqConstraint(false,true) );
                     pConstraint1->add_lhs(1.,ldrCoeffp);
                     pConstraint1->add_lhs(-1.*m_bigM,mvp);
                     pConstraint1->set_rhs(make_pair(0.,true));
                     pOut->add_constraint(pConstraint1);
                     
-                    ROCPPConstraint_Ptr pConstraint2( new IneqConstraint(false,true) );
+                    ROCPPConstraintIF_Ptr pConstraint2( new IneqConstraint(false,true) );
                     pConstraint2->add_lhs(-1.,ldrCoeffp);
                     pConstraint2->add_lhs(-1.*m_bigM,mvp);
                     pConstraint2->set_rhs(make_pair(0.,true));
@@ -560,14 +560,14 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
                                             ROCPPVarIF_Ptr ldrCoeffp2( getVarOnPartition(mpi_it->first, ldrCoeff->getName()) );
                                             
                                             // for each coefficient, add NACs
-                                            ROCPPConstraint_Ptr pConstraint1( new IneqConstraint(false,true) );
+                                            ROCPPConstraintIF_Ptr pConstraint1( new IneqConstraint(false,true) );
                                             pConstraint1->add_lhs(1.,ldrCoeffp1);
                                             pConstraint1->add_lhs(-1.,ldrCoeffp2);
                                             pConstraint1->add_lhs(-1.*m_bigM,mvp);
                                             pConstraint1->set_rhs(make_pair(0.,true));
                                             pOut->add_constraint(pConstraint1);
                                             
-                                            ROCPPConstraint_Ptr pConstraint2( new IneqConstraint(false,true) );
+                                            ROCPPConstraintIF_Ptr pConstraint2( new IneqConstraint(false,true) );
                                             pConstraint2->add_lhs(1.,ldrCoeffp2);
                                             pConstraint2->add_lhs(-1.,ldrCoeffp1);
                                             pConstraint2->add_lhs(-1.*m_bigM,mvp);
@@ -589,7 +589,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
                                         ROCPPVarIF_Ptr cdrCoeffp1( getVarOnPartition(mp_it->first, cdrCoeff->getName()) );
                                         ROCPPVarIF_Ptr cdrCoeffp2( getVarOnPartition(mpi_it->first, cdrCoeff->getName()) );
                                         
-                                        ROCPPConstraint_Ptr pConstraint1( new IneqConstraint(false,true) );
+                                        ROCPPConstraintIF_Ptr pConstraint1( new IneqConstraint(false,true) );
                                         pConstraint1->add_lhs(1.,cdrCoeffp1);
                                         pConstraint1->add_lhs(-1.,cdrCoeffp2);
                                         if (odv->getType()==intDV)
@@ -599,7 +599,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
                                         pConstraint1->set_rhs(make_pair(0.,true));
                                         pOut->add_constraint(pConstraint1);
                                         
-                                        ROCPPConstraint_Ptr pConstraint2( new IneqConstraint(false,true) );
+                                        ROCPPConstraintIF_Ptr pConstraint2( new IneqConstraint(false,true) );
                                         pConstraint2->add_lhs(1.,cdrCoeffp2);
                                         pConstraint2->add_lhs(-1.,cdrCoeffp1);
                                         if (odv->getType()==intDV)

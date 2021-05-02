@@ -101,7 +101,7 @@ public:
     const_iterator end() const {return m_partitionsMap.end();}
     
     /// Constant iterator of the vector of uncertainty set constraints
-    typedef vector<ROCPPConstraint_Ptr>::const_iterator usconstraints_iterator;
+    typedef vector<ROCPPConstraintIF_Ptr>::const_iterator usconstraints_iterator;
     
     /// Return a constant iterator pointing to the beginning of constraints defining the uncertainty set on the given partition
     usconstraints_iterator USCbegin(string partition) const;
@@ -113,7 +113,7 @@ public:
     ROCPPUnc_Ptr getUncOnPartition(string partition, string origUncName) const;
     
     /// Constant iterator of the vector of additional constraints
-    typedef vector< ROCPPConstraint_Ptr>::const_iterator addconstraints_iterator;
+    typedef vector< ROCPPConstraintIF_Ptr>::const_iterator addconstraints_iterator;
     
     /// Return a constant iterator pointing to the beginning of m_additionalConstraints
     addconstraints_iterator ACbegin() const {return m_additionalConstraints.begin();}
@@ -171,13 +171,13 @@ protected:
     map<string, map<string,uint> > m_partitionsMap; // map from partition_name to map from unc name to element of parition associated with this uncertainty
     
     /// Map from partition name to the vector of constraints specific to this partition
-    map< string, vector< ROCPPConstraint_Ptr> > m_partitionUSconstraints; // uncertainty set on this partition: constraints specific to this partition
+    map< string, vector< ROCPPConstraintIF_Ptr> > m_partitionUSconstraints; // uncertainty set on this partition: constraints specific to this partition
     
     /// Map from pair<unc name,breakpoint number> to dv modeling the breakpoint
     map< pair<string,uint>, ROCPPExpr_Ptr> m_uncToBreakpointMap; // map from pair<unc name,breakpoint number> to dv modeling the breakpoint
     
     /// Vector of additional constraints
-    vector<ROCPPConstraint_Ptr> m_additionalConstraints;
+    vector<ROCPPConstraintIF_Ptr> m_additionalConstraints;
     
     /// Container of breakpoint variables
     ROCPPdvContainer_Ptr m_bpdvs;
@@ -389,7 +389,7 @@ private:
     
     
     /// Create the map from partition to map from variable in original problem to variable on partition
-    void createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraint_Ptr>& vecNACs);
+    void createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraintIF_Ptr>& vecNACs);
     
     /// Create the map from partition to map from uncertain parameter in original problem to uncertainty on partition
     void createUncertaintyMap(ROCPPOptModelIF_Ptr pIn);
