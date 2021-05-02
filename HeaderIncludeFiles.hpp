@@ -137,7 +137,12 @@ class ClassicConstraintIF;
 typedef shared_ptr<ClassicConstraintIF> ROCPPClassicConstraint_Ptr;
 
 class SOSConstraint;
-typedef shared_ptr<SOSConstraint> ROCPPSOSConstraint_Ptr;
+typedef SOSConstraint ROCPPSOSConstraint;
+typedef shared_ptr<ROCPPSOSConstraint> ROCPPSOSConstraint_Ptr;
+
+class IfThenConstraint;
+typedef IfThenConstraint ROCPPIfThenConstraint;
+typedef shared_ptr<ROCPPIfThenConstraint> ROCPPIfThenConstraint_Ptr;
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
