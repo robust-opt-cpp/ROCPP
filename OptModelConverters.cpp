@@ -54,7 +54,7 @@ ROCPPOptModelIF_Ptr BilinearTermReformulatorIF::linearize(ROCPPOptModelIF_Ptr pI
         pOut = InstanciateModel(pIn->getType(), pIn->getNumTimeStages(),robust);
     
     map<string,pair<double,double> > variableBoundsCopy = variableBounds;
-    vector<ROCPPConstraint_Ptr> cstrsToAdd;
+    vector<ROCPPConstraintIF_Ptr> cstrsToAdd;
     
     map<pair<string,string>, ROCPPVarIF_Ptr> allTerm;
     uint count = 0;
@@ -64,7 +64,7 @@ ROCPPOptModelIF_Ptr BilinearTermReformulatorIF::linearize(ROCPPOptModelIF_Ptr pI
         if(!(*cit)->hasNonlinearities())
             pOut->add_constraint((*cit));
         else{
-            ROCPPConstraint_Ptr newCstr = (*cit)->replaceBilinearTerm(allTerm, count);
+            ROCPPConstraintIF_Ptr newCstr = (*cit)->replaceBilinearTerm(allTerm, count);
             pOut->add_constraint(newCstr);
         }
     }
@@ -78,7 +78,7 @@ ROCPPOptModelIF_Ptr BilinearTermReformulatorIF::linearize(ROCPPOptModelIF_Ptr pI
         getlinearCstr(bindv, otherdv, newdv, cstrsToAdd, variableBoundsCopy);
     }
     
-    for (vector<ROCPPConstraint_Ptr>::const_iterator it = cstrsToAdd.begin(); it != cstrsToAdd.end(); it++)
+    for (vector<ROCPPConstraintIF_Ptr>::const_iterator it = cstrsToAdd.begin(); it != cstrsToAdd.end(); it++)
         pOut->add_constraint(*it);
     
     pOut->set_objective(pIn->getObj());
@@ -94,7 +94,7 @@ ROCPPOptModelIF_Ptr BilinearTermReformulatorIF::linearize(ROCPPOptModelIF_Ptr pI
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void BTR_bigM::getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr  newdv, vector<ROCPPConstraint_Ptr>& cstrvec, map<string,pair<double,double> >& variableBounds)
+void BTR_bigM::getlinearCstr(ROCPPVarIF_Ptr bindv, ROCPPVarIF_Ptr otherdv, ROCPPVarIF_Ptr  newdv, vector<ROCPPConstraintIF_Ptr>& cstrvec, map<string,pair<double,double> >& variableBounds)
 {
     
     double M_ub(m_M);

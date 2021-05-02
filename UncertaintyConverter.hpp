@@ -81,7 +81,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    ROCPPConstraint_Ptr convert(ROCPPConstraint_Ptr pCstr) const;
+    ROCPPConstraintIF_Ptr convert(ROCPPConstraintIF_Ptr pCstr) const;
     
     void findUncsToTranslate(ROCPPOptModelIF_Ptr pIn, uncContainer &container);
     
@@ -112,7 +112,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    ROCPPConstraint_Ptr convert(ROCPPConstraint_Ptr pCstr) const;
+    ROCPPConstraintIF_Ptr convert(ROCPPConstraintIF_Ptr pCstr) const;
     
     void findUncsToTranslate(ROCPPOptModelIF_Ptr pIn, uncContainer &container);
     

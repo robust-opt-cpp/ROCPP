@@ -57,7 +57,7 @@ OptimizationModelIF::uncertaintiesIterator OptimizationModelIF::uncertaintiesEnd
 //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void OptimizationModelIF::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
+void OptimizationModelIF::checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const
 {
     if ( pConstraint->hasProdsUncertainties() )
         throw MyException("products of uncertainties not allowed");
@@ -88,7 +88,7 @@ void OptimizationModelIF::checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void OptimizationModelIF::add_constraint(ROCPPConstraint_Ptr pConstraint, string blockNme)
+void OptimizationModelIF::add_constraint(ROCPPConstraintIF_Ptr pConstraint, string blockNme)
 {
     if ( !pConstraint->isWellDefined() )
         throw MyException( "attempted to add a badly defined constraint to optimization model");
@@ -109,11 +109,11 @@ void OptimizationModelIF::add_constraint(ROCPPConstraint_Ptr pConstraint, string
     checkCompatibility(pConstraint);
     
     map<string, ROCPPVarIF_Ptr> varMap = createVarMap(pConstraint);
-    ROCPPConstraint_Ptr tempConstraint = pConstraint->mapVars(varMap);
+    ROCPPConstraintIF_Ptr tempConstraint = pConstraint->mapVars(varMap);
     
     map<string, ROCPPUnc_Ptr> uncMap = createUncMap(pConstraint);
     
-    ROCPPConstraint_Ptr newConstraint;
+    ROCPPConstraintIF_Ptr newConstraint;
     
     if(uncMap.size() >= 1){
         newConstraint = tempConstraint->mapUnc(uncMap);
@@ -128,11 +128,11 @@ void OptimizationModelIF::add_constraint(ROCPPConstraint_Ptr pConstraint, string
     
     
     // find this block and add to it or create it if it does not exist
-    map<string, vector<ROCPPConstraint_Ptr> >::iterator mit = m_mapBlockConstraints.find(blockNme);
+    map<string, vector<ROCPPConstraintIF_Ptr> >::iterator mit = m_mapBlockConstraints.find(blockNme);
     
     if (mit == m_mapBlockConstraints.end())
     {
-        vector<ROCPPConstraint_Ptr> usvec;
+        vector<ROCPPConstraintIF_Ptr> usvec;
         usvec.push_back(newConstraint);
         m_mapBlockConstraints.insert(make_pair(blockNme, usvec));
     }
@@ -152,11 +152,11 @@ void OptimizationModelIF::add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vect
         for (vector<ROCPPVarIF_Ptr>::const_iterator it = otherVars.begin(); it != otherVars.end(); it++)
         {
             ROCPPExpr_Ptr exp(new LHSExpression() );
-            exp->add( ROCPPCstrTerm_Ptr( new ProductTerm(1.,*it)));
+            exp->add( ROCPPCstrTermIF_Ptr( new ProductTerm(1.,*it)));
             vec.push_back(exp);
         }
         
-        ROCPPCstrTerm_Ptr pNT( new NormTerm(vec) );
+        ROCPPCstrTermIF_Ptr pNT( new NormTerm(vec) );
         
         cstr->add_lhs(pNT);
     }
@@ -174,9 +174,9 @@ void OptimizationModelIF::add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vect
     
 }
 
-void OptimizationModelIF::add_constraints(vector<ROCPPConstraint_Ptr>::const_iterator first, vector<ROCPPConstraint_Ptr>::const_iterator last, string blockNme)
+void OptimizationModelIF::add_constraints(vector<ROCPPConstraintIF_Ptr>::const_iterator first, vector<ROCPPConstraintIF_Ptr>::const_iterator last, string blockNme)
 {
-    for (vector<ROCPPConstraint_Ptr>::const_iterator it = first; it != last; it++)
+    for (vector<ROCPPConstraintIF_Ptr>::const_iterator it = first; it != last; it++)
         add_constraint(*it, blockNme);
 }
 
@@ -197,7 +197,7 @@ void OptimizationModelIF::add_epigraph()
         throw MyException("unknown objective type");
     
     for (auto& lhs : getObj()->getObj() ){
-        ROCPPConstraint_Ptr pCstr(new IneqConstraint() );
+        ROCPPConstraintIF_Ptr pCstr(new IneqConstraint() );
         pCstr->add_lhs(lhs);
         pCstr->add_lhs(-1.,pEpi);
         pCstr->set_rhs(make_pair(0.,true));
@@ -209,7 +209,7 @@ void OptimizationModelIF::add_epigraph()
     set_objective(newObj);
 }
 
-//void OptimizationModelIF::add_constraint(ROCPPConstraint_Ptr pConstraint, vector<ROCPPConstraint_Ptr> pUncertaintySet)
+//void OptimizationModelIF::add_constraint(ROCPPConstraintIF_Ptr pConstraint, vector<ROCPPConstraintIF_Ptr> pUncertaintySet)
 //{
 //    // check that pConstraint is a regular constraint (does not define uncertainty set)
 //    if (pConstraint->definesUncertaintySet())
@@ -217,15 +217,15 @@ void OptimizationModelIF::add_epigraph()
 //    
 //    // add this constraint to the problem and return it (assumes it's the last constraint in the problem)
 //    add_constraint(pConstraint);
-//    ROCPPConstraint_Ptr pConstraintNew( (*(m_constraints.end()--)) );
+//    ROCPPConstraintIF_Ptr pConstraintNew( (*(m_constraints.end()--)) );
 //    
 //    // first identify the index of this constraint
 //    size_t idx(getNumConstraints());
 //    
-//    vector<ROCPPConstraint_Ptr> pUSNew;
+//    vector<ROCPPConstraintIF_Ptr> pUSNew;
 //    
 //    // iterate through all the constraints in the uncertainty set, add them to the problem, and add them to the uncertainty set vector for this constraint
-//    for (vector<ROCPPConstraint_Ptr>::const_iterator vus_it = pUncertaintySet.begin(); vus_it != pUncertaintySet.end(); vus_it++)
+//    for (vector<ROCPPConstraintIF_Ptr>::const_iterator vus_it = pUncertaintySet.begin(); vus_it != pUncertaintySet.end(); vus_it++)
 //    {
 //        add_constraint_uncset(*vus_it);
 //        pUSNew.push_back( (*(m_constraints.end()--)) );
@@ -264,7 +264,7 @@ void OptimizationModelIF::pair_uncertainties(ROCPPUnc_Ptr u1, ROCPPUnc_Ptr u2)
     throw MyException("No ddu in the non ddu type model");
 }
 
-void OptimizationModelIF::add_constraint_uncset(ROCPPConstraint_Ptr pUncCstr, string blockNme)
+void OptimizationModelIF::add_constraint_uncset(ROCPPConstraintIF_Ptr pUncCstr, string blockNme)
 {
     pUncCstr->setParams(true, false);
     
@@ -328,7 +328,7 @@ ROCPPOptModelIF_Ptr OptimizationModelIF::replaceTermWithVar(const multimap<strin
     return pOut;
 }
 
-map<string, ROCPPVarIF_Ptr> OptimizationModelIF::createVarMap(ROCPPConstraint_Ptr pConstraint)
+map<string, ROCPPVarIF_Ptr> OptimizationModelIF::createVarMap(ROCPPConstraintIF_Ptr pConstraint)
 {
     map<string, ROCPPVarIF_Ptr> varMap;
     
@@ -366,7 +366,7 @@ map<string, ROCPPVarIF_Ptr> OptimizationModelIF::createVarMap(ROCPPObjectiveIF_P
     return varMap;
 }
 
-map<string, ROCPPUnc_Ptr> OptimizationModelIF::createUncMap(ROCPPConstraint_Ptr pConstraint)
+map<string, ROCPPUnc_Ptr> OptimizationModelIF::createUncMap(ROCPPConstraintIF_Ptr pConstraint)
 {
     map<string, ROCPPUnc_Ptr> uncMap;
     
@@ -529,9 +529,9 @@ ROCPPOptModelIF_Ptr OptimizationModelIF::Clone() const
         pOut = InstanciateModel(getType(),getNumTimeStages(),robust);
     
     // to add the constraints, sufficient to iterate over the map from block name to constraints
-    for (map<string, vector<ROCPPConstraint_Ptr> >::const_iterator mit = m_mapBlockConstraints.begin(); mit != m_mapBlockConstraints.end(); mit++)
+    for (map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator mit = m_mapBlockConstraints.begin(); mit != m_mapBlockConstraints.end(); mit++)
     {
-        for (vector<ROCPPConstraint_Ptr>::const_iterator vit = mit->second.begin(); vit != mit->second.end(); vit++)
+        for (vector<ROCPPConstraintIF_Ptr>::const_iterator vit = mit->second.begin(); vit != mit->second.end(); vit++)
         {
             pOut->add_constraint(*vit,mit->first);
         }
@@ -584,12 +584,12 @@ void OptimizationModelIF::WriteToFile(string folderName, string fileName) const
     
     uint ccnt(0);
     
-    for (map<string, vector<ROCPPConstraint_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
+    for (map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
     {
         ofs << "Subset " << bit->first << ":" << endl;
         ofs << endl;
         
-        for (vector<ROCPPConstraint_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
+        for (vector<ROCPPConstraintIF_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
         {
             if ( !(*cit)->definesUncertaintySet() )
                 (*cit)->WriteToStream(ofs,ccnt++);
@@ -607,12 +607,12 @@ void OptimizationModelIF::WriteToFile(string folderName, string fileName) const
         
         ccnt=0;
         
-        for (map<string, vector<ROCPPConstraint_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
+        for (map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
         {
             ofs << "Subset " << bit->first << ":" << endl;
             ofs << endl;
             
-            for (vector<ROCPPConstraint_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
+            for (vector<ROCPPConstraintIF_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
             {
                 if ( (*cit)->definesUncertaintySet() )
                     (*cit)->WriteToStream(ofs,ccnt++);
@@ -683,7 +683,7 @@ void OptimizationModelIF::add_ddu_obj(ROCPPVarIF_Ptr pVar, double cost)
     m_pObj->add_to_obj(pVar, cost);
 }
 
-void OptimizationModelIF::push_constraint(ROCPPConstraint_Ptr pConstraint)
+void OptimizationModelIF::push_constraint(ROCPPConstraintIF_Ptr pConstraint)
 {
     m_constraints.push_back(pConstraint);
 }
@@ -707,7 +707,7 @@ ptrdiff_t OptimizationModelIF::getConstraintIdx(constraintIterator pConstraintIt
 //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void DeterministicOptimizationModel::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
+void DeterministicOptimizationModel::checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const
 {
     if (!pConstraint->isDeterministic())
         throw MyException("cannot add non deterministic constraint to a simple optimization model");
@@ -769,7 +769,7 @@ OptimizationModelIF::uncertaintiesIterator UncertainOptimizationModel::uncertain
 //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void UncertainOptimizationModel::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
+void UncertainOptimizationModel::checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const
 {
     if (!pConstraint->definesUncertaintySet())
     {
@@ -797,7 +797,7 @@ void UncertainOptimizationModel::checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-map<string, ROCPPUnc_Ptr> UncertainOptimizationModel:: createUncMap(ROCPPConstraint_Ptr pConstraint)
+map<string, ROCPPUnc_Ptr> UncertainOptimizationModel:: createUncMap(ROCPPConstraintIF_Ptr pConstraint)
 {
     map<string, ROCPPUnc_Ptr> uncMap;
     
@@ -981,7 +981,7 @@ ROCPPuncContainer_Ptr UncertainOptimizationModel::getObsUncContainer() const
 
 UncertainOptimizationModel::uncertaintySetIterator UncertainOptimizationModel::uncertaintySetBegin(string blockNme) const
 {
-    map<string, vector<ROCPPConstraint_Ptr> >::const_iterator mit = m_mapBlockConstraints.find(blockNme);
+    map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator mit = m_mapBlockConstraints.find(blockNme);
     
     if (mit==m_mapBlockConstraints.end())
         throw MyException("block name not found");
@@ -1012,7 +1012,7 @@ UncertainOptimizationModel::uncertaintySetIterator UncertainOptimizationModel::u
 //                    // find the idx of the constraint in map and return the vector of uncertainty set constraints
 //                    ptrdiff_t idx = getConstraintIdx(cit);
 //                    
-//                    map<ptrdiff_t, vector<ROCPPConstraint_Ptr> >::const_iterator mit = m_mapCstrIdxToUncertaintySet.find(idx);
+//                    map<ptrdiff_t, vector<ROCPPConstraintIF_Ptr> >::const_iterator mit = m_mapCstrIdxToUncertaintySet.find(idx);
 //                    
 //                    if (mit==m_mapCstrIdxToUncertaintySet.end())
 //                        throw MyException("Constraint index not found in m_mapCstrIdxToUncertaintySet");
@@ -1036,7 +1036,7 @@ UncertainOptimizationModel::uncertaintySetIterator UncertainOptimizationModel::u
 
 UncertainOptimizationModel::uncertaintySetIterator UncertainOptimizationModel::uncertaintySetEnd(string blockNme) const
 {
-    map<string, vector<ROCPPConstraint_Ptr> >::const_iterator mit = m_mapBlockConstraints.find(blockNme);
+    map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator mit = m_mapBlockConstraints.find(blockNme);
     
     if (mit==m_mapBlockConstraints.end())
         throw MyException("block name not found");
@@ -1091,7 +1091,7 @@ void UncertainSingleStageOptimizationModel::checkCompatibility(ROCPPVarIF_Ptr pV
 //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void MISOCP::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
+void MISOCP::checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const
 {
     DeterministicOptimizationModel::checkCompatibility(pConstraint);
     
@@ -1120,7 +1120,7 @@ void MISOCP::checkCompatibility(ROCPPObjectiveIF_Ptr pObjFun) const
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void Bilinear_MISOCP::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
+void Bilinear_MISOCP::checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const
 {
     DeterministicOptimizationModel::checkCompatibility(pConstraint);
 }
@@ -1168,7 +1168,7 @@ CPLEXMISOCP::CPLEXMISOCP(ROCPPMISOCP_Ptr pIn, string baseVarNme) : m_baseVarNme(
                 
                 if ( (conehead_expr->getNumTerms()==1) && (!(*conehead_expr->begin())->hasNonlinearities() ) )
                 {
-                    ROCPPCstrTerm_Ptr tmp( *conehead_expr->begin() );
+                    ROCPPCstrTermIF_Ptr tmp( *conehead_expr->begin() );
                     if (!tmp->isProductTerm())
                         throw MyException("linear part should not involve norm term");
                     
@@ -1198,7 +1198,7 @@ CPLEXMISOCP::CPLEXMISOCP(ROCPPMISOCP_Ptr pIn, string baseVarNme) : m_baseVarNme(
                     
                     if ( (nonhead_expr->getNumTerms()==1) && (!(*nonhead_expr->begin())->hasNonlinearities() ) )
                     {
-                        ROCPPCstrTerm_Ptr tmp( *nonhead_expr->begin() );
+                        ROCPPCstrTermIF_Ptr tmp( *nonhead_expr->begin() );
                         if (!tmp->isProductTerm())
                             throw MyException("norm term expression should not involve norm term");
                         
@@ -1237,7 +1237,7 @@ CPLEXMISOCP::CPLEXMISOCP(ROCPPMISOCP_Ptr pIn, string baseVarNme) : m_baseVarNme(
 //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void CPLEXMISOCP::checkCompatibility(ROCPPConstraint_Ptr pConstraint) const
+void CPLEXMISOCP::checkCompatibility(ROCPPConstraintIF_Ptr pConstraint) const
 {
     DeterministicOptimizationModel::checkCompatibility(pConstraint);
 }
@@ -1283,7 +1283,7 @@ void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vect
         {
             ROCPPClassicConstraint_Ptr cstr( new IneqConstraint() );
             ROCPPExpr_Ptr expr( new LHSExpression() );
-            (*expr) += ROCPPCstrTerm_Ptr(coneHead);
+            (*expr) += ROCPPCstrTermIF_Ptr(coneHead);
             (*expr) *= -1.;
             cstr->add_lhs( expr );
             cstr->set_rhs( make_pair(0.,true) );
@@ -1296,8 +1296,8 @@ void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vect
         
         {
             ROCPPExpr_Ptr expr( new LHSExpression() );
-            (*expr) += ROCPPCstrTerm_Ptr(coneHead);
-            (*expr) *= ROCPPCstrTerm_Ptr(coneHead);
+            (*expr) += ROCPPCstrTermIF_Ptr(coneHead);
+            (*expr) *= ROCPPCstrTermIF_Ptr(coneHead);
             (*expr) *= -1.;
             cstr->add_lhs( expr );
         }
@@ -1311,8 +1311,8 @@ void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vect
                 throw MyException("this term cannot have uncertainties");
             
             ROCPPExpr_Ptr expr( new LHSExpression() );
-            (*expr) += ROCPPCstrTerm_Ptr(*vit);
-            (*expr) *= ROCPPCstrTerm_Ptr(*vit);
+            (*expr) += ROCPPCstrTermIF_Ptr(*vit);
+            (*expr) *= ROCPPCstrTermIF_Ptr(*vit);
             cstr->add_lhs( expr );
         }
         
@@ -1725,12 +1725,12 @@ void MultiStageOptModelDDID::WriteToFile(string folderName, string fileName) con
     
     uint ccnt(0);
     
-    for (map<string, vector<ROCPPConstraint_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
+    for (map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
     {
         ofs << "Subset " << bit->first << ":" << endl;
         ofs << endl;
         
-        for (vector<ROCPPConstraint_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
+        for (vector<ROCPPConstraintIF_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
         {
             if ( !(*cit)->definesUncertaintySet() )
                 (*cit)->WriteToStream(ofs,ccnt++);
@@ -1748,12 +1748,12 @@ void MultiStageOptModelDDID::WriteToFile(string folderName, string fileName) con
         
         ccnt=0;
         
-        for (map<string, vector<ROCPPConstraint_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
+        for (map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator bit = m_mapBlockConstraints.begin(); bit != m_mapBlockConstraints.end(); bit++)
         {
             ofs << "Subset " << bit->first << ":" << endl;
             ofs << endl;
             
-            for (vector<ROCPPConstraint_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
+            for (vector<ROCPPConstraintIF_Ptr>::const_iterator cit = bit->second.begin(); cit != bit->second.end(); cit++)
             {
                 if ( (*cit)->definesUncertaintySet() )
                     (*cit)->WriteToStream(ofs,ccnt++);

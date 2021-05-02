@@ -66,7 +66,7 @@ public:
     void InitializeMe(ROCPPOptModelIF_Ptr pIn, const map<string,uint> &numPartitionsMap, uint numBits, double bigM, bool useExplicitNACs, string folder);
     
     /// Create the map from partition to map from variable in original problem to variable on partition
-    void createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraint_Ptr>& vecNACs);
+    void createVariableMap(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pMiddle, vector<ROCPPConstraintIF_Ptr>& vecNACs);
     
     /// Approximate the input model
     /// First construct the partition maps, then calculate and robustity the model on each subset, finally add non-anticipativity constraints

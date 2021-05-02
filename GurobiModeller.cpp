@@ -351,7 +351,7 @@ void GurobiModeller::addGUROBIdecisionVars(ROCPPCPLEXMISOCP_Ptr pModel, GRBEnv &
     
 }
 
-void GurobiModeller::addConstraint(GRBEnv &env, GRBModel& Model,ROCPPConstraint_Ptr pCstrIn) const
+void GurobiModeller::addConstraint(GRBEnv &env, GRBModel& Model,ROCPPConstraintIF_Ptr pCstrIn) const
 {
     if ( pCstrIn->isClassicConstraint() )
     {

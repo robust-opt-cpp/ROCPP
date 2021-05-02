@@ -107,11 +107,11 @@ ROCPPObjectiveIF_Ptr SimpleObjective::mapUncs(const map<string, ROCPPExpr_Ptr> &
     return newObj;
 }
 
-void SimpleObjective::convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraint_Ptr> &epigraphConstraints) const
+void SimpleObjective::convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraintIF_Ptr> &epigraphConstraints) const
 {
     epigraphConstraints.clear();
     
-    ROCPPConstraint_Ptr epicst(new IneqConstraint());
+    ROCPPConstraintIF_Ptr epicst(new IneqConstraint());
     epicst->add_lhs(m_pObjFun);
     epicst->add_lhs(-1., epigraphVar);
     
@@ -343,13 +343,13 @@ ROCPPObjectiveIF_Ptr MaxObjective::replaceTermWithVar(const multimap<string, ROC
     return newObj;
 }
 
-void MaxObjective::convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraint_Ptr> &epigraphConstraints) const
+void MaxObjective::convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPConstraintIF_Ptr> &epigraphConstraints) const
 {
     epigraphConstraints.clear();
     
     for (vector<ROCPPExpr_Ptr>::const_iterator oit = m_pObjFuns.begin(); oit != m_pObjFuns.end(); oit++)
     {
-        ROCPPConstraint_Ptr epicst(new IneqConstraint());
+        ROCPPConstraintIF_Ptr epicst(new IneqConstraint());
         epicst->add_lhs(*oit);
         epicst->add_lhs(-1., epigraphVar);
         
