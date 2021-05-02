@@ -133,6 +133,14 @@ class ConstraintIF;
 typedef ConstraintIF ROCPPConstraintIF;
 typedef shared_ptr<ROCPPConstraintIF> ROCPPConstraintIF_Ptr;
 
+class IneqConstraint;
+typedef IneqConstraint ROCPPIneqConstraint;
+typedef shared_ptr<ROCPPIneqConstraint> ROCPPIneqConstraint_Ptr;
+
+class EqConstraint;
+typedef IneqConstraint ROCPPEqConstraint;
+typedef shared_ptr<ROCPPEqConstraint> ROCPPEqConstraint_Ptr;
+
 class ClassicConstraintIF;
 typedef shared_ptr<ClassicConstraintIF> ROCPPClassicConstraint_Ptr;
 
