@@ -223,6 +223,19 @@ typedef shared_ptr<ROCPPCPLEXMISOCP> ROCPPCPLEXMISOCP_Ptr;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+class VariableConverterIF;
+typedef VariableConverterIF ROCPPVariableConverterIF;
+typedef shared_ptr<ROCPPVariableConverterIF> ROCPPVariableConverterIF_Ptr;
+
+class OneToOneVariableConverterIF;
+typedef OneToOneVariableConverterIF ROCPPOneToOneVarConverterIF;
+typedef shared_ptr<OneToOneVariableConverterIF> ROCPPOneToOneVarConverterIF_Ptr;
+
+class OneToExprVariableConverterIF;
+typedef OneToExprVariableConverterIF ROCPPOneToExprVarConverterIF;
+typedef shared_ptr<ROCPPOneToExprVarConverterIF> ROCPPOneToExprVarConverterIF_Ptr;
+
+
 class BilinearTermReformulatorIF;
 typedef shared_ptr<BilinearTermReformulatorIF> ROCPPBilinearReform_Ptr;
 
@@ -245,13 +258,27 @@ typedef UncertaintySetRealVarApproximator ROCPPUncSetRealVarApprox;
 typedef shared_ptr<UncertaintySetRealVarApproximator> ROCPPUncSetRealVarApprox_Ptr;
 
 class PredefO2OVariableConverter;
-typedef shared_ptr<PredefO2OVariableConverter> ROCPPO2OVarConverter_Ptr;
+typedef PredefO2OVariableConverter ROCPPPredefO2OVarConverter;
+typedef shared_ptr<PredefO2OVariableConverter> ROCPPPredefO2OVarConverter_Ptr;
 
 class PredefO2EVariableConverter;
-typedef shared_ptr<PredefO2EVariableConverter> ROCPPO2EVarConverter_Ptr;
+typedef PredefO2EVariableConverter ROCPPPredefO2EVarConverter;
+typedef shared_ptr<PredefO2EVariableConverter> ROCPPPredefO2EVarConverter_Ptr;
 
-class OneToExprVariableConverterIF;
-typedef shared_ptr<OneToExprVariableConverterIF> ROCPPO2EVarConverterIF_Ptr;
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%% UNCERTAINTY CONVERTER TYPE DEFS %%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+class UncertaintyConverterIF;
+typedef UncertaintyConverterIF ROCPPUncertaintyConverterIF;
+typedef shared_ptr<ROCPPUncertaintyConverterIF> ROCPPUncertaintyConverterIF_Ptr;
+
+class UncertaintyToVariableConverter;
+typedef UncertaintyToVariableConverter ROCPPUncToVarConverter;
+typedef shared_ptr<ROCPPUncToVarConverter> ROCPPUncToVarConverter_Ptr;
+
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -318,8 +345,8 @@ typedef shared_ptr<RobustifyEngine> ROCPPRobustifyEngine_Ptr;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 class SolverModellerIF;
-typedef SolverModellerIF ROCPPSolverModeller;
-typedef shared_ptr<SolverModellerIF> ROCPPSolverModeller_Ptr;
+typedef SolverModellerIF ROCPPSolverInterface;
+typedef shared_ptr<SolverModellerIF> ROCPPSolverInterface_Ptr;
 
 class SolverParams;
 typedef SolverParams ROCPPSolverParams;

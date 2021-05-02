@@ -1117,7 +1117,7 @@ ROCPPOptModelIF_Ptr KadaptabilityApproximatorMS::fixBinaryVariableValues(ROCPPOp
     }
 
     // create the variable converter
-    ROCPPO2EVarConverterIF_Ptr varConverter (new PredefO2EVariableConverter(translationMap));
+    ROCPPOneToExprVarConverterIF_Ptr varConverter (new PredefO2EVariableConverter(translationMap));
 
     // let the variable converter do its magic
 

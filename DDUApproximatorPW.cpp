@@ -350,7 +350,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
         pOutTmp->add_constraint(*cit);
     
     // create one to one converter using BPDVTranslationMap
-    ROCPPO2EVarConverter_Ptr pO2OBPDVS( ROCPPO2EVarConverter_Ptr( new PredefO2EVariableConverter(BPDVTranslationMap) ) );
+    ROCPPPredefO2EVarConverter_Ptr pO2OBPDVS( ROCPPPredefO2EVarConverter_Ptr( new PredefO2EVariableConverter(BPDVTranslationMap) ) );
     pO2OBPDVS->createInverseMap(*bpdvs);
     
     vector<ROCPPConstraintIF_Ptr> vecNACs;
@@ -405,7 +405,7 @@ ROCPPMISOCP_Ptr PiecewiseApproximator::approximate(ROCPPOptModelIF_Ptr pIn)
         
         // map the variables to variables over this partition
         // Y_(ij) -> Y_(ij)^s
-        ROCPPO2OVarConverter_Ptr pO2OVC( new PredefO2OVariableConverter( m_VariableMap[ (*pit).first ] ) );
+        ROCPPPredefO2OVarConverter_Ptr pO2OVC( new PredefO2OVariableConverter( m_VariableMap[ (*pit).first ] ) );
         ROCPPOptModelIF_Ptr pTmp2( pO2OVC->convertVar(pTmp,true) );
         
         inverseVarMapAll.insert(pO2OVC->beginInv(), pO2OVC->endInv() );

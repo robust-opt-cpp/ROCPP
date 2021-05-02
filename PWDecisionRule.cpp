@@ -666,7 +666,7 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
         pOut->add_constraint(*cit);
     
     // create one to one converter using BPDVTranslationMap
-    ROCPPO2EVarConverter_Ptr pO2OBPDVS( ROCPPO2EVarConverter_Ptr( new PredefO2EVariableConverter(BPDVTranslationMap) ) );
+    ROCPPPredefO2EVarConverter_Ptr pO2OBPDVS( ROCPPPredefO2EVarConverter_Ptr( new PredefO2EVariableConverter(BPDVTranslationMap) ) );
     pO2OBPDVS->createInverseMap(*bpdvs);
     
     vector<ROCPPConstraintIF_Ptr> vecNACs;

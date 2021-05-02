@@ -217,7 +217,7 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
                 
                 
                 SolverParams sparams = SolverParams();
-                ROCPPSolverModeller_Ptr pModeller;
+                ROCPPSolverInterface_Ptr pModeller;
 //                if (solver == "gurobi")
 //                    pModeller =  ROCPPSolver_Ptr(new GurobiModeller(sparams, false) );
 //                else if (solver == "SCIP")
@@ -225,7 +225,7 @@ void findMarginalSupportUncertaintySet(ROCPPOptModelIF_Ptr pModelIn, map<string,
 //                else
 //                    throw MyException("Can not find your solver.");
 #ifdef USE_GUROBI
-                pModeller =  ROCPPSolverModeller_Ptr(new GurobiModeller(sparams, false) );
+                pModeller =  ROCPPSolverInterface_Ptr(new GurobiModeller(sparams, false) );
 #elif defined(USE_SCIP)
                 pModeller =  ROCPPSolver_Ptr(new SCIPModeller(sparams, false) );
 #else
