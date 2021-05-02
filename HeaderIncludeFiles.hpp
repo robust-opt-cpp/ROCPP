@@ -318,8 +318,8 @@ typedef shared_ptr<RobustifyEngine> ROCPPRobustifyEngine_Ptr;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 class SolverModellerIF;
-typedef SolverModellerIF ROCPPSolver;
-typedef shared_ptr<SolverModellerIF> ROCPPSolver_Ptr;
+typedef SolverModellerIF ROCPPSolverModeller;
+typedef shared_ptr<SolverModellerIF> ROCPPSolverModeller_Ptr;
 
 class SolverParams;
 typedef SolverParams ROCPPSolverParams;
