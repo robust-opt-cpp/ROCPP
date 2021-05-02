@@ -30,7 +30,7 @@ ConstraintTermIF::ConstraintTermIF() : m_pDVContainer ( new dvContainer() ), m_p
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 bool ConstraintTermIF::operator==(const ProductTerm &other) const {throw MyException("operation not applicable");};
-void ConstraintTermIF::operator*=(ROCPPconstCstrTerm_Ptr term) {throw MyException("operation not applicable");};
+void ConstraintTermIF::operator*=(ROCPPconstCstrTermIF_Ptr term) {throw MyException("operation not applicable");};
 void ConstraintTermIF::operator*=(ROCPPVarIF_Ptr var){throw MyException("operation not applicable");};
 void ConstraintTermIF::operator*=(ROCPPUnc_Ptr unc){throw MyException("operation not applicable");};
 void ConstraintTermIF::operator*=(double a){throw MyException("operation not applicable");}
@@ -39,12 +39,12 @@ void ConstraintTermIF::operator*=(double a){throw MyException("operation not app
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-pair<bool,ROCPPCstrTerm_Ptr> ConstraintTermIF::factorOut(ROCPPUnc_Ptr unc) const
+pair<bool,ROCPPCstrTermIF_Ptr> ConstraintTermIF::factorOut(ROCPPUnc_Ptr unc) const
 {
     throw MyException("no factor");
 }
 
-void ConstraintTermIF::add(ROCPPconstCstrTerm_Ptr other) {throw MyException("should not be here");}
+void ConstraintTermIF::add(ROCPPconstCstrTermIF_Ptr other) {throw MyException("should not be here");}
 
 void ConstraintTermIF::add_int_vars(dvContainer &dvs) const
 {
@@ -151,7 +151,7 @@ bool ProductTerm::operator==(const ProductTerm &other) const
     return ( ( m_DVMap == other.m_DVMap ) && (m_UncMap == other.m_UncMap) );
 }
 
-void ProductTerm::operator*=(ROCPPconstCstrTerm_Ptr term)
+void ProductTerm::operator*=(ROCPPconstCstrTermIF_Ptr term)
 {
     if (term->getType() != prodTerm)
         throw MyException("can only multiply with product type");
@@ -176,12 +176,12 @@ void ProductTerm::operator*=(ROCPPconstCstrTerm_Ptr term)
 //%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-pair<bool,ROCPPCstrTerm_Ptr> ProductTerm::factorOut(ROCPPUnc_Ptr unc) const
+pair<bool,ROCPPCstrTermIF_Ptr> ProductTerm::factorOut(ROCPPUnc_Ptr unc) const
 {
     uncIterator uit( m_UncMap.find(unc->getName()) );
     
     if (uit==m_UncMap.end())
-        return make_pair(false,ROCPPCstrTerm_Ptr(new ProductTerm(0.)));
+        return make_pair(false,ROCPPCstrTermIF_Ptr(new ProductTerm(0.)));
     
     if ( (uit!=m_UncMap.end()) && (uit->second!=unc) )
         throw MyException("uncertainty with same name found");
@@ -210,10 +210,10 @@ pair<bool,ROCPPCstrTerm_Ptr> ProductTerm::factorOut(ROCPPUnc_Ptr unc) const
         }
     }
     
-    return make_pair(true,ROCPPCstrTerm_Ptr(out));
+    return make_pair(true,ROCPPCstrTermIF_Ptr(out));
 }
 
-ROCPPCstrTerm_Ptr ProductTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
+ROCPPCstrTermIF_Ptr ProductTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
 {
     vector<ROCPPVarIF_Ptr> vars;
     vector<ROCPPUnc_Ptr> unc;
@@ -237,11 +237,11 @@ ROCPPCstrTerm_Ptr ProductTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr> &map
         unc.push_back(u_it->second);
     }
     
-    ROCPPCstrTerm_Ptr termOut ( new ProductTerm( getCoeff(), unc, vars ) );
+    ROCPPCstrTermIF_Ptr termOut ( new ProductTerm( getCoeff(), unc, vars ) );
     return termOut;
 }
 
-ROCPPCstrTerm_Ptr ProductTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const
+ROCPPCstrTermIF_Ptr ProductTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const
 {
     vector<ROCPPVarIF_Ptr> vars;
     vector<ROCPPUnc_Ptr> unc;
@@ -266,7 +266,7 @@ ROCPPCstrTerm_Ptr ProductTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFro
         vars.push_back(v_it->second);
     }
     
-    ROCPPCstrTerm_Ptr termOut ( new ProductTerm( getCoeff(), unc, vars ) );
+    ROCPPCstrTermIF_Ptr termOut ( new ProductTerm( getCoeff(), unc, vars ) );
     return termOut;
 }
 
@@ -286,7 +286,7 @@ ROCPPExpr_Ptr ProductTerm::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarT
     if ( (mapFromVarToExpression.empty()) || (noneFound) )
     {
         ROCPPExpr_Ptr same(new LHSExpression());
-        same->add(ROCPPconstCstrTerm_Ptr(this->Clone()));
+        same->add(ROCPPconstCstrTermIF_Ptr(this->Clone()));
         return same;
     }
     
@@ -339,10 +339,10 @@ ROCPPExpr_Ptr ProductTerm::mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncT
     return out;
 }
 
-ROCPPCstrTerm_Ptr ProductTerm::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
+ROCPPCstrTermIF_Ptr ProductTerm::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
 {
     
-    ROCPPCstrTerm_Ptr pOut;
+    ROCPPCstrTermIF_Ptr pOut;
     
     if ( (term.size()>1) && this->m_DVMap.size()==1) // the term provided is nonlinear but the current term is linear then there is nothing to do
     {
@@ -386,7 +386,7 @@ ROCPPCstrTerm_Ptr ProductTerm::replaceTermWithVar(const multimap<string, ROCPPVa
             for (uncIterator uit = uncBegin(); uit != uncEnd(); uit++)
                 vuncs.push_back(uit->second);
             
-            pOut = ROCPPCstrTerm_Ptr( new ProductTerm( m_coeff, vuncs, vvars ) );
+            pOut = ROCPPCstrTermIF_Ptr( new ProductTerm( m_coeff, vuncs, vvars ) );
         }
         
     }
@@ -394,7 +394,7 @@ ROCPPCstrTerm_Ptr ProductTerm::replaceTermWithVar(const multimap<string, ROCPPVa
     return pOut;
 }
 
-void ProductTerm::add(ROCPPconstCstrTerm_Ptr other)
+void ProductTerm::add(ROCPPconstCstrTermIF_Ptr other)
 {
     if (!other->isProductTerm())
         throw MyException("cannot add non product term");
@@ -456,7 +456,7 @@ bool ProductTerm::hasProdsContVars() const
     return false;
 }
 
-bool ProductTerm::is_same(ROCPPconstCstrTerm_Ptr other) const
+bool ProductTerm::is_same(ROCPPconstCstrTermIF_Ptr other) const
 {
     if (other->getType() != getType())
         return false;
@@ -480,7 +480,7 @@ void ProductTerm::getAllProductsOf2Variables(map< pair<string,string>, uint> &fr
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPCstrTerm_Ptr ProductTerm::Clone() const
+ROCPPCstrTermIF_Ptr ProductTerm::Clone() const
 {
     vector<ROCPPUnc_Ptr> uncVec;
     vector<ROCPPVarIF_Ptr> varVec;
@@ -492,7 +492,7 @@ ROCPPCstrTerm_Ptr ProductTerm::Clone() const
         uncVec.push_back(uit->second);
     
     
-    ROCPPCstrTerm_Ptr out ( new ProductTerm( this->getCoeff(), uncVec, varVec ) );
+    ROCPPCstrTermIF_Ptr out ( new ProductTerm( this->getCoeff(), uncVec, varVec ) );
     
     return out;
 }
@@ -588,7 +588,7 @@ NormTerm::NormTerm(const vector<ROCPPExpr_Ptr> &pExpressionVec) : m_pExpressionV
 //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPCstrTerm_Ptr NormTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
+ROCPPCstrTermIF_Ptr NormTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
 {
     vector<ROCPPExpr_Ptr> vecOut;
     
@@ -598,11 +598,11 @@ ROCPPCstrTerm_Ptr NormTerm::mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFro
         vecOut.push_back( pExpression );
     }
     
-    ROCPPCstrTerm_Ptr termOut ( new NormTerm( vecOut ) );
+    ROCPPCstrTermIF_Ptr termOut ( new NormTerm( vecOut ) );
     return termOut;
 }
 
-ROCPPCstrTerm_Ptr NormTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const
+ROCPPCstrTermIF_Ptr NormTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const
 {
     vector<ROCPPExpr_Ptr> vecOut;
     
@@ -612,7 +612,7 @@ ROCPPCstrTerm_Ptr NormTerm::mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOl
         vecOut.push_back( pExpression );
     }
     
-    ROCPPCstrTerm_Ptr termOut ( new NormTerm( vecOut ) );
+    ROCPPCstrTermIF_Ptr termOut ( new NormTerm( vecOut ) );
     return termOut;
 }
 
@@ -626,7 +626,7 @@ ROCPPExpr_Ptr NormTerm::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToEx
         vecOut.push_back( pExpression );
     }
     
-    ROCPPCstrTerm_Ptr termOut ( new NormTerm( vecOut ) );
+    ROCPPCstrTermIF_Ptr termOut ( new NormTerm( vecOut ) );
     
     ROCPPExpr_Ptr exprOut( new LHSExpression() );
     exprOut->add(termOut);
@@ -644,7 +644,7 @@ ROCPPExpr_Ptr NormTerm::mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToEx
         vecOut.push_back( pExpression );
     }
     
-    ROCPPCstrTerm_Ptr termOut ( new NormTerm( vecOut ) );
+    ROCPPCstrTermIF_Ptr termOut ( new NormTerm( vecOut ) );
     
     ROCPPExpr_Ptr exprOut( new LHSExpression() );
     exprOut->add(termOut);
@@ -652,7 +652,7 @@ ROCPPExpr_Ptr NormTerm::mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToEx
     return exprOut;
 }
 
-ROCPPCstrTerm_Ptr NormTerm::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
+ROCPPCstrTermIF_Ptr NormTerm::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
 {
     vector<ROCPPExpr_Ptr> vecOut;
     
@@ -662,7 +662,7 @@ ROCPPCstrTerm_Ptr NormTerm::replaceTermWithVar(const multimap<string, ROCPPVarIF
         vecOut.push_back( pExpression );
     }
     
-    ROCPPCstrTerm_Ptr termOut ( new NormTerm( vecOut ) );
+    ROCPPCstrTermIF_Ptr termOut ( new NormTerm( vecOut ) );
     return termOut;
 }
 
@@ -733,7 +733,7 @@ bool NormTerm::isWellDefined() const
     
 }
 
-bool NormTerm::is_same(ROCPPconstCstrTerm_Ptr other) const
+bool NormTerm::is_same(ROCPPconstCstrTermIF_Ptr other) const
 {
     if (other->getType() != getType())
         return false;
@@ -776,14 +776,14 @@ double NormTerm::evaluate(const map<string,double>& valuesMap ) const
 //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ROCPPCstrTerm_Ptr NormTerm::Clone() const
+ROCPPCstrTermIF_Ptr NormTerm::Clone() const
 {
     vector<ROCPPExpr_Ptr> vecOut;
     
     for (const_iterator it = begin(); it != end(); it++)
         vecOut.push_back( (*it)->Clone() );
     
-    ROCPPCstrTerm_Ptr out ( new NormTerm(vecOut) );
+    ROCPPCstrTermIF_Ptr out ( new NormTerm(vecOut) );
     return out;
 }
 
@@ -821,7 +821,7 @@ void NormTerm::WriteToStream(ofstream &ofs) const
 //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-LHSExpression::const_iterator LHSExpression::find(ROCPPconstCstrTerm_Ptr term) const
+LHSExpression::const_iterator LHSExpression::find(ROCPPconstCstrTermIF_Ptr term) const
 {
     for (const_iterator it = m_terms.begin(); it != m_terms.end(); it++)
     {
@@ -835,7 +835,7 @@ LHSExpression::const_iterator LHSExpression::find(ROCPPconstCstrTerm_Ptr term) c
 //%%%%%%%%%%%%%%%%%%%%%%%%% Operators %%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void LHSExpression::operator*=(ROCPPconstCstrTerm_Ptr term)
+void LHSExpression::operator*=(ROCPPconstCstrTermIF_Ptr term)
 {
     for (const_iterator it = begin(); it!=end(); it++)
         *(*it) *= term;
@@ -850,7 +850,7 @@ void LHSExpression::operator*=(ROCPPconstExpr_Ptr other)
     
     for (const_iterator oit = other->begin(); oit!=other->end(); oit++)
     {
-        ROCPPCstrTerm_Ptr oterm( (*oit)->Clone() );
+        ROCPPCstrTermIF_Ptr oterm( (*oit)->Clone() );
         ROCPPExpr_Ptr sexpr( new LHSExpression() );
         (*sexpr) += ROCPPExpr_Ptr(this->Clone());
         (*sexpr) *= oterm;
@@ -888,45 +888,45 @@ void LHSExpression::operator*=(double a)
 
 void LHSExpression::add(double c)
 {
-    ROCPPCstrTerm_Ptr pT( new ProductTerm(c) );
+    ROCPPCstrTermIF_Ptr pT( new ProductTerm(c) );
     add(pT);
 }
 
 void LHSExpression::add(double c, ROCPPVarIF_Ptr pVariable)
 {
-    ROCPPCstrTerm_Ptr pT( new ProductTerm(c,pVariable) );
+    ROCPPCstrTermIF_Ptr pT( new ProductTerm(c,pVariable) );
     add(pT);
 }
 
 void LHSExpression::add(double c, ROCPPUnc_Ptr pUncertainty,  ROCPPVarIF_Ptr pVariable)
 {
-    ROCPPCstrTerm_Ptr pT( new ProductTerm(c,pUncertainty,pVariable) );
+    ROCPPCstrTermIF_Ptr pT( new ProductTerm(c,pUncertainty,pVariable) );
     add(pT);
 }
 
 void LHSExpression::add(double c, ROCPPUnc_Ptr pUncertainty)
 {
-    ROCPPCstrTerm_Ptr pT( new ProductTerm(c,pUncertainty) );
+    ROCPPCstrTermIF_Ptr pT( new ProductTerm(c,pUncertainty) );
     add(pT);
 }
 
 
 void LHSExpression::add(double c, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2)
 {
-    ROCPPCstrTerm_Ptr pT( new ProductTerm(c,pVariable1,pVariable2) );
+    ROCPPCstrTermIF_Ptr pT( new ProductTerm(c,pVariable1,pVariable2) );
     add(pT);
 }
 
 void LHSExpression::add(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2)
 {
-    ROCPPCstrTerm_Ptr pT( new ProductTerm(c,pUncertainty,pVariable1,pVariable2) );
+    ROCPPCstrTermIF_Ptr pT( new ProductTerm(c,pUncertainty,pVariable1,pVariable2) );
     add(pT);
 }
 
-void LHSExpression::add(ROCPPconstCstrTerm_Ptr term)
+void LHSExpression::add(ROCPPconstCstrTermIF_Ptr term)
 {
 
-    ROCPPCstrTerm_Ptr tClone( term->Clone() );
+    ROCPPCstrTermIF_Ptr tClone( term->Clone() );
     
     if ( (term->isNormTerm()) && ( hasNormTerm() ) )
         throw MyException("a norm term is already present");
@@ -959,9 +959,9 @@ void LHSExpression::add(ROCPPconstExpr_Ptr expr)
         add( *it);
 }
 
-void LHSExpression::add(double c, ROCPPconstCstrTerm_Ptr term)
+void LHSExpression::add(double c, ROCPPconstCstrTermIF_Ptr term)
 {
-    ROCPPCstrTerm_Ptr scaled_term( term->Clone() );
+    ROCPPCstrTermIF_Ptr scaled_term( term->Clone() );
     *scaled_term *= c;
     
     add(scaled_term);
@@ -1169,7 +1169,7 @@ pair<bool,ROCPPExpr_Ptr> LHSExpression::factorOut(ROCPPUnc_Ptr unc) const
         if ( (*it)->isProductTerm() )
         {
             ROCPPProdTerm_Ptr pPT = static_pointer_cast<ProductTerm>(*it);
-            pair<bool,ROCPPCstrTerm_Ptr> tmp( pPT->factorOut(unc) );
+            pair<bool,ROCPPCstrTermIF_Ptr> tmp( pPT->factorOut(unc) );
             if (tmp.first)
             {
                 (*out) += tmp.second;
@@ -1404,7 +1404,7 @@ void LHSExpression::WriteToStream(ofstream& ofs) const
 //%%%%%%%%%%%%%%%%%%%%% Protected Members %%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-LHSExpression::iterator LHSExpression::find(ROCPPCstrTerm_Ptr term)
+LHSExpression::iterator LHSExpression::find(ROCPPCstrTermIF_Ptr term)
 {
     for (iterator it = m_terms.begin(); it != m_terms.end(); it++)
     {

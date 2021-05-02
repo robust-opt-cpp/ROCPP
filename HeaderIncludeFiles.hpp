@@ -105,9 +105,9 @@ typedef map<string, ROCPPUnc_Ptr> uncMapType;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 class ConstraintTermIF;
-typedef ConstraintTermIF ROCPPCstrTerm;
-typedef shared_ptr<ROCPPCstrTerm> ROCPPCstrTerm_Ptr;
-typedef shared_ptr<const ROCPPCstrTerm> ROCPPconstCstrTerm_Ptr;
+typedef ConstraintTermIF ROCPPCstrTermIF;
+typedef shared_ptr<ROCPPCstrTermIF> ROCPPCstrTermIF_Ptr;
+typedef shared_ptr<const ROCPPCstrTermIF> ROCPPconstCstrTermIF_Ptr;
 
 class ProductTerm;
 typedef ProductTerm ROCPPProdTerm;

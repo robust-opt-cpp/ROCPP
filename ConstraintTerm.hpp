@@ -64,7 +64,7 @@ public:
     
     /// Multiply this object with the given term
     /// @note only valid in ProductTerm
-    virtual void operator*=(ROCPPconstCstrTerm_Ptr term);
+    virtual void operator*=(ROCPPconstCstrTermIF_Ptr term);
     
     /// Multiply this object with the given decision variable
     /// @note only valid in ProductTerm
@@ -106,11 +106,11 @@ public:
     
     /// Map the old decision variables in this term to new variables
     /// @param mapFromOldToNewVars map from old variable name to new variable pointer
-    virtual ROCPPCstrTerm_Ptr mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const = 0;
+    virtual ROCPPCstrTermIF_Ptr mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const = 0;
     
     /// Map the old uncertain parameters in this term to new uncertainties
     /// @param mapFromOldToNewUnc map from old uncertainty name to new uncertainty pointer
-    virtual ROCPPCstrTerm_Ptr mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const = 0;
+    virtual ROCPPCstrTermIF_Ptr mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const = 0;
     
     /// Map the old variables in this term to expressions
     /// @param mapFromVarToExpression map from old variables names to pointers to expressions
@@ -124,15 +124,15 @@ public:
     /// @param term map including the decision variables in the term to be replaced
     /// @param var variable used to replace the term
     /// @note Only replace the nonlinear term with variable
-    virtual ROCPPCstrTerm_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const = 0;
+    virtual ROCPPCstrTermIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const = 0;
     
     /// Calculate the coeffiecient of the given uncertainty
     /// @note Only valid in class ProductTerm
-    virtual pair<bool,ROCPPCstrTerm_Ptr> factorOut(ROCPPUnc_Ptr unc) const;
+    virtual pair<bool,ROCPPCstrTermIF_Ptr> factorOut(ROCPPUnc_Ptr unc) const;
     
     /// Add a given constraint term to this term
     /// @note Only valid in class ProductTerm. Throws an exception if the two terms are not identical
-    virtual void add(ROCPPconstCstrTerm_Ptr other);
+    virtual void add(ROCPPconstCstrTermIF_Ptr other);
     
     /// Add the decisions variables involved in a product in this term to the given container dvs
     virtual void add_vars_involved_in_prod(dvContainer &dvs) const = 0;
@@ -193,7 +193,7 @@ public:
     virtual bool isQuadratic() const;
     
     /// Return true if and only if the given constraint term is the same as this object
-    virtual bool is_same(ROCPPconstCstrTerm_Ptr other) const = 0;
+    virtual bool is_same(ROCPPconstCstrTermIF_Ptr other) const = 0;
     
     /// Return true if and only if this object is not empty
     virtual bool isWellDefined() const = 0;
@@ -241,7 +241,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Clone this term and return a pointer to the clone
-    virtual ROCPPCstrTerm_Ptr Clone() const = 0;
+    virtual ROCPPCstrTermIF_Ptr Clone() const = 0;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -330,7 +330,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     bool operator==(const ProductTerm &other) const;
-    void operator*=(ROCPPconstCstrTerm_Ptr term);
+    void operator*=(ROCPPconstCstrTermIF_Ptr term);
     void operator*=(ROCPPVarIF_Ptr var){addVariable(var);}
     void operator*=(ROCPPUnc_Ptr unc){addUncertainty(unc);}
     void operator*=(double a){m_coeff *= a;}
@@ -369,17 +369,17 @@ public:
     
     /// Calculate the coeffiecient of the given uncertainty
     /// @return The first element of the pair indicates whether the given uncertainty exists in this object, the second element stores the coefficient if the uncertianty exist
-    pair<bool,ROCPPCstrTerm_Ptr> factorOut(ROCPPUnc_Ptr unc) const;
+    pair<bool,ROCPPCstrTermIF_Ptr> factorOut(ROCPPUnc_Ptr unc) const;
     
-    ROCPPCstrTerm_Ptr mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
-    ROCPPCstrTerm_Ptr mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const;
+    ROCPPCstrTermIF_Ptr mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
+    ROCPPCstrTermIF_Ptr mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const;
     
     ROCPPExpr_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
     ROCPPExpr_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const;
     
-    ROCPPCstrTerm_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
+    ROCPPCstrTermIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
     
-    void add(ROCPPconstCstrTerm_Ptr other);
+    void add(ROCPPconstCstrTermIF_Ptr other);
     void add_vars_involved_in_prod(dvContainer &dvs) const;
     double evaluate(const map<string,double>& valuesMap ) const;
     
@@ -398,7 +398,7 @@ public:
     bool isQuadratic() const {return (m_DVMap.size()==2);}
     double getCoeff() const {return m_coeff;}
     bool isWellDefined() const {return true;}//( (!m_DVMap.empty()) || (!m_UncMap.empty()) );}
-    bool is_same(ROCPPconstCstrTerm_Ptr other) const;
+    bool is_same(ROCPPconstCstrTermIF_Ptr other) const;
     uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const;
     void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const;
     
@@ -406,7 +406,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    ROCPPCstrTerm_Ptr Clone() const;
+    ROCPPCstrTermIF_Ptr Clone() const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -483,15 +483,15 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    ROCPPCstrTerm_Ptr mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
+    ROCPPCstrTermIF_Ptr mapTermVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
     
-    ROCPPCstrTerm_Ptr mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const;
+    ROCPPCstrTermIF_Ptr mapTermUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const;
     
     ROCPPExpr_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
     
     ROCPPExpr_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const;
     
-    ROCPPCstrTerm_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
+    ROCPPCstrTermIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
     
     void add_vars_involved_in_prod(dvContainer &dvs) const;
     
@@ -508,7 +508,7 @@ public:
     bool hasProdsUncertainties() const;
     bool hasProdsContVars() const;
     bool isWellDefined() const;
-    bool is_same(ROCPPconstCstrTerm_Ptr other) const;
+    bool is_same(ROCPPconstCstrTermIF_Ptr other) const;
     
     uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const;
     
@@ -520,7 +520,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    ROCPPCstrTerm_Ptr Clone() const;
+    ROCPPCstrTermIF_Ptr Clone() const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -566,10 +566,10 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constant iterator in vector of constraint terms
-    typedef vector<ROCPPCstrTerm_Ptr>::const_iterator ConstraintLHS_const_iterator;
+    typedef vector<ROCPPCstrTermIF_Ptr>::const_iterator ConstraintLHS_const_iterator;
     
     /// Iterator in vector of constraint terms
-    typedef vector<ROCPPCstrTerm_Ptr>::iterator ConstraintLHS_iterator;
+    typedef vector<ROCPPCstrTermIF_Ptr>::iterator ConstraintLHS_iterator;
     
     /// Constant iterator in vector of constraint terms
     typedef ConstraintLHS_const_iterator const_iterator;
@@ -603,7 +603,7 @@ public:
     
     /// Find a term in the expression
     /// @param term term to add to the expression
-    const_iterator find(ROCPPconstCstrTerm_Ptr term) const;
+    const_iterator find(ROCPPconstCstrTermIF_Ptr term) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%% Operators %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -611,7 +611,7 @@ public:
     
     /// Multiply expression by given term
     /// @param term term to multiply this expression by
-    void operator*=(ROCPPconstCstrTerm_Ptr term);
+    void operator*=(ROCPPconstCstrTermIF_Ptr term);
     
     /// Multiply expression by given expression
     /// @param other expression to multiply this expression by
@@ -639,7 +639,7 @@ public:
     
     /// Add term to expression
     /// @param term term to add to this expression
-    void operator+=(ROCPPconstCstrTerm_Ptr term) {add(term);}
+    void operator+=(ROCPPconstCstrTermIF_Ptr term) {add(term);}
     
     /// Add expression to expression
     /// @param other expression to add to this expression
@@ -689,18 +689,18 @@ public:
     /// Add the given term to the expression
     /// @note If the term already exists, change the coefficient
     /// @warning One expression can only have one norm term with coefficient equal to 1
-    void add(ROCPPconstCstrTerm_Ptr term); // should only have single norm term!!
+    void add(ROCPPconstCstrTermIF_Ptr term); // should only have single norm term!!
     
     /// Add the given expression to this expression
     /// @param expr expression to add to this expression
-    /// @note Call LHExpression::add(ROCPPconstCstrTerm_Ptr) for every term in this expression
+    /// @note Call LHExpression::add(ROCPPconstCstrTermIF_Ptr) for every term in this expression
     void add(ROCPPconstExpr_Ptr expr);
     
     /// Add the product of the given inputs into the expression
     /// @param c coefficient
     /// @param term term to add to expression after multiplying it by coefficient
-    /// @note Call LHExpression::add(ROCPPconstCstrTerm_Ptr) after multiplying term by c
-    void add(double c, ROCPPconstCstrTerm_Ptr term); // should only have single norm term!!
+    /// @note Call LHExpression::add(ROCPPconstCstrTermIF_Ptr) after multiplying term by c
+    void add(double c, ROCPPconstCstrTermIF_Ptr term); // should only have single norm term!!
     
     /// Add the given expression multiplied by c to this expression
     /// @param c coefficient
@@ -891,13 +891,13 @@ protected:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Vector of terms in this expression
-    vector<ROCPPCstrTerm_Ptr> m_terms;
+    vector<ROCPPCstrTermIF_Ptr> m_terms;
     
     /// Indicates whether this expression has a norm term or not
     bool m_hasNormTerm;
 
     /// Find a term in this expression
-    iterator find(ROCPPCstrTerm_Ptr term);
+    iterator find(ROCPPCstrTermIF_Ptr term);
     
     /// Decision variable container for this expression
     ROCPPdvContainer_Ptr m_pDVContainer;

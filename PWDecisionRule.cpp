@@ -435,7 +435,7 @@ void StaticPartitionConstructor::constructUncToBreakpointMap(const map<string,pa
         {
             ROCPPExpr_Ptr expr ( new LHSExpression() );
             double tmp( ( (*ms_it).second.first ) + ( (static_cast<double>(i))*step) );
-            (*expr) += ROCPPCstrTerm_Ptr( new ProductTerm( tmp ) ) ;
+            (*expr) += ROCPPCstrTermIF_Ptr( new ProductTerm( tmp ) ) ;
             m_uncToBreakpointMap[make_pair( (*ms_it).first, i)] = expr;
         }
     }

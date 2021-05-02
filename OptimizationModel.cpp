@@ -152,11 +152,11 @@ void OptimizationModelIF::add_soc_constraint(ROCPPVarIF_Ptr coneHead, const vect
         for (vector<ROCPPVarIF_Ptr>::const_iterator it = otherVars.begin(); it != otherVars.end(); it++)
         {
             ROCPPExpr_Ptr exp(new LHSExpression() );
-            exp->add( ROCPPCstrTerm_Ptr( new ProductTerm(1.,*it)));
+            exp->add( ROCPPCstrTermIF_Ptr( new ProductTerm(1.,*it)));
             vec.push_back(exp);
         }
         
-        ROCPPCstrTerm_Ptr pNT( new NormTerm(vec) );
+        ROCPPCstrTermIF_Ptr pNT( new NormTerm(vec) );
         
         cstr->add_lhs(pNT);
     }
@@ -1168,7 +1168,7 @@ CPLEXMISOCP::CPLEXMISOCP(ROCPPMISOCP_Ptr pIn, string baseVarNme) : m_baseVarNme(
                 
                 if ( (conehead_expr->getNumTerms()==1) && (!(*conehead_expr->begin())->hasNonlinearities() ) )
                 {
-                    ROCPPCstrTerm_Ptr tmp( *conehead_expr->begin() );
+                    ROCPPCstrTermIF_Ptr tmp( *conehead_expr->begin() );
                     if (!tmp->isProductTerm())
                         throw MyException("linear part should not involve norm term");
                     
@@ -1198,7 +1198,7 @@ CPLEXMISOCP::CPLEXMISOCP(ROCPPMISOCP_Ptr pIn, string baseVarNme) : m_baseVarNme(
                     
                     if ( (nonhead_expr->getNumTerms()==1) && (!(*nonhead_expr->begin())->hasNonlinearities() ) )
                     {
-                        ROCPPCstrTerm_Ptr tmp( *nonhead_expr->begin() );
+                        ROCPPCstrTermIF_Ptr tmp( *nonhead_expr->begin() );
                         if (!tmp->isProductTerm())
                             throw MyException("norm term expression should not involve norm term");
                         
@@ -1283,7 +1283,7 @@ void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vect
         {
             ROCPPClassicConstraint_Ptr cstr( new IneqConstraint() );
             ROCPPExpr_Ptr expr( new LHSExpression() );
-            (*expr) += ROCPPCstrTerm_Ptr(coneHead);
+            (*expr) += ROCPPCstrTermIF_Ptr(coneHead);
             (*expr) *= -1.;
             cstr->add_lhs( expr );
             cstr->set_rhs( make_pair(0.,true) );
@@ -1296,8 +1296,8 @@ void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vect
         
         {
             ROCPPExpr_Ptr expr( new LHSExpression() );
-            (*expr) += ROCPPCstrTerm_Ptr(coneHead);
-            (*expr) *= ROCPPCstrTerm_Ptr(coneHead);
+            (*expr) += ROCPPCstrTermIF_Ptr(coneHead);
+            (*expr) *= ROCPPCstrTermIF_Ptr(coneHead);
             (*expr) *= -1.;
             cstr->add_lhs( expr );
         }
@@ -1311,8 +1311,8 @@ void CPLEXMISOCP::add_cplexsoc_constraint(ROCPPProdTerm_Ptr coneHead, const vect
                 throw MyException("this term cannot have uncertainties");
             
             ROCPPExpr_Ptr expr( new LHSExpression() );
-            (*expr) += ROCPPCstrTerm_Ptr(*vit);
-            (*expr) *= ROCPPCstrTerm_Ptr(*vit);
+            (*expr) += ROCPPCstrTermIF_Ptr(*vit);
+            (*expr) *= ROCPPCstrTermIF_Ptr(*vit);
             cstr->add_lhs( expr );
         }
         

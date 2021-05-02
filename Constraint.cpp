@@ -85,12 +85,12 @@ void ConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr p
     throw MyException("not applicable to this type of constraint");
 }
 
-void ConstraintIF::add_lhs(ROCPPconstCstrTerm_Ptr term)
+void ConstraintIF::add_lhs(ROCPPconstCstrTermIF_Ptr term)
 {
     throw MyException("not applicable to this type of constraint");
 }
 
-void ConstraintIF::add_lhs(double c, ROCPPconstCstrTerm_Ptr term)
+void ConstraintIF::add_lhs(double c, ROCPPconstCstrTermIF_Ptr term)
 {
     throw MyException("not applicable to this type of constraint");
 }
@@ -155,13 +155,13 @@ ConstraintIF::uncertaintiesIterator ClassicConstraintIF::uncertaintiesEnd() cons
 
 void ClassicConstraintIF::add_lhs(double c)
 {
-    ROCPPCstrTerm_Ptr toAdd ( new ProductTerm(c) );
+    ROCPPCstrTermIF_Ptr toAdd ( new ProductTerm(c) );
     add_lhs( toAdd );
 }
 
 void ClassicConstraintIF::add_lhs(double c, ROCPPVarIF_Ptr pVariable)
 {
-    ROCPPCstrTerm_Ptr toAdd ( new ProductTerm(c,pVariable) );
+    ROCPPCstrTermIF_Ptr toAdd ( new ProductTerm(c,pVariable) );
     add_lhs( toAdd );
 }
 
@@ -185,7 +185,7 @@ void ClassicConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarI
     m_pLHS->add(c,pUncertainty,pVariable1,pVariable2);
 }
 
-void ClassicConstraintIF::add_lhs(ROCPPconstCstrTerm_Ptr term)
+void ClassicConstraintIF::add_lhs(ROCPPconstCstrTermIF_Ptr term)
 {
     m_pLHS->add( term->Clone() );
 }
@@ -197,9 +197,9 @@ void ClassicConstraintIF::add_lhs(double c, ROCPPconstExpr_Ptr pExpression)
     add_lhs(scaled_expr);
 }
 
-void ClassicConstraintIF::add_lhs(double c, ROCPPconstCstrTerm_Ptr term)
+void ClassicConstraintIF::add_lhs(double c, ROCPPconstCstrTermIF_Ptr term)
 {
-    ROCPPCstrTerm_Ptr scaled_term( term->Clone() );
+    ROCPPCstrTermIF_Ptr scaled_term( term->Clone() );
     *scaled_term *= c;
     add_lhs(scaled_term);
 }

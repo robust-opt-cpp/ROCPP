@@ -287,7 +287,7 @@ void UnaryConverter::createTranslationMap(const dvContainer &tmpContainer, map<s
                 dv = ROCPPVarIF_Ptr( new VariableBool( nme ) );
             
             
-            (*cexpr) += ROCPPCstrTerm_Ptr ( new ProductTerm(static_cast<double>(i), dv )  );
+            (*cexpr) += ROCPPCstrTermIF_Ptr ( new ProductTerm(static_cast<double>(i), dv )  );
             pCstrl->add_lhs(1.,dv);
         }
         
@@ -345,7 +345,7 @@ void BinaryConverter::createTranslationMap(const dvContainer &tmpContainer, map<
                 dv = ROCPPVarIF_Ptr( new VariableBool( nme ) );
             
             double tmp2(pow(2.,static_cast<double>(i)));
-            (*cexpr) += ROCPPCstrTerm_Ptr ( new ProductTerm( tmp2, dv )  );
+            (*cexpr) += ROCPPCstrTermIF_Ptr ( new ProductTerm( tmp2, dv )  );
             pCstrl->add_lhs( tmp2,dv);
             
         }
@@ -435,7 +435,7 @@ void RealVarBilinearPosReformulator::createTranslationMap(const dvContainer &tmp
         }
         
         (*cexpr) += dvp;
-        ROCPPCstrTerm_Ptr tmp( new ProductTerm(-1., dvn) );
+        ROCPPCstrTermIF_Ptr tmp( new ProductTerm(-1., dvn) );
         (*cexpr) += tmp;
         
         translationMap[it->second->getName()] = cexpr;
@@ -549,7 +549,7 @@ void RealVarDiscretizer::createTranslationMap(const dvContainer &tmpContainer, m
             else
                 dv = ROCPPVarIF_Ptr( new AdaptVarBool(nme,it->second->getTimeStage()) );
             
-            (*cexpr) += ROCPPCstrTerm_Ptr ( new ProductTerm( coeff * pow( 2., -1.*static_cast<double>(i)) , dv )  );
+            (*cexpr) += ROCPPCstrTermIF_Ptr ( new ProductTerm( coeff * pow( 2., -1.*static_cast<double>(i)) , dv )  );
             
         }
         translationMap[it->second->getName()] = cexpr;

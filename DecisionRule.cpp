@@ -212,7 +212,7 @@ void LinearDecisionRule::createTranslationMap(const dvContainer &tmpContainer, m
             if ( (uit->second->isObservable() ) && (uit->second->getTimeStage() <= vit->second->getTimeStage() ) && (uit->second->getTimeStage() + getMemory() > vit->second->getTimeStage() ) )
             {
                 ROCPPVarIF_Ptr dv ( new VariableDouble( vit->second->getName() + "_" + uit->second->getName() ) );
-                (*ldr) += ROCPPCstrTerm_Ptr (new ProductTerm( 1., uit->second, dv ) );
+                (*ldr) += ROCPPCstrTermIF_Ptr (new ProductTerm( 1., uit->second, dv ) );
                 cnt++;
                 
                 m_mapOrigDVUncPairToCoeffDV.insert( make_pair( make_pair(vit->second->getName(), uit->second->getName() ), dv) );

@@ -15,8 +15,8 @@
 #include "HeaderIncludeFiles.hpp"
 
 
-typedef vector<ROCPPCstrTerm_Ptr>::const_iterator ConstraintLHS_const_iterator;
-typedef vector<ROCPPCstrTerm_Ptr>::iterator ConstraintLHS_iterator;
+typedef vector<ROCPPCstrTermIF_Ptr>::const_iterator ConstraintLHS_const_iterator;
+typedef vector<ROCPPCstrTermIF_Ptr>::iterator ConstraintLHS_iterator;
 
 
 /// Constraint right hand side parameters class
@@ -141,10 +141,10 @@ public:
     virtual void add_lhs(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(ROCPPconstCstrTerm_Ptr term);
+    virtual void add_lhs(ROCPPconstCstrTermIF_Ptr term);
     
     /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, ROCPPconstCstrTerm_Ptr term);
+    virtual void add_lhs(double c, ROCPPconstCstrTermIF_Ptr term);
     
     /// @note Only valid in classic constraint
     virtual void add_lhs(ROCPPconstExpr_Ptr pExpression);
@@ -365,13 +365,13 @@ public:
     /// Add the given term to the left hand side of this constraint
     /// @note If the term already exists, change the coefficient
     /// @warning One expression can only have one norm term with coefficient equal to 1
-    void add_lhs(ROCPPconstCstrTerm_Ptr term);
+    void add_lhs(ROCPPconstCstrTermIF_Ptr term);
     
     /// Add the product of the given inputs into the left hand side of this constraint
     /// @param c coefficient
     /// @param term term to add to expression after multiplying it by coefficient
-    /// @note Call LHExpression::add(ROCPPconstCstrTerm_Ptr) after multiplying term by c
-    void add_lhs(double c, ROCPPconstCstrTerm_Ptr term);
+    /// @note Call LHExpression::add(ROCPPconstCstrTermIF_Ptr) after multiplying term by c
+    void add_lhs(double c, ROCPPconstCstrTermIF_Ptr term);
     
     /// Add the given expression to the left hand side of this constraint
     /// @param pExpression expression to add to this expression after multiplying it by coefficient c
@@ -867,7 +867,7 @@ private:
     ROCPPuncContainer_Ptr m_pUncContainer;
     
     /// Vector of terms in this constraint
-    vector<ROCPPCstrTerm_Ptr> m_terms;
+    vector<ROCPPCstrTermIF_Ptr> m_terms;
 };
 
 bool DoublesAreEssentiallyEqual(double A, double B, double epsilon);
