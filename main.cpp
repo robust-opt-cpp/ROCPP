@@ -174,9 +174,9 @@ int main()
 //
 //    #ifdef USE_SCIP
 //    // Construct the solver; in this case, use the gurobi solver as a deterministic solver
-//    ROCPPSolver_Ptr pSolver(new ROCPPSCIP(SolverParams()));
+//    ROCPPSolverInterface_Ptr pSolver(new ROCPPSCIP(SolverParams()));
 //    #elif defined(USE_GUROBI)
-//    ROCPPSolver_Ptr pSolver(new ROCPPGurobi(SolverParams()));
+//    ROCPPSolverInterface_Ptr pSolver(new ROCPPGurobi(SolverParams()));
 //    #endif
 //    // Solve the problem
 //    pSolver->solve(RSFCModelLDRFinal);
@@ -213,15 +213,12 @@ int main()
 //    ValueUB[1]=1030.;ValueUB[2]=1585.;ValueUB[3]=971.;ValueUB[4]=971.;ValueUB[5]=1694.;
 //
 //    map<uint, double> obsCost;
-//    for (uint i = 1; i <= I; i++)
-//    {
-//        for (uint t = 1; t <= T; t++){
-//            obsCost.insert(make_pair(t, 0.));
-//        }
+//    for (uint t = 1; t <= T; t++){
+//        obsCost.insert(make_pair(t, 0.));
 //    }
 //
 //    // Create an empty stochastic model with T periods for the BB problem
-//    ROCPPOptModelIF_Ptr BBModel(new ROCPPROCPPOptModelDDID(T, stochastic));
+//    ROCPPOptModelIF_Ptr BBModel(new ROCPPOptModelDDID(T, stochastic));
 //
 //    map<uint, ROCPPUnc_Ptr> Value, Cost;
 //    for (uint i = 1; i <= I; i++) {
@@ -324,9 +321,9 @@ int main()
 //
 //#ifdef USE_SCIP
 //    // Construct the solver; in this case, use the gurobi solver as a deterministic solver
-//    ROCPPSolver_Ptr pSolver(new ROCPPSCIP(SolverParams()));
+//    ROCPPSolverInterface_Ptr pSolver(new ROCPPSCIP(SolverParams()));
 //#elif defined(USE_GUROBI)
-//    ROCPPSolver_Ptr pSolver(new ROCPPGurobi(SolverParams()));
+//    ROCPPSolverInterface_Ptr pSolver(new ROCPPGurobi(SolverParams()));
 //#endif
 //    // Solve the problem
 //    pSolver->solve(BBModelPWCFinal);
@@ -467,9 +464,9 @@ int main()
 //    // Construct the solver; in this case, use the gurobi or SCIP solver as a deterministic solver
 //    SolverParams sparams = SolverParams();
 //#ifdef USE_GUROBI
-//    ROCPPSolver_Ptr pSolver(new GurobiModeller(sparams, false) );
+//    ROCPPSolverInterface_Ptr pSolver(new GurobiModeller(sparams, false) );
 //#elif defined(USE_SCIP)
-//    ROCPPSolver_Ptr pSolver(new SCIPModeller(sparams, false) );
+//    ROCPPSolverInterface_Ptr pSolver(new SCIPModeller(sparams, false) );
 //#else
 //    throw MyException("Can not find your solver.");
 //#endif
@@ -480,9 +477,9 @@ int main()
 //    map<string,double> optimalSln(pSolver->getSolution());
 //
 //    // Print the optimal decision (from the original model)
-//    // Prints decision rules for variable Keep_4_2 from the original problem automatically
-//    ROCPPKADR_Ptr pKADRApprox = static_pointer_cast<KadaptabilityDecisionRule>(pKADR);
-//    pKADRApprox->printOut(PBModel, optimalSln, Keep[3][2]);
+//    // Print decision rules for variable Keep_3_2 from the original problem automatically
+//    ROCPPKAdapt_Ptr pKADRApprox = static_pointer_cast<KadaptabilityDecisionRule>(pKADR);
+//    pKADRApprox->printOut(PBModelKADRFinal, optimalSln, Keep[3][2]);
 //    // Prints the observation decision for uncertainty Value_4 from the original problem automatically
 //    pKADRApprox->printOut(PBModel, optimalSln, Value[2]);
 //

@@ -155,24 +155,24 @@ int main(int argc, const char * argv[]) {
              RSFCModel->add_constraint_uncset(Demand[t] <= NomDemand*(1.0+rho));
          }
      }
-    
+
     // Construct the reformulation orchestrator
     ROCPPOrchestrator_Ptr pRO(new ReformulationOrchestrator());
-    
-    // Construct the linear decision rule reformulation strategy
+
+    // Construct the linear/constant decision rule reformulation strategy
     ROCPPStrategy_Ptr pLDR(new LinearDecisionRule());
     // Construct the robustify engine reformulation strategy
     ROCPPStrategy_Ptr pRE(new RobustifyEngine());
-    
+
     // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
     vector<ROCPPStrategy_Ptr> strategyVec {pLDR, pRE};
     ROCPPOptModelIF_Ptr RSFCModelLDRFinal = pRO->Reformulate(RSFCModel, strategyVec);
 
 #ifdef USE_SCIP
     // Construct the solver; in this case, use the gurobi solver as a deterministic solver
-    ROCPPSolver_Ptr pSolver(new ROCPPSCIP(SolverParams()));
+    ROCPPSolverInterface_Ptr pSolver(new ROCPPSCIP(SolverParams()));
 #elif defined(USE_GUROBI)
-    ROCPPSolver_Ptr pSolver(new ROCPPGurobi(SolverParams()));
+    ROCPPSolverInterface_Ptr pSolver(new ROCPPGurobi(SolverParams()));
 #endif
     // Solve the problem
     pSolver->solve(RSFCModelLDRFinal);

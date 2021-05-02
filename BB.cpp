@@ -136,9 +136,9 @@ int main(int argc, const char * argv[])
     
 #ifdef USE_SCIP
     // Construct the solver; in this case, use the gurobi solver as a deterministic solver
-    ROCPPSolver_Ptr pSolver(new ROCPPSCIP(SolverParams()));
+    ROCPPSolverInterface_Ptr pSolver(new ROCPPSCIP(SolverParams()));
 #elif defined(USE_GUROBI)
-    ROCPPSolver_Ptr pSolver(new ROCPPGurobi(SolverParams()));
+    ROCPPSolverInterface_Ptr pSolver(new ROCPPGurobi(SolverParams()));
 #endif
     // Solve the problem
     pSolver->solve(BBModelPWCFinal);

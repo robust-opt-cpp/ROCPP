@@ -1859,7 +1859,7 @@ ROCPPOptModelIF_Ptr InstanciateModel( problemType type, uint numTimeStages, uncO
     else if (type == uncertainssType)
         return ROCPPOptModelIF_Ptr( new  UncertainSingleStageOptimizationModel(objType) );
     else if (type == uncertainmsType)
-        return ROCPPOptModelIF_Ptr( new  UncertainMultiStageOptimizationModel(objType) );
+        return ROCPPOptModelIF_Ptr( new  UncertainMultiStageOptimizationModel(numTimeStages, objType) );
     if (type==deterministicType)
         return ROCPPOptModelIF_Ptr( new  DeterministicOptimizationModel() );
     else if (type == misocpType)

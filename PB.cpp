@@ -138,9 +138,9 @@ int main(int argc, const char * argv[])
     // Construct the solver; in this case, use the gurobi or SCIP solver as a deterministic solver
     SolverParams sparams = SolverParams();
 #ifdef USE_GUROBI
-    ROCPPSolver_Ptr pSolver(new GurobiModeller(sparams, false) );
+    ROCPPSolverInterface_Ptr pSolver(new GurobiModeller(sparams, false) );
 #elif defined(USE_SCIP)
-    ROCPPSolver_Ptr pSolver(new SCIPModeller(sparams, false) );
+    ROCPPSolverInterface_Ptr pSolver(new SCIPModeller(sparams, false) );
 #else
     throw MyException("Can not find your solver.");
 #endif
@@ -151,10 +151,10 @@ int main(int argc, const char * argv[])
     map<string,double> optimalSln(pSolver->getSolution());
 
     // Print the optimal decision (from the original model)
-    // Prints decision rules for variable Keep_3_2 from the original problem automatically
-    ROCPPKADR_Ptr pKADRApprox = static_pointer_cast<KadaptabilityDecisionRule>(pKADR);
+    // Print decision rules for variable Keep_3_2 from the original problem automatically
+    ROCPPKAdapt_Ptr pKADRApprox = static_pointer_cast<KadaptabilityDecisionRule>(pKADR);
     pKADRApprox->printOut(PBModel, optimalSln, Keep[3][2]);
-    // Prints the observation decision for uncertainty Value_2 from the original problem automatically
+    // Prints the observation decision for uncertainty Value_4 from the original problem automatically
     pKADRApprox->printOut(PBModel, optimalSln, Value[2]);
 
     return 0;
