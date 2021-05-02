@@ -227,6 +227,7 @@ class BilinearTermReformulatorIF;
 typedef shared_ptr<BilinearTermReformulatorIF> ROCPPBilinearReform_Ptr;
 
 class Bilinear_MItoMB_Converter;
+typedef Bilinear_MItoMB_Converter ROCPPMItoMB;
 typedef shared_ptr<Bilinear_MItoMB_Converter> ROCPPMItoMB_Ptr;
 
 class UnaryConverter;
@@ -236,9 +237,11 @@ class BinaryConverter;
 typedef shared_ptr<BinaryConverter> ROCPPBinaryMItoMB_Ptr;
 
 class RealVarDiscretizer;
+typedef RealVarDiscretizer ROCPPRealVarDiscretizer;
 typedef shared_ptr<RealVarDiscretizer> ROCPPRealVarDiscretizer_Ptr;
 
 class UncertaintySetRealVarApproximator;
+typedef UncertaintySetRealVarApproximator ROCPPUncSetRealVarApprox;
 typedef shared_ptr<UncertaintySetRealVarApproximator> ROCPPUncSetRealVarApprox_Ptr;
 
 class PredefO2OVariableConverter;
@@ -278,8 +281,8 @@ typedef PiecewiseDecisionRule ROCPPPWDR;
 typedef shared_ptr<ROCPPPWDR> ROCPPPWDR_Ptr;
 
 class KadaptabilityDecisionRule;
-typedef KadaptabilityDecisionRule ROCPPKADR;
-typedef shared_ptr<ROCPPKADR> ROCPPKADR_Ptr;
+typedef KadaptabilityDecisionRule ROCPPKAdapt;
+typedef shared_ptr<ROCPPKAdapt> ROCPPKAdapt_Ptr;
 
 class KadaptabilityPartitionEncoderMS;
 typedef shared_ptr<KadaptabilityPartitionEncoderMS> ROCPPKadaptEncoder_Ptr;
