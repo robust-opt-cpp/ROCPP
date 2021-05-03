@@ -22,10 +22,10 @@ int main(int argc, const char * argv[])
     double theta(1.0);
 
     map<uint, double> CostUB;
-    CostUB[1]=48.;CostUB[2]=86.;CostUB[3]=55.;CostUB[4]=37.;CostUB[5]=30.;
+    CostUB[1]=40.;CostUB[2]=86.;CostUB[3]=55.;CostUB[4]=37.;CostUB[5]=30.;
 
     map<uint, double> ValueUB;
-    ValueUB[1]=1030.;ValueUB[2]=1585.;ValueUB[3]=971.;ValueUB[4]=971.;ValueUB[5]=1694.;
+    ValueUB[1]=1030.;ValueUB[2]=1585.;ValueUB[3]=971.;ValueUB[4]=971.;ValueUB[5]=694.;
 
     map<uint, double> obsCost;
     for (uint t = 1; t <= T; t++){
@@ -148,8 +148,8 @@ int main(int argc, const char * argv[])
     // Prints decision rules from the original problem automatically
     ROCPPPWDR_Ptr pPWApproxDR = static_pointer_cast<PiecewiseDecisionRule>(pPWApprox);
     
-    pPWApproxDR->printOut(BBModel, optimalSln, Keep[3][5]);
-    pPWApproxDR->printOut(BBModel, optimalSln, Value[5]);
+    pPWApproxDR->printOut(BBModel, optimalSln, Keep[4][4]);
+    pPWApproxDR->printOut(BBModel, optimalSln, Value[4]);
 
     return 0;
 }
