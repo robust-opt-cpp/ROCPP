@@ -44,6 +44,14 @@ ROCPPBilinMISOCP_Ptr RobustifyEngine::robustify(ROCPPUncSSOptModel_Ptr pIn, bool
         
         ratio = ratio>1 ? ratio : 1;
         
+        cout << "=========================================================================== " << endl;
+        cout << "=========================================================================== " << endl;
+        cout << "============================== ROBUSTIFYING =============================== " << endl;
+        cout << "=========================================================================== " << endl;
+        cout << "=========================================================================== " << endl;
+
+        auto start = chrono::high_resolution_clock::now();
+        
         for (; c_it!=pRobust->constraintEnd(); c_it++)
         {
             if((*c_it)->definesUncertaintySet())
@@ -56,6 +64,15 @@ ROCPPBilinMISOCP_Ptr RobustifyEngine::robustify(ROCPPUncSSOptModel_Ptr pIn, bool
             ccnt++;
         }
     
+        auto stop = chrono::high_resolution_clock::now();
+        
+        auto duration = std::chrono::duration_cast<chrono::seconds>(stop - start);
+        
+        cout << endl;
+        cout << "Total time to robustify: " << duration.count() << " seconds" << endl;
+        cout << "=========================================================================== " << endl;
+        cout << endl;
+        
     if (pIn->getObj()->isDeterministic())
         pOut->set_objective(pIn->getObj() );
     }
