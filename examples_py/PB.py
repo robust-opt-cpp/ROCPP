@@ -122,8 +122,8 @@ def PB():
 	optimalSln = pSolver.getSolution()
 
 	# Print the optimal decision (from the original model)
-	# Prints decision rules for variable Keep_3_2 from the original problem automatically
-	pKADR.printOut(PBModel, optimalSln, Keep[3, 2])
+	# Prints decision rules for variable Keep_4_2 from the original problem automatically
+	pKADR.printOut(PBModel, optimalSln, Keep[4, 2])
 	# Prints the observation decision for uncertainty Value_2 from the original problem automatically
 	pKADR.printOut(PBModel, optimalSln, Value[2])
 
