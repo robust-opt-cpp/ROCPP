@@ -21,7 +21,10 @@ After installation of the solvers, we can build the `ROCPP` project using CMake 
 ```
 mkdir build
 cd build
-cmake -DEXAMPLE=EXAMPLE_NAME .. [-DSOLVER=SCIP or -DGUROBI_DIR=/path/to/gurobi]
+# use the following line to choose SCIP as the solver
+cmake -DEXAMPLE=EXAMPLE_NAME -DSOLVER=SCIP ..
+# or use the follwoing line to choose Gurobi as the solver and also specify the path to Gurobi
+cmake -DEXAMPLE=EXAMPLE_NAME -DGUROBI_DIR=/path/to/gurobi ..
 make
 ```
 
@@ -44,7 +47,10 @@ Now we are able to build the `ROPY` library by the following steps. Note that we
 ```
 mkdir build
 cd build
-cmake -DBUILD_PYTHON=ON .. [-DSOLVER=SCIP or -DGUROBI_DIR=/path/to/gurobi]
+# use the following line to choose SCIP as the solver
+cmake -DBUILD_PYTHON=ON -DSOLVER=SCIP ..
+# or use the follwoing line to choose Gurobi as the solver and also specify the path to Gurobi
+cmake -DBUILD_PYTHON=ON -DGUROBI_DIR=/path/to/gurobi ..
 make
 ```
 
