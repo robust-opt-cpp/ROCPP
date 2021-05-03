@@ -18,10 +18,13 @@ ROC++ requires at least one of the following MILP solvers:
 ### Compile
 #### ROCPP project
 After installation of the solvers, we can build the `ROCPP` project using CMake by the following steps:
-```
+```bash
 mkdir build
 cd build
-cmake -DEXAMPLE=EXAMPLE_NAME .. [-DSOLVER=SCIP or -DGUROBI_DIR=/path/to/gurobi]
+# use the following line to choose SCIP as the solver
+cmake -DEXAMPLE=EXAMPLE_NAME -DSOLVER=SCIP ..
+# or use the follwoing line to choose Gurobi as the solver and also specify the path to Gurobi
+cmake -DEXAMPLE=EXAMPLE_NAME -DGUROBI_DIR=/path/to/gurobi ..
 make
 ```
 
@@ -34,17 +37,20 @@ We use [pybind11](https://pybind11.readthedocs.io/en/stable/index.html) to creat
 
 We add pybind11 as a submodule of this repo. 
 If you clone this repo, an empty `pybind11` directory will be created. Run the following commands to initialize the local configuration files and fetch the data. 
-```
+```bash
 git submodule init
 git submodule update
 ```
 If you directly download the .zip, then there will be an empty pybind11 directory. You need to download it [here](https://github.com/pybind/pybind11) and replace the empty one.
 
 Now we are able to build the `ROPY` library by the following steps. Note that we don't need to create a new build folder if it already existed.
-```
+```bash
 mkdir build
 cd build
-cmake -DBUILD_PYTHON=ON .. [-DSOLVER=SCIP or -DGUROBI_DIR=/path/to/gurobi]
+# use the following line to choose SCIP as the solver
+cmake -DBUILD_PYTHON=ON -DSOLVER=SCIP ..
+# or use the follwoing line to choose Gurobi as the solver and also specify the path to Gurobi
+cmake -DBUILD_PYTHON=ON -DGUROBI_DIR=/path/to/gurobi ..
 make
 ```
 
