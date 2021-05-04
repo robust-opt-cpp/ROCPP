@@ -116,7 +116,7 @@ int main(int argc, const char * argv[])
     BBModel->set_objective(-1.0*BBObj);
 
     // Construct the reformulation orchestrator
-    ROCPPOrchestrator_Ptr pRO(new ReformulationOrchestrator());
+    ROCPPOrchestrator_Ptr pRO(new ROCPPOrchestrator());
     
     // Construct the piecewise linear decision rule reformulation strategy
     // Build the map containing the breakpoint configuration
@@ -124,10 +124,10 @@ int main(int argc, const char * argv[])
     BPconfig["Value_1"] = 3;
     BPconfig["Value_2"] = 3;
     BPconfig["Value_4"] = 3;
-    ROCPPStrategy_Ptr pPWApprox(new PiecewiseDecisionRule(BPconfig));
+    ROCPPStrategy_Ptr pPWApprox(new ROCPPPWDR(BPconfig));
     
     // Construct the robustify engine reformulation strategy
-    ROCPPStrategy_Ptr pRE (new RobustifyEngine());
+    ROCPPStrategy_Ptr pRE (new ROCPPRobustifyEngine());
     
     // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
     vector<ROCPPStrategy_Ptr> strategyVec {pPWApprox, pRE};

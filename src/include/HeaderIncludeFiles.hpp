@@ -379,6 +379,7 @@ typedef shared_ptr<GurobiModeller> ROCPPGurobi_Ptr;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 class BTR_bigM;
+typedef BTR_bigM ROCPPBTR_bigM;
 typedef shared_ptr<BTR_bigM> ROCPPBTR_bigM_Ptr;
 
 #endif /* HeaderIncludeFiles_hpp */

@@ -157,12 +157,12 @@ int main(int argc, const char * argv[]) {
     }
 
     // Construct the reformulation orchestrator
-    ROCPPOrchestrator_Ptr pRO(new ReformulationOrchestrator());
+    ROCPPOrchestrator_Ptr pRO(new ROCPPOrchestrator());
 
     // Construct the linear/constant decision rule reformulation strategy
-    ROCPPStrategy_Ptr pLDR(new LinearDecisionRule());
+    ROCPPStrategy_Ptr pLDR(new ROCPPLinearDR());
     // Construct the robustify engine reformulation strategy
-    ROCPPStrategy_Ptr pRE(new RobustifyEngine());
+    ROCPPStrategy_Ptr pRE(new ROCPPRobustifyEngine());
 
     // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
     vector<ROCPPStrategy_Ptr> strategyVec {pLDR, pRE};
