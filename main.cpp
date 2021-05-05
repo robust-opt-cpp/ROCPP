@@ -477,10 +477,10 @@ int main()
 //    map<string,double> optimalSln(pSolver->getSolution());
 //
 //    // Print the optimal decision (from the original model)
-//    // Print decision rules for variable Keep_3_2 from the original problem automatically
+//    // Print decision rules for variable Keep_4_2 from the original problem automatically
 //    ROCPPKAdapt_Ptr pKADRApprox = static_pointer_cast<KadaptabilityDecisionRule>(pKADR);
-//    pKADRApprox->printOut(PBModelKADRFinal, optimalSln, Keep[3][2]);
-//    // Prints the observation decision for uncertainty Value_4 from the original problem automatically
+//    pKADRApprox->printOut(PBModelKADRFinal, optimalSln, Keep[4][2]);
+//    // Prints the observation decision for uncertainty Value_2 from the original problem automatically
 //    pKADRApprox->printOut(PBModel, optimalSln, Value[2]);
 //
 //    return 0;
