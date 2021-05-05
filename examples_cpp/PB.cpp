@@ -119,21 +119,21 @@ int main(int argc, const char * argv[])
     PBModel->set_objective(-1.0*PBObj);
 
     // Construct the reformulation orchestrator
-    ROCPPOrchestrator_Ptr pRO(new ROCPPOrchestrator());
+    ROCPPOrchestrator_Ptr pOrch(new ROCPPOrchestrator());
     
     // Construct the finite adaptability reformulation strategy with 2 candidate policies in the each time stage
     map<uint, uint> kMap = {{2, 2}, {3, 2}, {4, 2}};
-    ROCPPStrategy_Ptr pKADR(new ROCPPKAdapt(kMap));
+    ROCPPStrategy_Ptr pKadaptStrategy(new ROCPPKAdapt(kMap));
     
     // Construct the robustify engine reformulation strategy
     ROCPPStrategy_Ptr pRE (new ROCPPRobustifyEngine());
     
     //Copnstruct the linearization reformulation strategy with big M approach
-    ROCPPStrategy_Ptr pLinear (new ROCPPBTR_bigM());
+    ROCPPStrategy_Ptr pBTR (new ROCPPBTR_bigM());
     
     // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
-    vector<ROCPPStrategy_Ptr> strategyVec {pKADR, pRE, pLinear};
-    ROCPPOptModelIF_Ptr PBModelKADRFinal = pRO->Reformulate(PBModel, strategyVec);
+    vector<ROCPPStrategy_Ptr> strategyVec {pKadaptStrategy, pRE, pBTR};
+    ROCPPOptModelIF_Ptr PBModelKADRFinal = pOrch->Reformulate(PBModel, strategyVec);
     
     // Construct the solver; in this case, use the gurobi or SCIP solver as a deterministic solver
     SolverParams sparams = SolverParams();

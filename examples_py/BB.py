@@ -89,7 +89,7 @@ def BB():
 	BBModel.setObjective(-1.0 * BBObj)
 
 	# Construct the reformulation orchestrator
-	pRO = RoPyOrchestrator()
+	pOrch = RoPyOrchestrator()
 
 	# Construct the piecewise linear decision rule reformulation strategy
 	# Build the dict containing the breakpoint configuration
@@ -104,7 +104,7 @@ def BB():
 	
 	# Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
 	strategyVec = [pPWApprox, pRE]
-	BBModelPWCFinal = pRO.Reformulate(BBModel, strategyVec)
+	BBModelPWCFinal = pOrch.Reformulate(BBModel, strategyVec)
 
 	pSolver = RoPySolver(RoPySolverParams())
 

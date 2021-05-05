@@ -121,7 +121,7 @@ def RSFC():
 			RSFCModel.addConstraintUncSet(Demand[t] <= NomDemand*(1.0+rho))
 	
 	# Construct the reformulation orchestrator
-	pRO = RoPyOrchestrator()
+	pOrch = RoPyOrchestrator()
 	
 	# Construct the linear decision rule reformulation strategy
 	pLDR = RoPyLinearDR()
@@ -131,7 +131,7 @@ def RSFC():
 
 	# Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
 	strategyVec = [pLDR, pRE]
-	RSFCModelLDRFinal = pRO.Reformulate(RSFCModel, strategyVec)
+	RSFCModelLDRFinal = pOrch.Reformulate(RSFCModel, strategyVec)
 
 	# Construct the solver
 	pSolver = RoPySolver(RoPySolverParams())

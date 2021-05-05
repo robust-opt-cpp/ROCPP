@@ -157,7 +157,7 @@ int main(int argc, const char * argv[]) {
     }
 
     // Construct the reformulation orchestrator
-    ROCPPOrchestrator_Ptr pRO(new ROCPPOrchestrator());
+    ROCPPOrchestrator_Ptr pOrch(new ROCPPOrchestrator());
 
     // Construct the linear/constant decision rule reformulation strategy
     ROCPPStrategy_Ptr pLDR(new ROCPPLinearDR());
@@ -166,7 +166,7 @@ int main(int argc, const char * argv[]) {
 
     // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
     vector<ROCPPStrategy_Ptr> strategyVec {pLDR, pRE};
-    ROCPPOptModelIF_Ptr RSFCModelLDRFinal = pRO->Reformulate(RSFCModel, strategyVec);
+    ROCPPOptModelIF_Ptr RSFCModelLDRFinal = pOrch->Reformulate(RSFCModel, strategyVec);
 
 #ifdef USE_SCIP
     // Construct the solver; in this case, use the gurobi solver as a deterministic solver

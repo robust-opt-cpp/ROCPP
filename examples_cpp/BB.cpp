@@ -116,7 +116,7 @@ int main(int argc, const char * argv[])
     BBModel->set_objective(-1.0*BBObj);
 
     // Construct the reformulation orchestrator
-    ROCPPOrchestrator_Ptr pRO(new ROCPPOrchestrator());
+    ROCPPOrchestrator_Ptr pOrch(new ROCPPOrchestrator());
     
     // Construct the piecewise linear decision rule reformulation strategy
     // Build the map containing the breakpoint configuration
@@ -131,7 +131,7 @@ int main(int argc, const char * argv[])
     
     // Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
     vector<ROCPPStrategy_Ptr> strategyVec {pPWApprox, pRE};
-    ROCPPOptModelIF_Ptr BBModelPWCFinal = pRO->Reformulate(BBModel, strategyVec);
+    ROCPPOptModelIF_Ptr BBModelPWCFinal = pOrch->Reformulate(BBModel, strategyVec);
     
     
 #ifdef USE_SCIP

@@ -96,21 +96,21 @@ def PB():
 	PBModel.setObjective(-1.0 * PBObj)
 
 	# Construct the reformulation orchestrator
-	pRO = RoPyOrchestrator()
+	pOrch = RoPyOrchestrator()
 	
 	# Construct the finite adaptability reformulation strategy with 2 candidate policies in the each time stage
 	kMap = {2: 2, 3: 2, 4: 2}
-	pKADR = RoPyKadapt(kMap)
+	pKadaptStrategy = RoPyKadapt(kMap)
 	
 	# Construct the robustify engine reformulation strategy
 	pRE = RoPyRobustifyEngine()
 	
 	# Copnstruct the linearization reformulation strategy with big M approach
-	pLinear = RoPyBTR_bigM()
+	pBTR = RoPyBTR_bigM()
 	
 	# Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
-	strategyVec = [pKADR, pRE, pLinear]
-	PBModelKADRFinal = pRO.Reformulate(PBModel, strategyVec)
+	strategyVec = [pKadaptStrategy, pRE, pBTR]
+	PBModelKADRFinal = pOrch.Reformulate(PBModel, strategyVec)
 	
 	# Construct the solver
 	pSolver = RoPySolver(RoPySolverParams())
