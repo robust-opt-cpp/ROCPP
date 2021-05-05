@@ -24,10 +24,20 @@ ROCPPBilinMISOCP_Ptr RobustifyEngine::robustify(ROCPPUncSSOptModel_Ptr pIn, bool
     ROCPPBilinMISOCP_Ptr pOut( new Bilinear_MISOCP() );
     
     size_t numCstr(pIn->getNumProblemConstraints());
+    
     uint ratio((uint)numCstr/10);
     
-    map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator blockIt(pIn->blockMapBegin());
+    cout << "=========================================================================== " << endl;
+    cout << "=========================================================================== " << endl;
+    cout << "============================== ROBUSTIFYING =============================== " << endl;
+    cout << "=========================================================================== " << endl;
+    cout << "=========================================================================== " << endl;
+
+    auto start = chrono::high_resolution_clock::now();
     
+    uint ccnt(1);
+    
+    map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator blockIt(pIn->blockMapBegin());
     for (; blockIt != pIn->blockMapEnd(); blockIt++) {
         ROCPPUncSSOptModel_Ptr pRobust(new ROCPPUncSSOptModel());
         OptimizationModelIF::constraintIterator bc_it(blockIt->second.begin() );
@@ -40,17 +50,8 @@ ROCPPBilinMISOCP_Ptr RobustifyEngine::robustify(ROCPPUncSSOptModel_Ptr pIn, bool
         
         // iterate through constraints of pModelIn
         OptimizationModelIF::constraintIterator c_it(pRobust->constraintBegin() );
-        uint ccnt(1);
         
         ratio = ratio>1 ? ratio : 1;
-        
-        cout << "=========================================================================== " << endl;
-        cout << "=========================================================================== " << endl;
-        cout << "============================== ROBUSTIFYING =============================== " << endl;
-        cout << "=========================================================================== " << endl;
-        cout << "=========================================================================== " << endl;
-        
-        auto start = chrono::high_resolution_clock::now();
         
         for (; c_it!=pRobust->constraintEnd(); c_it++)
         {
@@ -63,19 +64,20 @@ ROCPPBilinMISOCP_Ptr RobustifyEngine::robustify(ROCPPUncSSOptModel_Ptr pIn, bool
             robustifyConstraint(*c_it,pRobust,pOut,feasible);
             ccnt++;
         }
-    
-        auto stop = chrono::high_resolution_clock::now();
-                
-        auto duration = std::chrono::duration_cast<chrono::seconds>(stop - start);
-                
-        cout << endl;
-        cout << "Total time to robustify: " << duration.count() << " seconds" << endl;
-        cout << "=========================================================================== " << endl;
-        cout << endl;
         
+    }
+    
     if (pIn->getObj()->isDeterministic())
         pOut->set_objective(pIn->getObj() );
-    }
+    
+    auto stop = chrono::high_resolution_clock::now();
+    
+    auto duration = std::chrono::duration_cast<chrono::seconds>(stop - start);
+    
+    cout << endl;
+    cout << "Total time to robustify: " << duration.count() << " seconds" << endl;
+    cout << "=========================================================================== " << endl;
+    cout << endl;
     
     return pOut;
 }
