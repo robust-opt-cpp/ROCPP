@@ -28,7 +28,7 @@ def RSFC():
 	Omega = Omega * NomDemand * rho
 
 	# Create an empty robust model with T + 1 periods for the RSFC problem
-	RSFCModel = RoPyUncOptModel(T + 1, uncOptModelObjType.robust)
+	RSFCModel = RoPyUncMSOptModel(T + 1, uncOptModelObjType.robust)
 
 	# Create the Demand map to store the uncertain parameters of the problem
 	Demand = {}
@@ -62,7 +62,7 @@ def RSFC():
 		else:  # In the other periods, these are adaptive
 			MaxDP[t] = RoPyAdaptVarDouble("MaxDP_" + str(t), t)
 		# Create upper bounds on holding and shortage costs (these are adaptive)
-		MaxHS[t +1 ] = RoPyAdaptVarDouble("MaxHS_" + str(t + 1), t + 1)
+		MaxHS[t + 1] = RoPyAdaptVarDouble("MaxHS_" + str(t + 1), t + 1)
 
 	# Create the constraints of the problem
 	# Create an expression for the amount of inventory held and initialize it
