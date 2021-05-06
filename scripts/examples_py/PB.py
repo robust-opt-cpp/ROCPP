@@ -123,9 +123,9 @@ def PB():
 
 	# Print the optimal decision (from the original model)
 	# Prints decision rules for variable Keep_4_2 from the original problem automatically
-	pKADR.printOut(PBModel, optimalSln, Keep[4, 2])
+	pKadaptStrategy.printOut(PBModel, optimalSln, Keep[4, 2])
 	# Prints the observation decision for uncertainty Value_2 from the original problem automatically
-	pKADR.printOut(PBModel, optimalSln, Value[2])
+	pKadaptStrategy.printOut(PBModel, optimalSln, Value[2])
 
 if __name__ == '__main__':
 	PB()
