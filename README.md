@@ -54,11 +54,11 @@ cmake -DBUILD_PYTHON=ON -DGUROBI_DIR=/path/to/gurobi ..
 make
 ```
 
-By setting the option `BUILD_PYTHON` to `ON`, we choose to build a library for python.  A library `ROPY.python-version.so` will be created and put in the folder `lib`. To use the library, we need to put it in the same directory of python files and add a line `from ROPY import *` at the top of the file. See more examples in the `examples_py` folder.
+By setting the option `BUILD_PYTHON` to `ON`, we choose to build a library for python.  A library `ROPY.python-version.so` will be created and put in the folder `lib`. To use the library, we need to put it in the same directory of python files and add a line `from ROPY import *` at the top of the file. See more examples in the `scripts/examples_py` folder.
 
 |CMake Options|type    |Avaliable values|Description|
 |:-----------:|:------:|:--------------:|:---------------------------------------------------------------------------------------------------|
-|EXAMPLE      |string|BB, RSFC, PB    |Name of the example to run in the folder `/examples`, can also be the names of users created .cpp files|
+|EXAMPLE      |string|BB, RSFC, PB    |Name of the example to run in the folder `scripts/examples_cpp`, can also be the names of users created .cpp files|
 |SOLVER       |string|GUROBI(default), SCIP    |Name of the solvers that are supported by ROCPP, SCIP by default|
 |GUROBI_DIR   |path  |-               |Path to the folder which contains the Gurobi libraries and include folder|
 |BUILD_PYTHON |bool  |ON, OFF(default)|If `ON`, then a `.so` library for python will be created, else an executable of the specific example will be generated|
