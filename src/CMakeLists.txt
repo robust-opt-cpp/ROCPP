@@ -38,7 +38,7 @@ if(BUILD_PYTHON)
         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 else()
     # ADD THE EXAMPLE TO TEST
-    add_executable(${EXAMPLE} ${PROJECT_SOURCE_DIR}/examples_cpp/${EXAMPLE}.cpp)
+    add_executable(${EXAMPLE} ${PROJECT_SOURCE_DIR}/scripts/examples_cpp/${EXAMPLE}.cpp)
 
     # SET COMPILER DEFINITION FOR CHOOSING SOLVER
     if(SOLVER STREQUAL "gurobi")
