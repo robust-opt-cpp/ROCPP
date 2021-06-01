@@ -247,6 +247,7 @@ class UnaryConverter;
 typedef shared_ptr<UnaryConverter> ROCPPUnaryMItoMB_Ptr;
 
 class BinaryConverter;
+typedef BinaryConverter ROCPPBinaryMItoMB;
 typedef shared_ptr<BinaryConverter> ROCPPBinaryMItoMB_Ptr;
 
 class RealVarDiscretizer;
