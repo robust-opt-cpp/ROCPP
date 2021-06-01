@@ -182,8 +182,15 @@ ROCPPUncSSOptModel_Ptr convertToUSSOM(ROCPPOptModelIF_Ptr pIn)
 {
     ROCPPUncSSOptModel_Ptr pModelOut(new UncertainSingleStageOptimizationModel(pIn->getObjType() ));
     
-    for (OptimizationModelIF::constraintIterator c_it=pIn->constraintBegin(); c_it != pIn->constraintEnd(); c_it++)
-        pModelOut->add_constraint(*c_it);
+    map<string, vector<ROCPPConstraintIF_Ptr> >::const_iterator blockIt(pIn->blockMapBegin());
+    for (; blockIt != pIn->blockMapEnd(); blockIt++) {
+        ROCPPUncSSOptModel_Ptr pRobust(new ROCPPUncSSOptModel());
+        OptimizationModelIF::constraintIterator bc_it(blockIt->second.begin() );
+        
+        for(; bc_it != blockIt->second.end(); bc_it++){
+            pModelOut->add_constraint(*(bc_it), blockIt->first);
+        }
+    }
     
     pModelOut->set_objective(pIn->getObj());
     
