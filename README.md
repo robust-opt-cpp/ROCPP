@@ -150,7 +150,7 @@ Model.set_objective(RoPyExpr obj)
 
 ### Reformulate a Model
 
-After build a model, we are at the place to refourmulate the model to a problem that can be solved by off shelf solver. The suported reformulation Strategies are shown in the figure below.
+After build a model, we are at the place to refourmulate the model to a problem that can be solved by off shelf solver. The suported reformulation Strategies are shown in the figure below.![](figures/strategy.png)
 
 The following describes the function of each reformulation strategy and how to construct it.
 
