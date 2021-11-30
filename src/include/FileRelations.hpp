@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <map>
+#include <vector>
 using namespace std;
 
 template<class T1,class T2>

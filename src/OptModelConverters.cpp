@@ -17,6 +17,7 @@
 #include "VariableConverter.hpp"
 #include "OptModelConverters.hpp"
 #include <time.h>
+#include <algorithm>
 //#include "helpers.h"
 
 template<class T1, class T2>

@@ -18,6 +18,7 @@
 #include "DecisionRule.hpp"
 #include "OptModelConverters.hpp"
 #include "RobustifyEngine.hpp"
+#include <chrono>
 
 ROCPPBilinMISOCP_Ptr RobustifyEngine::robustify(ROCPPUncSSOptModel_Ptr pIn, bool feasible)
 {
