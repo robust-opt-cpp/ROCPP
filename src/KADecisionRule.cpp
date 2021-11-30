@@ -23,6 +23,7 @@
 #include "DecisionRule.hpp"
 #include "KADecisionRule.hpp"
 #include "UncertaintyConverter.hpp"
+#include "Interface.hpp"
 #include <iomanip>
 #include <chrono>
 #include <sstream>
@@ -530,7 +531,7 @@ ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::approxObjUnc(ROCPPOptModelIF_Ptr 
             throw MyException("there shouldn‘t be any uncertain constraints in this type of problem");
     }
     
-    pOut = addProblemSpecificConstraints(pOut) ;
+//    pOut = addProblemSpecificConstraints(pIn, pOut) ;
     
     // *** for each element from elements, create a problem to robustify, robustify it, and add the robustified constraints to the final output problem ****
 
@@ -778,7 +779,9 @@ ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::approxCstrUnc(ROCPPOptModelIF_Ptr
                 }
             }
         }
-
+    
+    pOut = addProblemSpecificConstraints(pIn, pOut) ;
+    
     // **** create all for possible elements from the set {0,1,...,L}^K where L is the number of constraint with uncertainties *****
     
     vector<vector<uint> > elements;
@@ -1214,6 +1217,61 @@ ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::fixBinaryVariableValues(ROCPPOptM
     return pOut;
 }
 
+ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::addProblemSpecificConstraints(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pKadapt) const
+{
+    vector<map<uint, uint>> prevK{{{1, 1}}};
+    
+    for(uint t = 1; t <= m_pPartitionEncoder->getT(); t++){
+        if (t == 1)
+            continue;
+        vector<map<uint, uint>> prevKNew;
+        for(auto &itemK : prevK){
+            vector<map<uint, uint>> partitionT;
+            for(uint k = 1; k <= m_pPartitionEncoder->getKt(t); k++){
+                partitionT.emplace_back(itemK);
+                partitionT[k-1].insert(make_pair(t, k));
+            }
+            prevKNew.insert(prevKNew.end(), partitionT.begin(), partitionT.end());
+            
+            if(m_pPartitionEncoder->getKt(t) == 1)
+                continue;
+            
+            vector<map<uint, uint>>::const_iterator y_kt;
+            map<string, vector<ROCPPVarIF_Ptr>> vector_z;
+            for (OptimizationModelIF::varsIterator v_it = pIn->varsBegin(); v_it != pIn->varsEnd(); v_it++)
+            {
+                if(v_it->second->isAdaptive() && v_it->second->getTimeStage() == t){
+                    for(y_kt = partitionT.begin(); y_kt != partitionT.end()-1; y_kt++){
+                        string varName(v_it->second->getName());
+                        string partionName1(m_pPartitionEncoder->convertPartitionToString(*y_kt));
+                        ROCPPVarIF_Ptr y_1(m_DVmap.find(varName)->second.find(partionName1)->second);
+                        string partionName2(m_pPartitionEncoder->convertPartitionToString(*(y_kt+1)));
+                        ROCPPVarIF_Ptr y_2(m_DVmap.find(varName)->second.find(partionName2)->second);
+                        
+                        ROCPPVarIF_Ptr z_ik(ROCPPVarIF_Ptr(new VariableBool(  v_it->second->getName() + "_" + partionName1 + "_" + partionName2, v_it->second->getLB(), v_it->second->getUB() ) ) );
+                        
+                        pKadapt->add_constraint(z_ik - y_1 - y_2 <= 0.0);
+                        pKadapt->add_constraint(z_ik + y_1 + y_2 <= 2.0);
+                        pKadapt->add_constraint(z_ik - y_1 + y_2 >= 0.0);
+                        pKadapt->add_constraint(z_ik + y_1 - y_2 >= 0.0);
+                        
+                        ROCPPExpr_Ptr sum_z(new ROCPPExpr());
+                        for(auto &z_i_prime_k : vector_z[partionName1]){
+                            sum_z = sum_z + z_i_prime_k;
+                        }
+                        pKadapt->add_constraint(y_1 - y_2 + sum_z >= 0.0);
+                        
+                        cout << "here" << endl;
+                        vector_z[partionName1].emplace_back(z_ik);
+                    }
+                }
+            }
+        }
+        prevK = prevKNew;
+    }
+    
+    return pKadapt;
+}
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -200,7 +200,7 @@ public:
     /// Return a new model after fixing second stage variables to the value provided in the input map
     ROCPPOptModelIF_Ptr fixBinaryVariableValues(ROCPPOptModelIF_Ptr pKadaptModel, const map<string,bool> &varValues) const;
     
-    virtual ROCPPOptModelIF_Ptr addProblemSpecificConstraints(ROCPPOptModelIF_Ptr pKadapt) const {return pKadapt;}
+    virtual ROCPPOptModelIF_Ptr addProblemSpecificConstraints(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pKadapt) const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
