@@ -28,7 +28,14 @@ cmake -DEXAMPLE=EXAMPLE_NAME -DGUROBI_DIR=/path/to/gurobi ..
 make
 ```
 
-CMake will build files in a separated directory. Users need to create this directory, usually called `build` or whatever other names. Then run `cmake -DEXAMPLE=EXAMPLE_NAME -DGUROBI_DIR=/path/to/gurobi ..` or `cmake -DEXAMPLE=EXAMPLE_NAME -DSOLVER=SCIP ..` to configure the build. The option `EXAMPLE` indicates the example to run. `SOLVER` set the solver to use. If you choose GUROBI as the solver, you need to specify the path to gurobi to `GUROBI_DIR`. The following table lists detailed information on CMake options.
+CMake will build files in a separated directory. Users need to create this directory, usually called `build` or whatever other names. The option `EXAMPLE` indicates the example to run. `SOLVER` set the solver to use. If you choose GUROBI as the solver, you need to specify the path to gurobi to `GUROBI_DIR`. The following table lists detailed information on CMake options.
+
+|CMake Options|Avaliable values|Description|
+|:-----------:|:--------------:|:---------------------------------------------------------------------------------------------------|
+|EXAMPLE      |BB, RSFC, PB    |Name of the example to run in the folder `scripts/examples_cpp`, can also be the names of users created .cpp files|
+|SOLVER       |GUROBI(default), SCIP    |Name of the solvers that are supported by ROCPP, SCIP by default|
+|GUROBI_DIR   |-               |Path to the folder which contains the Gurobi `lib` and `include` folder|
+|BUILD_PYTHON |ON, OFF(default)|If `ON`, then a `.so` library for python will be created, else an executable of the specific example will be generated|
 
 Next, run `make` to compile the source code. A generated executable can be found in `bin`. In macOS, you need to give the system permission to run the executable. A library `ROCPP.a` will also be created and put in the folder `lib`.
 
@@ -55,13 +62,6 @@ make
 ```
 
 By setting the option `BUILD_PYTHON` to `ON`, we choose to build a library for python.  A library `ROPY.python-version.so` will be created and put in the folder `lib`. To use the library, we need to put it in the same directory of python files and add a line `from ROPY import *` at the top of the file. See more examples in the `scripts/examples_py` folder.
-
-|CMake Options|type    |Avaliable values|Description|
-|:-----------:|:------:|:--------------:|:---------------------------------------------------------------------------------------------------|
-|EXAMPLE      |string|BB, RSFC, PB    |Name of the example to run in the folder `scripts/examples_cpp`, can also be the names of users created .cpp files|
-|SOLVER       |string|GUROBI(default), SCIP    |Name of the solvers that are supported by ROCPP, SCIP by default|
-|GUROBI_DIR   |path  |-               |Path to the folder which contains the Gurobi libraries and include folder|
-|BUILD_PYTHON |bool  |ON, OFF(default)|If `ON`, then a `.so` library for python will be created, else an executable of the specific example will be generated|
   
 ## Replicating
 To get the same results, run the RSFC, PB, and BB examples following the instructions above.
@@ -75,24 +75,24 @@ We briefly introduce how to build optimization models and apply the reformulatio
 The script should start with building an optimization model. We list several most frequently used model types here.
 - UncSSOptModel: stands for uncertain single stage optimization model, where no adaptive decision variable exists.
 ```C++
-ROCPPOptModelIF_Ptr Model(new ROCPPUncSSOptModel(uncOptModelObjType objType = rboust));
+ROCPPOptModelIF_Ptr Model(new ROCPPUncSSOptModel(uncOptModelObjType objType = robust));
 ```
 ```python
-Model = RoPyOptModel(uncOptModelObjType.objType = rboust) 
+Model = RoPyOptModel(uncOptModelObjType.objType = robust) 
 ```
 - OptModelExoID: stands for optimization model with exogenous information discovery.
 ```C++
-ROCPPOptModelIF_Ptr Model(new ROCPPOptModelExoID(int timeStage, uncOptModelObjType objType = rboust));
+ROCPPOptModelIF_Ptr Model(new ROCPPOptModelExoID(int timeStage, uncOptModelObjType objType = robust));
 ```
 ```python
-Model = RoPyOptModelExoID(int timeStage, objType = uncOptModelObjType.rboust) 
+Model = RoPyOptModelExoID(int timeStage, objType = uncOptModelObjType.robust) 
 ```
 - OptModelDDID: stands for optimization model with decision dependent information discovery.
 ```C++
-ROCPPOptModelIF_Ptr Model(new ROCPPOptModelDDID(int timeStage, uncOptModelObjType objType = rboust));
+ROCPPOptModelIF_Ptr Model(new ROCPPOptModelDDID(int timeStage, uncOptModelObjType objType = robust));
 ```
 ```python
-Model = RoPyOptModelDDID(int timeStage, objType = uncOptModelObjType.rboust) 
+Model = RoPyOptModelDDID(int timeStage, objType = uncOptModelObjType.robust) 
 ```
 **Note**: Our platform has limited support of stochastic optimization problem, for which the objType should be assigned 'stochastic' or 'uncOptModelObjType.stochastic'.
 
