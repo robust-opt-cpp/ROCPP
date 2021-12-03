@@ -11,7 +11,7 @@
 #include "Uncertainty.hpp"
 #include "ConstraintTerm.hpp"
 #include <fstream>
-
+#include <algorithm>
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

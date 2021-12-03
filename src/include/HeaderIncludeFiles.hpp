@@ -26,6 +26,14 @@
 
 using namespace std;
 
+#ifndef uint
+#define uint unsigned int
+#endif
+
+#ifndef u_long
+#define u_long unsigned long
+#endif
+
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%% DECISION VARIABLE TYPE DEFS %%%%%%%%%%%%%%%%%%%%%%

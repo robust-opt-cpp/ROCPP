@@ -120,8 +120,8 @@ uint uncContainer::getObservableAlphabeticalLocation(string uncName) const
 {
     uncMapType::const_iterator m_it( findInObs(uncName) );
     
-    if (m_it==end())
-        throw MyException("unknown uncertainty");
+    if (m_it==m_ObsUncMap.end())
+        throw MyException("unknown observable uncertainty");
     
     uncMapType::difference_type diff(0);
     diff = distance(m_ObsUncMap.begin(), m_it);
