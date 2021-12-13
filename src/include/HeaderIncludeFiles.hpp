@@ -23,6 +23,7 @@
 #include <map>
 #include <memory>
 #include <cmath>
+#include <string>
 
 using namespace std;
 
