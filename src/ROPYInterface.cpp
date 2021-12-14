@@ -69,11 +69,11 @@ PYBIND11_MODULE(ROPY, m) {
     .def("__eq__", [](ROCPPVarIF_Ptr x, ROCPPExpr_Ptr y){return x == y;});
 
     py::class_<ROCPPStaticVarInt, ROCPPStaticVarInt_Ptr, ROCPPVarIF>(m, "RoPyStaticVarInt").def(py::init<string, double, double>(),"name"_a, "lb"_a = -INFINITY, "ub"_a = INFINITY);
-    py::class_<ROCPPStaticVarReal, ROCPPStaticVarReal_Ptr, ROCPPVarIF>(m, "RoPyStaticVarDouble").def(py::init<string, double, double>(),"name"_a, "lb"_a = -INFINITY, "ub"_a = INFINITY);
+    py::class_<ROCPPStaticVarDouble, ROCPPStaticVarDouble_Ptr, ROCPPVarIF>(m, "RoPyStaticVarDouble").def(py::init<string, double, double>(),"name"_a, "lb"_a = -INFINITY, "ub"_a = INFINITY);
     py::class_<ROCPPStaticVarBool, ROCPPStaticVarBool_Ptr, ROCPPVarIF>(m, "RoPyStaticVarBool").def(py::init<string, double, double>(),"name"_a, "lb"_a = 0.0, "ub"_a = 1.0);
     py::class_<ROCPPAdaptVarBool, ROCPPAdaptVarBool_Ptr, ROCPPVarIF>(m, "RoPyAdaptVarBool").def(py::init<string, uint, double, double>(),"name"_a, "timsStage"_a, "lb"_a = 0.0, "ub"_a = 1.0);
     py::class_<ROCPPAdaptVarInt, ROCPPAdaptVarInt_Ptr, ROCPPVarIF>(m, "RoPyAdaptVarInt").def(py::init<string, uint, double, double>(),"name"_a, "timsStage"_a, "lb"_a = -INFINITY, "ub"_a = INFINITY);
-    py::class_<ROCPPAdaptVarReal, ROCPPAdaptVarReal_Ptr, ROCPPVarIF>(m, "RoPyAdaptVarDouble").def(py::init<string, uint, double, double>(),"name"_a, "timsStage"_a, "lb"_a = -INFINITY, "ub"_a = INFINITY);
+    py::class_<ROCPPAdaptVarDouble, ROCPPAdaptVarDouble_Ptr, ROCPPVarIF>(m, "RoPyAdaptVarDouble").def(py::init<string, uint, double, double>(),"name"_a, "timsStage"_a, "lb"_a = -INFINITY, "ub"_a = INFINITY);
 
     //python for uncertain parameter
     py::class_<ROCPPUnc, ROCPPUnc_Ptr>(m, "RoPyUnc").def(py::init<string, uint, bool>(), "name"_a, "timeStage"_a = 1, "isObservable"_a = true)

@@ -124,14 +124,14 @@ Model = RoPyOptModelDDID(int timeStage, objType = uncOptModelObjType.robust)
 The next components of an optimization model is decision variable. Our platform contains two types of vairables static and adptive.
 - StaticVarBool/Int/Double
 ```C++
-ROCPPVarIF_Ptr staticVarReal(new ROCPPStaticVarBool(string varName, double lb = -INFINITY, double ub = INFINITY);
+ROCPPVarIF_Ptr staticVarDouble(new ROCPPStaticVarBool(string varName, double lb = -INFINITY, double ub = INFINITY);
 ```
 ```python
 staticVarDouble = RoPyStaticVarDouble(string varName, float lb = -INFINITY, float ub = INIFINITY)
 ```
 - AdaptVarBool/Int/Double
 ```C++
-ROCPPVarIF_Ptr AdaptVarReal(new ROCPPStaticVarBool(string varName, int timeStage, double lb = -INFINITY, double ub = INFINITY);
+ROCPPVarIF_Ptr AdaptVarDouble(new ROCPPStaticVarBool(string varName, int timeStage, double lb = -INFINITY, double ub = INFINITY);
 ```
 ```python
 staticVarDouble = RoPyStaticVarDouble(string varName, int timeStage, float lb = -INFINITY, float ub = INFINITY)

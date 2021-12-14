@@ -70,11 +70,11 @@ int main(int argc, const char * argv[]) {
     // Iterate over all time periods from 1 to T
     for (uint t=1; t<=T; t++) {
         // Create the commitment variables (these are static)
-        Commits[t]=ROCPPVarIF_Ptr(new ROCPPStaticVarReal("Commit_"+to_string(t),0.));
+        Commits[t]=ROCPPVarIF_Ptr(new ROCPPStaticVarDouble("Commit_"+to_string(t),0.));
         if (t==1) // In the first period, the order variables are static
-            Orders[t] = ROCPPVarIF_Ptr(new ROCPPStaticVarReal("Order_"+to_string(t),OrderLB[t],OrderUB[t]));
+            Orders[t] = ROCPPVarIF_Ptr(new ROCPPStaticVarDouble("Order_"+to_string(t),OrderLB[t],OrderUB[t]));
         else // In the other periods, the order variables are adaptive
-            Orders[t] = ROCPPVarIF_Ptr(new ROCPPAdaptVarReal("Order_"+to_string(t),t,OrderLB[t],OrderUB[t]));
+            Orders[t] = ROCPPVarIF_Ptr(new ROCPPAdaptVarDouble("Order_"+to_string(t),t,OrderLB[t],OrderUB[t]));
     }
 
     map<uint,ROCPPVarIF_Ptr> MaxDC; // Upper bound on deviation between commitments
@@ -83,14 +83,14 @@ int main(int argc, const char * argv[]) {
     // Iterate over all time periods 1 to T
     for (uint t=1; t<=T; t++) {
         // Create upper bounds on the deviation between successive commitments
-        MaxDC[t] = ROCPPVarIF_Ptr(new ROCPPStaticVarReal("MaxDC_"+to_string(t)));
+        MaxDC[t] = ROCPPVarIF_Ptr(new ROCPPStaticVarDouble("MaxDC_"+to_string(t)));
         // Create upper bounds on the deviation of orders from commitments
         if (t==1)   // In the first period, these are static
-            MaxDP[t] = ROCPPVarIF_Ptr(new ROCPPStaticVarReal("MaxDP_"+to_string(t)));
+            MaxDP[t] = ROCPPVarIF_Ptr(new ROCPPStaticVarDouble("MaxDP_"+to_string(t)));
         else        // In the other periods, these are adaptive
-            MaxDP[t] = ROCPPVarIF_Ptr(new ROCPPAdaptVarReal("MaxDP_"+to_string(t),t));
+            MaxDP[t] = ROCPPVarIF_Ptr(new ROCPPAdaptVarDouble("MaxDP_"+to_string(t),t));
         // Create upper bounds on holding and shortage costs (these are adaptive)
-        MaxHS[t+1]=ROCPPVarIF_Ptr(new ROCPPAdaptVarReal("MaxHS_"+to_string(t+1),t+1));
+        MaxHS[t+1]=ROCPPVarIF_Ptr(new ROCPPAdaptVarDouble("MaxHS_"+to_string(t+1),t+1));
     }
 
     // Create the constraints of the problem

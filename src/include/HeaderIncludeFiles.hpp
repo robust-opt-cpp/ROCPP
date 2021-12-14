@@ -54,8 +54,8 @@ typedef VariableBool ROCPPStaticVarBool;
 typedef shared_ptr<ROCPPStaticVarBool> ROCPPStaticVarBool_Ptr;
 
 class VariableDouble;
-typedef VariableDouble ROCPPStaticVarReal;
-typedef shared_ptr<ROCPPStaticVarReal> ROCPPStaticVarReal_Ptr;
+typedef VariableDouble ROCPPStaticVarDouble;
+typedef shared_ptr<ROCPPStaticVarDouble> ROCPPStaticVarDouble_Ptr;
 
 class VariableInt;
 typedef VariableInt ROCPPStaticVarInt;
@@ -70,8 +70,8 @@ typedef AdaptVarBool ROCPPAdaptVarBool;
 typedef shared_ptr<ROCPPAdaptVarBool> ROCPPAdaptVarBool_Ptr;
 
 class AdaptVarDouble;
-typedef AdaptVarDouble ROCPPAdaptVarReal;
-typedef shared_ptr<ROCPPAdaptVarReal> ROCPPAdaptVarReal_Ptr;
+typedef AdaptVarDouble ROCPPAdaptVarDouble;
+typedef shared_ptr<ROCPPAdaptVarDouble> ROCPPAdaptVarDouble_Ptr;
 
 class AdaptVarInt;
 typedef AdaptVarInt ROCPPAdaptVarInt;
