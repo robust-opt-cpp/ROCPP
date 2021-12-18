@@ -101,21 +101,21 @@ The script should start with building an optimization model. We list several mos
 ROCPPOptModelIF_Ptr Model(new ROCPPUncSSOptModel(uncOptModelObjType objType = robust));
 ```
 ```python
-Model = RoPyOptModel(uncOptModelObjType.objType = robust) 
+Model = ROPYOptModel(uncOptModelObjType.objType = robust) 
 ```
 - OptModelExoID: stands for optimization model with exogenous information discovery.
 ```C++
 ROCPPOptModelIF_Ptr Model(new ROCPPOptModelExoID(int timeStage, uncOptModelObjType objType = robust));
 ```
 ```python
-Model = RoPyOptModelExoID(int timeStage, objType = uncOptModelObjType.robust) 
+Model = ROPYOptModelExoID(int timeStage, objType = uncOptModelObjType.robust) 
 ```
 - OptModelDDID: stands for optimization model with decision dependent information discovery.
 ```C++
 ROCPPOptModelIF_Ptr Model(new ROCPPOptModelDDID(int timeStage, uncOptModelObjType objType = robust));
 ```
 ```python
-Model = RoPyOptModelDDID(int timeStage, objType = uncOptModelObjType.robust) 
+Model = ROPYOptModelDDID(int timeStage, objType = uncOptModelObjType.robust) 
 ```
 **Note**: Our platform has limited support of stochastic optimization problem, for which the objType should be assigned 'stochastic' or 'uncOptModelObjType.stochastic'.
 
@@ -127,14 +127,14 @@ The next components of an optimization model is decision variable. Our platform 
 ROCPPVarIF_Ptr staticVarDouble(new ROCPPStaticVarDouble(string varName, double lb = -INFINITY, double ub = INFINITY);
 ```
 ```python
-staticVarDouble = RoPyStaticVarDouble(string varName, float lb = -INFINITY, float ub = INIFINITY)
+staticVarDouble = ROPYStaticVarDouble(string varName, float lb = -INFINITY, float ub = INIFINITY)
 ```
 - AdaptVarBool/Int/Double
 ```C++
 ROCPPVarIF_Ptr adaptVarDouble(new ROCPPAdaptVarDouble(string varName, int timeStage, double lb = -INFINITY, double ub = INFINITY);
 ```
 ```python
-adaptVarDouble = RoPyAdaptVarDouble(string varName, int timeStage, float lb = -INFINITY, float ub = INFINITY)
+adaptVarDouble = ROPYAdaptVarDouble(string varName, int timeStage, float lb = -INFINITY, float ub = INFINITY)
 ```
 The binary and integer types follow the similar way of definition, note that the default bounds for binary variable is (0, 1).
 
@@ -146,14 +146,14 @@ There are two types for uncertain parameters, the exogenous one whose discovery 
 ROCPPUnc_Ptr unc(new ROCPPUnc(string uncName, int timeStage = 1));
 ```
 ```python
-unc = RoPyUnc(string uncName, int timeStage = 1)
+unc = ROPYUnc(string uncName, int timeStage = 1)
 ```
 - Specify the endogenous DDID one to the model
 ```C++
 Model->add_ddu(ROCPPUnc_Ptr unc, int firstObservableTimeStage, int lastObservableTimeStage, map<int, double> observationCostEachStage);
 ```
 ```python
-Model->add_ddu(RoPyUnc unc, int firstObservableTimeStage, int lastObservableTimeStage, dict{int: double} observationCostEachStage);
+Model->add_ddu(ROPYUnc unc, int firstObservableTimeStage, int lastObservableTimeStage, dict{int: double} observationCostEachStage);
 ```
 The 'timeStage' argument represents the time stage that the uncertain parameter is observed. For the DDID one, since the time stage depends on decision variable, we restrict 'timeStage = 1' when construct the parameter.
 
@@ -166,9 +166,9 @@ Model->add_constraint(ROCPPConstraintIF_Ptr cstr);
 Model->set_objective(ROCPPExpr_Ptr obj);
 ```
 ```Python
-Model.add_constraint_uncset(RoPyConstraintIF cstr)
-Model.add_constraint(RoPyConstraintIF cstr)
-Model.set_objective(RoPyExpr obj)
+Model.add_constraint_uncset(ROPYConstraintIF cstr)
+Model.add_constraint(ROPYConstraintIF cstr)
+Model.set_objective(ROPYExpr obj)
 ```
 
 ### Reformulate a Model
@@ -184,7 +184,7 @@ It turns a problem with uncertainty into a deterministic form.
 ROCPPStrategy_Ptr pRE(new ROCPPRobustifyEngine ());
 ```
 ```Python
-pRE = RoPyRobustifyEngine()
+pRE = ROPYRobustifyEngine()
 ```
 **Bilinear Term Reformulator**
 
@@ -193,7 +193,7 @@ It linearizes a problem by replacing all the bilinear terms in the problem.
 ROCPPStrategy_Ptr pBTR(new ROCPPBTR_bigM ());
 ```
 ```Python
-pBTR = RoPyBTR_bigM()
+pBTR = ROPYBTR_bigM()
 ```
 **Decision Rule**
 It contains all approximation schemes that we dicussed in the paper.
@@ -203,22 +203,22 @@ ROCPPStrategy_Ptr pLDR(new ROCPPLinearDR());
 ROCPPStrategy_Ptr pCDR(new ROCPPConstantDR());
 ```
 ```Python
-pLDR = RoPyLinearDR()
-pCDR = RoPyConstantDR()
+pLDR = ROPYLinearDR()
+pCDR = ROPYConstantDR()
 ```
 - Piecewise Linear and Constant Decision Rule
 ```C++
 ROCPPStrategy_Ptr pPWApprox(new ROCPPPWDR(map<string,uint> mapUncNametoNumBreakPoints));
 ```
 ```Python
-pPWApprox = RoPyPWDR(dict{string: int} mapUncNametoNumBreakPoints))
+pPWApprox = ROPYPWDR(dict{string: int} mapUncNametoNumBreakPoints))
 ```
 - KAdaptability
 ```C++
 ROCPPStrategy_Ptr pKadaptStrategy (new ROCPPKadapt(map<uint, uint> mapTimeStagetoNumPolicies));
 ```
 ```Python
-pKadaptStrategy = RoPyKadapt(dict{int: int} mapTimeStagetoNumPolicies)
+pKadaptStrategy = ROPYKadapt(dict{int: int} mapTimeStagetoNumPolicies)
 ```
 **Note**: For more detailed arguments parameter setting please see the doxygen file.
 
@@ -232,7 +232,7 @@ vector <ROCPPStrategy_Ptr > strategyVec {pKadaptStrategy, pRE, pBTR};
 ROCPPOptModelIF_Ptr reformModel = pOrch->Reformulate(Model, strategyVec);
 ```
 ```Python
-pOrch = RoPyOrchestrator()
+pOrch = ROPYOrchestrator()
 
 strategyVec = [pKadaptStrategy, pRE, pBTR]
 reformModel = pOrch.Reformulate(Model, strategyVec)
@@ -246,7 +246,7 @@ ROCPPSolver_Ptr pSolver(new ROCPPGurobi(SolverParams()));
 pSolver->solve(refModel);
 ```
 ```Python
-pSolver = RoPySolver(RoPySolverParams())
+pSolver = ROPYSolver(ROPYSolverParams())
 pSolver.solve(refModel)
 ```
 **Note**: For more detailed SolverParams setting, please see the doxygen file.\

@@ -28,14 +28,14 @@ def RSFC():
 	Omega = Omega * NomDemand * rho
 
 	# Create an empty robust model with T + 1 periods for the RSFC problem
-	RSFCModel = RoPyUncMSOptModel(T + 1, uncOptModelObjType.robust)
+	RSFCModel = ROPYUncMSOptModel(T + 1, uncOptModelObjType.robust)
 
 	# Create the Demand map to store the uncertain parameters of the problem
 	Demand = {}
 	# Iterate over all time periods when there is uncertainty
 	for t in range(1, T + 1):
 		# Create the uncertain parameters, and add them to Demand
-		Demand[t] = RoPyUnc("Demand_" + str(t), t + 1)
+		Demand[t] = ROPYUnc("Demand_" + str(t), t + 1)
 
 
 	# Create maps to store the decision variables of the problem
@@ -43,11 +43,11 @@ def RSFC():
 	# Iterate over all time periods from 1 to T
 	for t in range(1, T + 1):
 		# Create the commitment variables (these are static)
-		Commits[t] = RoPyStaticVarDouble("Commit_" + str(t), 0.)
+		Commits[t] = ROPYStaticVarDouble("Commit_" + str(t), 0.)
 		if t == 1:  # In the first period, the order variables are static
-			Orders[t] = RoPyStaticVarDouble("Order_" + str(t),OrderLB[t], OrderUB[t])
+			Orders[t] = ROPYStaticVarDouble("Order_" + str(t),OrderLB[t], OrderUB[t])
 		else:  # In the other periods, the order variables are adaptive
-			Orders[t] = RoPyAdaptVarDouble("Order_" + str(t), t, OrderLB[t], OrderUB[t])
+			Orders[t] = ROPYAdaptVarDouble("Order_" + str(t), t, OrderLB[t], OrderUB[t])
 
 	MaxDC = {}  # Upper bound on deviation between commitments
 	MaxDP = {}  # Upper bound on deviation from plan
@@ -55,21 +55,21 @@ def RSFC():
 	# Iterate over all time periods 1 to T
 	for t in range(1, T + 1):
 		# Create upper bounds on the deviation between successive commitments
-		MaxDC[t] = RoPyStaticVarDouble("MaxDC_" + str(t))
+		MaxDC[t] = ROPYStaticVarDouble("MaxDC_" + str(t))
 		# Create upper bounds on the deviation of orders from commitments
 		if t == 1:  # In the first period, these are static
-			MaxDP[t] = RoPyStaticVarDouble("MaxDP_" + str(t))
+			MaxDP[t] = ROPYStaticVarDouble("MaxDP_" + str(t))
 		else:  # In the other periods, these are adaptive
-			MaxDP[t] = RoPyAdaptVarDouble("MaxDP_" + str(t), t)
+			MaxDP[t] = ROPYAdaptVarDouble("MaxDP_" + str(t), t)
 		# Create upper bounds on holding and shortage costs (these are adaptive)
-		MaxHS[t + 1] = RoPyAdaptVarDouble("MaxHS_" + str(t + 1), t + 1)
+		MaxHS[t + 1] = ROPYAdaptVarDouble("MaxHS_" + str(t + 1), t + 1)
 
 	# Create the constraints of the problem
 	# Create an expression for the amount of inventory held and initialize it
-	Inventory =  RoPyExpr()
+	Inventory =  ROPYExpr()
 	Inventory = Inventory + InitInventory
 	# Create an expression for the cumulative amount ordered
-	CumOrders = RoPyExpr()
+	CumOrders = ROPYExpr()
 	# Iterate over all time periods and add the constraints to the problem
 	for t in range(1, T + 1):
 		# Create the upper and lower bounds on the cumulative orders
@@ -94,7 +94,7 @@ def RSFC():
 		RSFCModel.addConstraint(MaxHS[t+1] >= (-1.*ShortageCost[t+1]*Inventory))
 
 	# Create an expression that will contain the objective function
-	RSFCObj = RoPyExpr()
+	RSFCObj = ROPYExpr()
 	# Iterate over all periods and add the terms to the objective function
 	for t in range(1, T + 1):
 		RSFCObj = RSFCObj + OrderCost[t] * Orders[t] + MaxDC[t] + MaxDP[t] + MaxHS[t+1]
@@ -110,7 +110,7 @@ def RSFC():
 		for t in range(1, T + 1):
 			EllipsoidElements.append(Demand[t] - NomDemand)
 		# Create the norm term
-		EllipsoidalConstraintTerm = RoPyNorm(EllipsoidElements)
+		EllipsoidalConstraintTerm = ROPYNorm(EllipsoidElements)
 		# Create the ellipsoidal uncertainty constraint
 		RSFCModel.addConstraintUncSet(EllipsoidalConstraintTerm <= Omega)
 
@@ -121,20 +121,20 @@ def RSFC():
 			RSFCModel.addConstraintUncSet(Demand[t] <= NomDemand*(1.0+rho))
 	
 	# Construct the reformulation orchestrator
-	pOrch = RoPyOrchestrator()
+	pOrch = ROPYOrchestrator()
 	
 	# Construct the linear decision rule reformulation strategy
-	pLDR = RoPyLinearDR()
+	pLDR = ROPYLinearDR()
 
 	# Construct the robustify engine reformulation strategy
-	pRE = RoPyRobustifyEngine()
+	pRE = ROPYRobustifyEngine()
 
 	# Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
 	strategyVec = [pLDR, pRE]
 	RSFCModelLDRFinal = pOrch.Reformulate(RSFCModel, strategyVec)
 
 	# Construct the solver
-	pSolver = RoPySolver(RoPySolverParams())
+	pSolver = ROPYSolver(ROPYSolverParams())
 
 	# Solve the problem
 	pSolver.solve(RSFCModelLDRFinal)
