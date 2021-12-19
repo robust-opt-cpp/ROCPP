@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 11)
 option(BUILD_PYTHON "Build the package for python" OFF)
 
 if(BUILD_PYTHON)
-    project(ROPY)
+    project(ROPy)
 else()
     project(ROCPP)
 endif() 

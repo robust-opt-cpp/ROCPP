@@ -1,4 +1,4 @@
-from ROPY import *
+from ROPy import *
 
 
 def BB():
@@ -12,14 +12,14 @@ def BB():
 		obsCost[t] = 0.0
 
 	# Create an empty stochastic model with T periods for the BB problem
-	BBModel = ROPYOptModelDDID(T, uncOptModelObjType.stochastic)
+	BBModel = ROPyOptModelDDID(T, uncOptModelObjType.stochastic)
 
 	Value = {}
 	Cost = {}
 	for i in range(1, I + 1):
 		# Create the value and cost uncertainties associated with box i
-		Value[i] = ROPYUnc("Value_" + str(i))
-		Cost[i] = ROPYUnc("Cost_" + str(i))
+		Value[i] = ROPyUnc("Value_" + str(i))
+		Cost[i] = ROPyUnc("Cost_" + str(i))
 
 	# Create the measurement decisions and pair the uncertain parameters
 	MVval = {}
@@ -43,15 +43,15 @@ def BB():
 	for t in range(1, T + 1):
 		for i in range(1, I +1):
 			if t == 1:  # In the first period, the Keep variables are static
-				Keep[t, i] = ROPYStaticVarBool("Keep_"+str(t)+"_"+str(i))
+				Keep[t, i] = ROPyStaticVarBool("Keep_"+str(t)+"_"+str(i))
 			else:  # In the other periods, the Keep variables are adaptive
-				Keep[t, i] = ROPYAdaptVarBool("Keep_"+str(t)+"_"+str(i), t)
+				Keep[t, i] = ROPyAdaptVarBool("Keep_"+str(t)+"_"+str(i), t)
 
 	# Create the constraints and add them to the problem
-	StoppedSearch = ROPYExpr()
+	StoppedSearch = ROPyExpr()
 	for t in range(1, T + 1):
 		# Create the constraint that at most one box be opened at t (none if the search has stopped)
-		NumOpened = ROPYExpr()
+		NumOpened = ROPyExpr()
 		# Update the expressions and and the constraint to the problem
 		for i in range(1, I + 1):
 			StoppedSearch = StoppedSearch + Keep[t, i]
@@ -65,7 +65,7 @@ def BB():
 			BBModel.addConstraint(Keep[t, i] <= MVval[t - 1, i] if t > 1 else Keep[t, i] <= 0.0)
 
 	# Constraint on the amount spent
-	AmountSpent = ROPYExpr()
+	AmountSpent = ROPyExpr()
 	for i in range(1, I + 1):
 		AmountSpent = AmountSpent + Cost[i] * MVval[T, i]
 	BBModel.addConstraint(AmountSpent <= B)
@@ -80,7 +80,7 @@ def BB():
 		BBModel.addConstraintUncSet(Cost[i] <= CostUB[i])
 
 	# Create the objective function expression
-	BBObj = ROPYExpr()
+	BBObj = ROPyExpr()
 	for t in range(1, T + 1):
 		for i in range(1, I + 1):
 			BBObj = BBObj + theta ** (t - 1) * Value[i] * Keep[t, i]
@@ -89,7 +89,7 @@ def BB():
 	BBModel.setObjective(-1.0 * BBObj)
 
 	# Construct the reformulation orchestrator
-	pOrch = ROPYOrchestrator()
+	pOrch = ROPyOrchestrator()
 
 	# Construct the piecewise linear decision rule reformulation strategy
 	# Build the dict containing the breakpoint configuration
@@ -97,16 +97,16 @@ def BB():
 	BPconfig["Value_1"] = 3
 	BPconfig["Value_2"] = 3
 	BPconfig["Value_4"] = 3
-	pPWApprox = ROPYPWDR(BPconfig)
+	pPWApprox = ROPyPWDR(BPconfig)
 
 	# Construct the robustify engine reformulation strategy
-	pRE = ROPYRobustifyEngine()
+	pRE = ROPyRobustifyEngine()
 	
 	# Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
 	strategyVec = [pPWApprox, pRE]
 	BBModelPWCFinal = pOrch.Reformulate(BBModel, strategyVec)
 
-	pSolver = ROPYSolver(ROPYSolverParams())
+	pSolver = ROPySolver(ROPySolverParams())
 
 	# Solve the problem
 	pSolver.solve(BBModelPWCFinal)

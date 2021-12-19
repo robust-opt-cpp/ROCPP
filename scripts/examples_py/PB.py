@@ -1,4 +1,4 @@
-from ROPY import *
+from ROPy import *
 
 def PB():
 	theta = 1.0
@@ -24,19 +24,19 @@ def PB():
 			obsCost[i][t] = c[i]
 		
 	# Create an empty robust model with T periods for the PB problem
-	PBModel = ROPYOptModelDDID(T, uncOptModelObjType.robust)
+	PBModel = ROPyOptModelDDID(T, uncOptModelObjType.robust)
 	
 	# Create dictionary for the uncertain parameter of value
 	Value = {}
 	for i in range(1, I + 1):
 		# Create the uncertainty associated with box i and add it to Value
-		Value[i] = ROPYUnc("Value_"+str(i))
+		Value[i] = ROPyUnc("Value_"+str(i))
 
 	# Create dictionary for the uncertain parameters of risk factor
 	Factor = {}
 	for m in range(1, M + 1):
 		# The risk factors are not observable
-		Factor[m] = ROPYUnc("Factor_"+str(m), 1, False)
+		Factor[m] = ROPyUnc("Factor_"+str(m), 1, False)
 	
 	# Create dictionary for the Measurement variables reprsenting the observation decisions
 	# Create dictionary for the Keep variables representing the selction decisions
@@ -51,15 +51,15 @@ def PB():
 	for t in range(1, T + 1): 
 		for i in range (1, I + 1): 
 			if (t == 1):  # In the first period, the Keep variables are static
-				Keep[t, i] = ROPYStaticVarBool("Keep_" + str(t) + "_" + str(i))
+				Keep[t, i] = ROPyStaticVarBool("Keep_" + str(t) + "_" + str(i))
 			else:  # In the other periods, the Keep variables are adaptive
-				Keep[t, i] = ROPYAdaptVarBool("Keep_" + str(t) + "_" + str(i), t)
+				Keep[t, i] = ROPyAdaptVarBool("Keep_" + str(t) + "_" + str(i), t)
 	
 	# Create the constraints and add them to the problem
-	StoppedSearch = ROPYExpr()
+	StoppedSearch = ROPyExpr()
 	for t in range(1, T + 1):  
 		# Create the constraint that at most one box be opened at t (none if the search has stopped)
-		NumOpened = ROPYExpr()
+		NumOpened = ROPyExpr()
 		# Update the expressions and and the constraint to the problem
 		for i in range(1, I + 1): 
 			StoppedSearch = StoppedSearch + Keep[t, i]
@@ -82,13 +82,13 @@ def PB():
 	
 	# Add the expressions for the box values in terms of the risk factors
 	for i in range(1, I + 1):
-		ValueExpr = ROPYExpr()
+		ValueExpr = ROPyExpr()
 		for m in range (1, M + 1):
 			ValueExpr = ValueExpr + RiskCoeff[i, m] * Factor[m]
 		PBModel.addConstraintUncSet(Value[i] == (1.0 + 0.5 * ValueExpr) * NomVal[i])
 	
 	# Create the objective function expression
-	PBObj = ROPYExpr()
+	PBObj = ROPyExpr()
 	for t in range(1, T + 1): 
 		for i in range(1, I + 1):
 			PBObj = PBObj + theta ** (t - 1) * Value[i] * Keep[t, i]
@@ -96,24 +96,24 @@ def PB():
 	PBModel.setObjective(-1.0 * PBObj)
 
 	# Construct the reformulation orchestrator
-	pOrch = ROPYOrchestrator()
+	pOrch = ROPyOrchestrator()
 	
 	# Construct the finite adaptability reformulation strategy with 2 candidate policies in the each time stage
 	kMap = {2: 2, 3: 2, 4: 2}
-	pKadaptStrategy = ROPYKadapt(kMap)
+	pKadaptStrategy = ROPyKadapt(kMap)
 	
 	# Construct the robustify engine reformulation strategy
-	pRE = ROPYRobustifyEngine()
+	pRE = ROPyRobustifyEngine()
 	
 	# Copnstruct the linearization reformulation strategy with big M approach
-	pBTR = ROPYBTR_bigM()
+	pBTR = ROPyBTR_bigM()
 	
 	# Approximate the adaptive decisions using the linear/constant decision rule approximator and robustify
 	strategyVec = [pKadaptStrategy, pRE, pBTR]
 	PBModelKADRFinal = pOrch.Reformulate(PBModel, strategyVec)
 	
 	# Construct the solver
-	pSolver = ROPYSolver(ROPYSolverParams())
+	pSolver = ROPySolver(ROPySolverParams())
 
 	# Solve the problem
 	pSolver.solve(PBModelKADRFinal)

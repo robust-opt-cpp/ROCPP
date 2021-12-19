@@ -51,7 +51,7 @@ msbuild ROCPP.sln
 ```
 A generated executable can be found in `bin`. In macOS, you need to give the system permission to run the executable. A library `ROCPP.a` will also be created and put in the folder `lib`.
 
-#### ROPY library
+#### ROPy library
 We use [pybind11](https://pybind11.readthedocs.io/en/stable/index.html) to create Python bindings of the C++ code. 
 
 We add pybind11 as a submodule of this repo. 
@@ -62,7 +62,7 @@ git submodule update
 ```
 If you directly download the .zip, then there will be an empty pybind11 directory. You need to download it [here](https://github.com/pybind/pybind11) and replace the empty one.
 
-Now we are able to build the `ROPY` library by the following steps. Note that we don't need to create a new build folder if it already existed.
+Now we are able to build the `ROPy` library by the following steps. Note that we don't need to create a new build folder if it already existed.
 For macOS and Linux, in the command line: 
 ```bash
 mkdir build
@@ -81,10 +81,10 @@ cd build
 cmake -DBUILD_PYTHON=ON -DSOLVER=SCIP ..
 # or use the follwoing line to choose Gurobi as the solver and also specify the path to Gurobi
 cmake -DBUILD_PYTHON=ON -DGUROBI_DIR=/path/to/gurobi ..
-msbuild ROPY.sln
+msbuild ROPy.sln
 ```
 
-For Windows user, if there is a `/bigobj` issue, please follow the instruction [here](https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=msvc-170) and redo the `msbuild ROPY.sln` step. A library `ROPY.python-version.so` will be created and put in the folder `lib`. To use the library, we need to put it in the same directory of python files and add a line `from ROPY import *` at the top of the file. See more examples in the `scripts/examples_py` folder.
+For Windows user, if there is a `/bigobj` issue, please follow the instruction [here](https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=msvc-170) and redo the `msbuild ROPy.sln` step. A library `ROPy.python-version.so` will be created and put in the folder `lib`. To use the library, we need to put it in the same directory of python files and add a line `from ROPy import *` at the top of the file. See more examples in the `scripts/examples_py` folder.
   
 ## Replicating
 To get the same results, run the RSFC, PB, and BB examples following the instructions above.
@@ -101,21 +101,21 @@ The script should start with building an optimization model. We list several mos
 ROCPPOptModelIF_Ptr Model(new ROCPPUncSSOptModel(uncOptModelObjType objType = robust));
 ```
 ```python
-Model = ROPYOptModel(uncOptModelObjType.objType = robust) 
+Model = ROPyOptModel(uncOptModelObjType.objType = robust) 
 ```
 - OptModelExoID: stands for optimization model with exogenous information discovery.
 ```C++
 ROCPPOptModelIF_Ptr Model(new ROCPPOptModelExoID(int timeStage, uncOptModelObjType objType = robust));
 ```
 ```python
-Model = ROPYOptModelExoID(int timeStage, objType = uncOptModelObjType.robust) 
+Model = ROPyOptModelExoID(int timeStage, objType = uncOptModelObjType.robust) 
 ```
 - OptModelDDID: stands for optimization model with decision dependent information discovery.
 ```C++
 ROCPPOptModelIF_Ptr Model(new ROCPPOptModelDDID(int timeStage, uncOptModelObjType objType = robust));
 ```
 ```python
-Model = ROPYOptModelDDID(int timeStage, objType = uncOptModelObjType.robust) 
+Model = ROPyOptModelDDID(int timeStage, objType = uncOptModelObjType.robust) 
 ```
 **Note**: Our platform has limited support of stochastic optimization problem, for which the objType should be assigned 'stochastic' or 'uncOptModelObjType.stochastic'.
 
@@ -127,14 +127,14 @@ The next components of an optimization model is decision variable. Our platform 
 ROCPPVarIF_Ptr staticVarDouble(new ROCPPStaticVarDouble(string varName, double lb = -INFINITY, double ub = INFINITY);
 ```
 ```python
-staticVarDouble = ROPYStaticVarDouble(string varName, float lb = -INFINITY, float ub = INIFINITY)
+staticVarDouble = ROPyStaticVarDouble(string varName, float lb = -INFINITY, float ub = INIFINITY)
 ```
 - AdaptVarBool/Int/Double
 ```C++
 ROCPPVarIF_Ptr adaptVarDouble(new ROCPPAdaptVarDouble(string varName, int timeStage, double lb = -INFINITY, double ub = INFINITY);
 ```
 ```python
-adaptVarDouble = ROPYAdaptVarDouble(string varName, int timeStage, float lb = -INFINITY, float ub = INFINITY)
+adaptVarDouble = ROPyAdaptVarDouble(string varName, int timeStage, float lb = -INFINITY, float ub = INFINITY)
 ```
 The binary and integer types follow the similar way of definition, note that the default bounds for binary variable is (0, 1).
 
@@ -146,14 +146,14 @@ There are two types for uncertain parameters, the exogenous one whose discovery 
 ROCPPUnc_Ptr unc(new ROCPPUnc(string uncName, int timeStage = 1));
 ```
 ```python
-unc = ROPYUnc(string uncName, int timeStage = 1)
+unc = ROPyUnc(string uncName, int timeStage = 1)
 ```
 - Specify the endogenous DDID one to the model
 ```C++
 Model->add_ddu(ROCPPUnc_Ptr unc, int firstObservableTimeStage, int lastObservableTimeStage, map<int, double> observationCostEachStage);
 ```
 ```python
-Model->add_ddu(ROPYUnc unc, int firstObservableTimeStage, int lastObservableTimeStage, dict{int: double} observationCostEachStage);
+Model->add_ddu(ROPyUnc unc, int firstObservableTimeStage, int lastObservableTimeStage, dict{int: double} observationCostEachStage);
 ```
 The 'timeStage' argument represents the time stage that the uncertain parameter is observed. For the DDID one, since the time stage depends on decision variable, we restrict 'timeStage = 1' when construct the parameter.
 
@@ -166,9 +166,9 @@ Model->add_constraint(ROCPPConstraintIF_Ptr cstr);
 Model->set_objective(ROCPPExpr_Ptr obj);
 ```
 ```Python
-Model.add_constraint_uncset(ROPYConstraintIF cstr)
-Model.add_constraint(ROPYConstraintIF cstr)
-Model.set_objective(ROPYExpr obj)
+Model.add_constraint_uncset(ROPyConstraintIF cstr)
+Model.add_constraint(ROPyConstraintIF cstr)
+Model.set_objective(ROPyExpr obj)
 ```
 
 ### Reformulate a Model
@@ -184,7 +184,7 @@ It turns a problem with uncertainty into a deterministic form.
 ROCPPStrategy_Ptr pRE(new ROCPPRobustifyEngine ());
 ```
 ```Python
-pRE = ROPYRobustifyEngine()
+pRE = ROPyRobustifyEngine()
 ```
 **Bilinear Term Reformulator**
 
@@ -193,7 +193,7 @@ It linearizes a problem by replacing all the bilinear terms in the problem.
 ROCPPStrategy_Ptr pBTR(new ROCPPBTR_bigM ());
 ```
 ```Python
-pBTR = ROPYBTR_bigM()
+pBTR = ROPyBTR_bigM()
 ```
 **Decision Rule**
 It contains all approximation schemes that we dicussed in the paper.
@@ -203,24 +203,24 @@ ROCPPStrategy_Ptr pLDR(new ROCPPLinearDR());
 ROCPPStrategy_Ptr pCDR(new ROCPPConstantDR());
 ```
 ```Python
-pLDR = ROPYLinearDR()
-pCDR = ROPYConstantDR()
+pLDR = ROPyLinearDR()
+pCDR = ROPyConstantDR()
 ```
 - Piecewise Linear and Constant Decision Rule
 ```C++
 ROCPPStrategy_Ptr pPWApprox(new ROCPPPWDR(map<string,uint> mapUncNametoNumBreakPoints));
 ```
 ```Python
-pPWApprox = ROPYPWDR(dict{string: int} mapUncNametoNumBreakPoints))
+pPWApprox = ROPyPWDR(dict{string: int} mapUncNametoNumBreakPoints))
 ```
 - KAdaptability
 ```C++
 ROCPPStrategy_Ptr pKadaptStrategy (new ROCPPKadapt(map<uint, uint> mapTimeStagetoNumPolicies));
 ```
 ```Python
-pKadaptStrategy = ROPYKadapt(dict{int: int} mapTimeStagetoNumPolicies)
+pKadaptStrategy = ROPyKadapt(dict{int: int} mapTimeStagetoNumPolicies)
 ```
-**Note**: For more detailed arguments parameter setting please see the doxygen file.
+**Note**: For more detailed arguments parameter setting please see [here](https://robust-opt-cpp.github.io/ROCPPDocumentation/class_solver_params.html#a778c4892b8a5e1824bdf6e6045cc850f).
 
 **Reformulation Orchestrator**
 
@@ -232,7 +232,7 @@ vector <ROCPPStrategy_Ptr > strategyVec {pKadaptStrategy, pRE, pBTR};
 ROCPPOptModelIF_Ptr reformModel = pOrch->Reformulate(Model, strategyVec);
 ```
 ```Python
-pOrch = ROPYOrchestrator()
+pOrch = ROPyOrchestrator()
 
 strategyVec = [pKadaptStrategy, pRE, pBTR]
 reformModel = pOrch.Reformulate(Model, strategyVec)
@@ -246,7 +246,7 @@ ROCPPSolver_Ptr pSolver(new ROCPPGurobi(SolverParams()));
 pSolver->solve(refModel);
 ```
 ```Python
-pSolver = ROPYSolver(ROPYSolverParams())
+pSolver = ROPySolver(ROPySolverParams())
 pSolver.solve(refModel)
 ```
 **Note**: For more detailed SolverParams setting, please see the doxygen file.\

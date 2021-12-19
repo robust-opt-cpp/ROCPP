@@ -29,10 +29,10 @@ if(BUILD_PYTHON)
     add_compile_definitions(PYTHON_PACKAGE)
 
     # LINK THE MODULE TO THE PROJECT
-    target_link_libraries(ROPY pybind11::module)
+    target_link_libraries(ROPy pybind11::module)
 
     # SET MODULE'S POSITION AND NAME
-    set_target_properties(ROPY PROPERTIES
+    set_target_properties(ROPy PROPERTIES
         PREFIX "${PYTHON_MODULE_PREFIX}" 
         SUFFIX "${PYTHON_MODULE_EXTENSION}"
         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
