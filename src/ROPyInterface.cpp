@@ -189,7 +189,8 @@ PYBIND11_MODULE(ROPy, m) {
     .def("getConst", &ROCPPExpr::getSumConstantTerms).def("getNumTerms", &ROCPPExpr::getNumTerms);
     
     //python for constraint
-    py::class_<ROCPPConstraintIF, ROCPPConstraintIF_Ptr>(m, "ROPyConstraintIF").def("isClassicConstraint", &ROCPPConstraintIF::isClassicConstraint).def("SetRhs", &ROCPPConstraintIF::set_rhs);
+    py::class_<ROCPPConstraintIF, ROCPPConstraintIF_Ptr>(m, "ROPyConstraintIF").def("isClassicConstraint", &ROCPPConstraintIF::isClassicConstraint);
+    py::class_<ROCPPClassicConstraintIF, ROCPPClassicConstraint_Ptr, ROCPPConstraintIF>(m, "ROPyClassicConstraint").def("set_rhs", &ROCPPClassicConstraintIF::set_rhs);
 
     py::class_<ROCPPObjectiveIF, ROCPPObjectiveIF_Ptr>(m, "ROPyObjectiveIF").def("getObjType", &ROCPPObjectiveIF::getObjType).def("isDeterministic", &ROCPPObjectiveIF::isDeterministic);
     py::class_<ROCPPSimpleObjective, ROCPPSimpleObjective_Ptr, ROCPPObjectiveIF>(m, "ROPySimpleObjective");
