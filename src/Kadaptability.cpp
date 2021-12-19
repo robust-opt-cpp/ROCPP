@@ -1,5 +1,5 @@
 //
-//  KADecisionRule.cpp
+//  Kadaptability.cpp
 //  RobustOptimizationPlatform
 //
 // This software is Copyright © 2020 The University of Southern California. All Rights Reserved.
@@ -21,7 +21,7 @@
 #include "FileRelations.hpp"
 #include "IndexSetCreator.hpp"
 #include "DecisionRule.hpp"
-#include "KADecisionRule.hpp"
+#include "Kadaptability.hpp"
 #include "UncertaintyConverter.hpp"
 #include <iomanip>
 #include <chrono>
@@ -230,12 +230,12 @@ string KadaptabilityPartitionEncoderMS::getPartitionSubset(const map<uint,uint> 
 //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-KadaptabilityDecisionRule::KadaptabilityDecisionRule(const map<uint, uint> &numPartitionMap, double bigM, double epsilon, string folder) : m_folder(folder), m_epsilon(epsilon), m_numPartitionsMap(numPartitionMap)
+Kadaptability::Kadaptability(const map<uint, uint> &numPartitionMap, double bigM, double epsilon, string folder) : m_folder(folder), m_epsilon(epsilon), m_numPartitionsMap(numPartitionMap)
 {
     m_pBTR = ROCPPBilinearReform_Ptr(new BTR_bigM("bl", "", 0, bigM));
 }
 
-//KadaptabilityDecisionRule::KadaptabilityDecisionRule(ROCPPKadaptEncoder_Ptr pPartitionEncoder, double bigM, double epsilon, string folder) : m_pPartitionEncoder(pPartitionEncoder), m_folder(folder), m_epsilon(epsilon)
+//Kadaptability::Kadaptability(ROCPPKadaptEncoder_Ptr pPartitionEncoder, double bigM, double epsilon, string folder) : m_pPartitionEncoder(pPartitionEncoder), m_folder(folder), m_epsilon(epsilon)
 //{
 //    m_pBTR = ROCPPBilinearReform_Ptr(new BTR_bigM("bl", "", 0, bigM));
 //}
@@ -244,7 +244,7 @@ KadaptabilityDecisionRule::KadaptabilityDecisionRule(const map<uint, uint> &numP
 //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-bool KadaptabilityDecisionRule::isApplicable(ROCPPOptModelIF_Ptr pIn) const
+bool Kadaptability::isApplicable(ROCPPOptModelIF_Ptr pIn) const
 {
     
     OptimizationModelIF::varsIterator pVar = pIn->varsBegin();
@@ -276,7 +276,7 @@ bool KadaptabilityDecisionRule::isApplicable(ROCPPOptModelIF_Ptr pIn) const
     return true;
 }
 
-void KadaptabilityDecisionRule::checkWsCompatability(const map<uint,uint> &wsMap)
+void Kadaptability::checkWsCompatability(const map<uint,uint> &wsMap)
 {
     if(wsMap.size() != m_pPartitionEncoder->getT())
         throw MyException("The time span of k must equal to the time stage of the model");
@@ -298,7 +298,7 @@ void KadaptabilityDecisionRule::checkWsCompatability(const map<uint,uint> &wsMap
 //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void KadaptabilityDecisionRule::initialize(ROCPPOptModelIF_Ptr pIn)
+void Kadaptability::initialize(ROCPPOptModelIF_Ptr pIn)
 {
     map<uint, uint> newPartitionMap;
     
@@ -315,7 +315,7 @@ void KadaptabilityDecisionRule::initialize(ROCPPOptModelIF_Ptr pIn)
     m_pPartitionEncoder=pPartitionEncoder;
 }
 
-void KadaptabilityDecisionRule::createVariableAndUncMap(dvContainer::const_iterator varsBegin, dvContainer::const_iterator varsEnd, uncContainer::const_iterator uncBegin, uncContainer::const_iterator uncEnd)
+void Kadaptability::createVariableAndUncMap(dvContainer::const_iterator varsBegin, dvContainer::const_iterator varsEnd, uncContainer::const_iterator uncBegin, uncContainer::const_iterator uncEnd)
 {
     
     uint numPart(1);
@@ -418,7 +418,7 @@ void KadaptabilityDecisionRule::createVariableAndUncMap(dvContainer::const_itera
     }
 }
 
-ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
+ROCPPOptModelIF_Ptr Kadaptability::approximate(ROCPPOptModelIF_Ptr pIn)
 {
     cout << endl;
     cout << "=========================================================================== " << endl;
@@ -466,7 +466,7 @@ ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::approximate(ROCPPOptModelIF_Ptr p
     return pOut;
 }
 
-ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::approxObjUnc(ROCPPOptModelIF_Ptr pIn)
+ROCPPOptModelIF_Ptr Kadaptability::approxObjUnc(ROCPPOptModelIF_Ptr pIn)
 {
 
     createVariableAndUncMap(pIn->varsBegin(), pIn->varsEnd(), pIn->uncertaintiesBegin(), pIn->uncertaintiesEnd());
@@ -728,7 +728,7 @@ ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::approxObjUnc(ROCPPOptModelIF_Ptr 
     return pOut;
 }
 
-ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::approxCstrUnc(ROCPPOptModelIF_Ptr pIn)
+ROCPPOptModelIF_Ptr Kadaptability::approxCstrUnc(ROCPPOptModelIF_Ptr pIn)
 {
     
     // **** initialize the problem ****
@@ -1120,7 +1120,7 @@ ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::approxCstrUnc(ROCPPOptModelIF_Ptr
     return pOut;
 }
 
-ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::fixSecondStageVariablesToWarmStart(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pKadaptModel, const map<string,double> &warmStartResults, const map<uint,uint> &wsMap)
+ROCPPOptModelIF_Ptr Kadaptability::fixSecondStageVariablesToWarmStart(ROCPPOptModelIF_Ptr pIn, ROCPPOptModelIF_Ptr pKadaptModel, const map<string,double> &warmStartResults, const map<uint,uint> &wsMap)
 {
     checkWsCompatability(wsMap);
 
@@ -1173,7 +1173,7 @@ ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::fixSecondStageVariablesToWarmStar
     return pOut;
 }
 
-ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::fixBinaryVariableValues(ROCPPOptModelIF_Ptr pKadaptModel, const map<string,bool> &varValues) const
+ROCPPOptModelIF_Ptr Kadaptability::fixBinaryVariableValues(ROCPPOptModelIF_Ptr pKadaptModel, const map<string,bool> &varValues) const
 {
     // we will not add a constraint, instead we completely get rid of the variable using PredefO2EVariableConverter
 
@@ -1218,7 +1218,7 @@ ROCPPOptModelIF_Ptr KadaptabilityDecisionRule::fixBinaryVariableValues(ROCPPOptM
 //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-string KadaptabilityDecisionRule::getSolutionApproachParameters(string delimiter) const
+string Kadaptability::getSolutionApproachParameters(string delimiter) const
 {
     string out("Kadapt");
     out += delimiter;
@@ -1228,7 +1228,7 @@ string KadaptabilityDecisionRule::getSolutionApproachParameters(string delimiter
     return out;
 }
 
-ROCPPVarIF_Ptr KadaptabilityDecisionRule::getDVonPartition(string partition, string OrigDVname) const
+ROCPPVarIF_Ptr Kadaptability::getDVonPartition(string partition, string OrigDVname) const
 {
     map< string, map<string, ROCPPVarIF_Ptr> >::const_iterator pit( m_mapPartitionEnc_mapOrigDVtoDVonPartition.find(partition) );
     
@@ -1244,7 +1244,7 @@ ROCPPVarIF_Ptr KadaptabilityDecisionRule::getDVonPartition(string partition, str
     
 }
 
-ROCPPUnc_Ptr KadaptabilityDecisionRule::getUncOnPartition(string OrigUncName, string partition, uint t) const
+ROCPPUnc_Ptr Kadaptability::getUncOnPartition(string OrigUncName, string partition, uint t) const
 {
     
     // in the submap find the pair (t and partition)
@@ -1265,7 +1265,7 @@ ROCPPUnc_Ptr KadaptabilityDecisionRule::getUncOnPartition(string OrigUncName, st
     return u_it2->second;
 }
 
-void KadaptabilityDecisionRule::getWsSolutions(ROCPPOptModelIF_Ptr pIn, const map<string, double> &warmStartResults, const map<uint,uint> &wsMap, map<string, double> &wsSolutions)
+void Kadaptability::getWsSolutions(ROCPPOptModelIF_Ptr pIn, const map<string, double> &warmStartResults, const map<uint,uint> &wsMap, map<string, double> &wsSolutions)
 {
     
     checkWsCompatability(wsMap);
@@ -1359,7 +1359,7 @@ void KadaptabilityDecisionRule::getWsSolutions(ROCPPOptModelIF_Ptr pIn, const ma
 //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void KadaptabilityDecisionRule::printParametersToScreen() const
+void Kadaptability::printParametersToScreen() const
 {
     cout << endl;
     cout << "=========================================================================== " << endl;
@@ -1376,7 +1376,7 @@ void KadaptabilityDecisionRule::printParametersToScreen() const
     
 }
 
-void KadaptabilityDecisionRule::printOut(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv, string partition)
+void Kadaptability::printOut(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv, string partition)
 {
     map<string, map<string, ROCPPVarIF_Ptr> >::const_iterator dvMap(m_DVmap.find(dv->getName()));
     string dvName = dvMap->second.find(partition)->second->getName();
@@ -1388,7 +1388,7 @@ void KadaptabilityDecisionRule::printOut(ROCPPOptModelIF_Ptr pIn, const map<stri
         cout << "Value of variable " << dv->getName() << " in contingency plan " << partition << " is: " << value << endl;
 }
 
-void KadaptabilityDecisionRule::printOut(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv)
+void Kadaptability::printOut(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPVarIF_Ptr dv)
 {
     
     map<string, map<string, ROCPPVarIF_Ptr> >::const_iterator vit ( m_DVmap.find(dv->getName()) );
@@ -1403,7 +1403,7 @@ void KadaptabilityDecisionRule::printOut(ROCPPOptModelIF_Ptr pIn, const map<stri
     
 }
 
-void KadaptabilityDecisionRule::printOut(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc, string partition)
+void Kadaptability::printOut(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc, string partition)
 {
     if(pIn->getType() != dduType)
         throw MyException("Non ddu type model does not have measurement variables");
@@ -1451,7 +1451,7 @@ void KadaptabilityDecisionRule::printOut(ROCPPOptModelIF_Ptr pIn, const map<stri
     
 }
 
-void KadaptabilityDecisionRule::printOut(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc)
+void Kadaptability::printOut(ROCPPOptModelIF_Ptr pIn, const map<string, double> &resultIn, ROCPPUnc_Ptr unc)
 {
     
     for (map< string, map<string, ROCPPVarIF_Ptr> >::const_iterator pit = m_mapPartitionEnc_mapOrigDVtoDVonPartition.begin(); pit != m_mapPartitionEnc_mapOrigDVtoDVonPartition.end(); pit++)

@@ -1,5 +1,5 @@
 //
-//  KADecisionRule.hpp
+//  Kadaptability.hpp
 //  RobustOptimizationPlatform
 //
 // This software is Copyright © 2020 The University of Southern California. All Rights Reserved.
@@ -142,7 +142,7 @@ private:
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /// K-adaptability approximator
-class KadaptabilityDecisionRule : public DecisionRuleIF, public ReformulationStrategyIF
+class Kadaptability : public DecisionRuleIF, public ReformulationStrategyIF
 {
 public:
     
@@ -155,17 +155,17 @@ public:
     /// @param bigM Big-M constant value for linearizing the bilinear terms
     /// @param epsilon Value of epsilon to build the strictly inequality in the constraint uncertainty case
     /// @param folder Name of the folders where to save the log file
-    KadaptabilityDecisionRule(
+    Kadaptability(
                               const map<uint,uint> &numPartitionsMap = map<uint, uint>(), double bigM = 100.0, double epsilon = 0.0001, string folder=" ");
     
 //    / Constructor of K-Adaptability approximator
 //    / @param pPartitionEncoder predefined partition encoder for the model to be approximated
-//    KadaptabilityDecisionRule(ROCPPKadaptEncoder_Ptr pPartitionEncoder, double bigM = 100.0, double epsilon = 0.0001, string folder=" ");
+//    Kadaptability(ROCPPKadaptEncoder_Ptr pPartitionEncoder, double bigM = 100.0, double epsilon = 0.0001, string folder=" ");
 //
-//    KadaptabilityDecisionRule(ROCPPKadaptEncoder_Ptr pPartitionEncoder, ROCPPBilinearReform_Ptr pBTR, double epsilon = 0.0001, string folder=" ") : m_pPartitionEncoder(pPartitionEncoder), m_pBTR(pBTR), m_folder(folder), m_epsilon(epsilon) {}
+//    Kadaptability(ROCPPKadaptEncoder_Ptr pPartitionEncoder, ROCPPBilinearReform_Ptr pBTR, double epsilon = 0.0001, string folder=" ") : m_pPartitionEncoder(pPartitionEncoder), m_pBTR(pBTR), m_folder(folder), m_epsilon(epsilon) {}
     
     /// Destructor of K-Adaptability approximator
-    ~KadaptabilityDecisionRule(){}
+    ~Kadaptability(){}
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%% Compatibility Functions %%%%%%%%%%%%%%%%%%%

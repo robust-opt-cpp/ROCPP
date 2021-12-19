@@ -308,8 +308,8 @@ class PiecewiseDecisionRule;
 typedef PiecewiseDecisionRule ROCPPPWDR;
 typedef shared_ptr<ROCPPPWDR> ROCPPPWDR_Ptr;
 
-class KadaptabilityDecisionRule;
-typedef KadaptabilityDecisionRule ROCPPKAdapt;
+class Kadaptability;
+typedef Kadaptability ROCPPKAdapt;
 typedef shared_ptr<ROCPPKAdapt> ROCPPKAdapt_Ptr;
 
 class KadaptabilityPartitionEncoderMS;

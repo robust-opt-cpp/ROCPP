@@ -1,5 +1,5 @@
 //
-//  ROPYInterface.cpp
+//  ROPyInterface.cpp
 //  RobustOptimizationPlatform
 //
 // This software is Copyright © 2020 Phebe Vayanos. All Rights Reserved.
@@ -256,12 +256,12 @@ PYBIND11_MODULE(ROPy, m) {
     .def("printOut", (void (ConstantDecisionRule::*)(const ROCPPOptModelIF_Ptr, const map<string, double> &, ROCPPVarIF_Ptr) ) &ConstantDecisionRule::printOut)
     .def("printOut", (void (ConstantDecisionRule::*)(const ROCPPOptModelIF_Ptr, const map<string, double> &, ROCPPUnc_Ptr) ) &ConstantDecisionRule::printOut);
     
-    py::class_<KadaptabilityDecisionRule, ROCPPKAdapt_Ptr, DecisionRuleIF, ROCPPStrategy>(m, "ROPyKadapt")
+    py::class_<Kadaptability, ROCPPKAdapt_Ptr, DecisionRuleIF, ROCPPStrategy>(m, "ROPyKadapt")
     .def(py::init<const map<uint,uint>, double, double, string>(), "numPartitionsMap"_a, "bigM"_a = 100.0, "epsilon"_a = 0.0001, "folder"_a=" ")
-    .def("printOut", (void (KadaptabilityDecisionRule::*)(const ROCPPOptModelIF_Ptr, const map<string, double> &, ROCPPVarIF_Ptr, string partition)) &KadaptabilityDecisionRule::printOut)
-    .def("printOut", (void (KadaptabilityDecisionRule::*)(const ROCPPOptModelIF_Ptr, const map<string, double> &, ROCPPUnc_Ptr, string partition)) &KadaptabilityDecisionRule::printOut)
-    .def("printOut", (void (KadaptabilityDecisionRule::*)(const ROCPPOptModelIF_Ptr, const map<string, double> &, ROCPPVarIF_Ptr) ) &KadaptabilityDecisionRule::printOut)
-    .def("printOut", (void (KadaptabilityDecisionRule::*)(const ROCPPOptModelIF_Ptr, const map<string, double> &, ROCPPUnc_Ptr) ) &KadaptabilityDecisionRule::printOut);
+    .def("printOut", (void (Kadaptability::*)(const ROCPPOptModelIF_Ptr, const map<string, double> &, ROCPPVarIF_Ptr, string partition)) &Kadaptability::printOut)
+    .def("printOut", (void (Kadaptability::*)(const ROCPPOptModelIF_Ptr, const map<string, double> &, ROCPPUnc_Ptr, string partition)) &Kadaptability::printOut)
+    .def("printOut", (void (Kadaptability::*)(const ROCPPOptModelIF_Ptr, const map<string, double> &, ROCPPVarIF_Ptr) ) &Kadaptability::printOut)
+    .def("printOut", (void (Kadaptability::*)(const ROCPPOptModelIF_Ptr, const map<string, double> &, ROCPPUnc_Ptr) ) &Kadaptability::printOut);
     
     py::class_<PiecewiseDecisionRule, ROCPPPWDR_Ptr, DecisionRuleIF, ROCPPStrategy>(m, "ROPyPWDR")
     .def(py::init<const map<string,uint>&, double, bool, string>(), "numPartitionsMap"_a = map<string, uint>(),"bigM"_a = 100.0, "epsilon"_a = 0.0001, "folder"_a=" ")

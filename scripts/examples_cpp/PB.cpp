@@ -152,10 +152,10 @@ int main(int argc, const char * argv[])
 
     // Print the optimal decision (from the original model)
     // Print decision rules for variable Keep_4_2 from the original problem automatically
-    ROCPPKAdapt_Ptr pKADRApprox = static_pointer_cast<KadaptabilityDecisionRule>(pKadaptStrategy);
-    pKADRApprox->printOut(PBModel, optimalSln, Keep[4][2]);
+    ROCPPKAdapt_Ptr pKadaptApprox = static_pointer_cast<Kadaptability>(pKadaptStrategy);
+    pKadaptApprox->printOut(PBModel, optimalSln, Keep[4][2]);
     // Prints the observation decision for uncertainty Value_2 from the original problem automatically
-    pKADRApprox->printOut(PBModel, optimalSln, Value[2]);
+    pKadaptApprox->printOut(PBModel, optimalSln, Value[2]);
 
     return 0;
 }

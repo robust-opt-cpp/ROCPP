@@ -24,7 +24,7 @@
 #include "RobustifyEngine.hpp"
 #include "FileRelations.hpp"
 #include "PWDecisionRule.hpp"
-#include "KADecisionRule.hpp"
+#include "Kadaptability.hpp"
 #include "SolverModeller.hpp"
 #include "GurobiModeller.hpp"
 #include "SCIPModeller.hpp"
