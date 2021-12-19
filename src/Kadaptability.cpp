@@ -562,7 +562,7 @@ ROCPPOptModelIF_Ptr Kadaptability::approxObjUnc(ROCPPOptModelIF_Ptr pIn)
         // add to the robust problem the only uncertain constraint (for this choice of element i)
 
         // add one epigraph constraint to the problem
-        ROCPPConstraintIF_Ptr pcstr_epi( new IneqConstraint() );
+        ROCPPClassicConstraint_Ptr pcstr_epi( new IneqConstraint() );
         pcstr_epi->add_lhs(1., pEpigraphUnc);
         pcstr_epi->add_lhs(-1., pEpi);
         pcstr_epi->set_rhs(make_pair(0.,true));
@@ -591,7 +591,7 @@ ROCPPOptModelIF_Ptr Kadaptability::approxObjUnc(ROCPPOptModelIF_Ptr pIn)
                 throw MyException("k value not found in unc map");
             
             
-            ROCPPConstraintIF_Ptr pcstr ( new IneqConstraint(true,false) );
+            ROCPPClassicConstraint_Ptr pcstr ( new IneqConstraint(true,false) );
             
             ROCPPExpr_Ptr tmp ( pIn->getObj()->getObj((*vit)[kcount-1]) );
             
@@ -688,7 +688,7 @@ ROCPPOptModelIF_Ptr Kadaptability::approxObjUnc(ROCPPOptModelIF_Ptr pIn)
                             
                             // create the NACs
 
-                            ROCPPConstraintIF_Ptr nac (  new EqConstraint(true,false) );
+                            ROCPPClassicConstraint_Ptr nac (  new EqConstraint(true,false) );
                             nac->add_lhs(1., u_current ,mvp );
                             nac->add_lhs(-1., u_prev ,mvp );
                             nac->set_rhs(make_pair(0.,true));
@@ -700,7 +700,7 @@ ROCPPOptModelIF_Ptr Kadaptability::approxObjUnc(ROCPPOptModelIF_Ptr pIn)
                             if (t > pIn->getFirstStageObservable( u_it->second->getName() ))
                             {
                                 
-                                ROCPPConstraintIF_Ptr nac (  new EqConstraint(true,false) );
+                                ROCPPClassicConstraint_Ptr nac (  new EqConstraint(true,false) );
                                 nac->add_lhs(1., u_current );
                                 nac->add_lhs(-1., u_prev );
                                 nac->set_rhs(make_pair(0.,true));
@@ -922,7 +922,7 @@ ROCPPOptModelIF_Ptr Kadaptability::approxCstrUnc(ROCPPOptModelIF_Ptr pIn)
                     
                     ROCPPClassicConstraint_Ptr Cstr = dynamic_pointer_cast<ClassicConstraintIF>(uncCstr[l_k-1]);
 
-                    ROCPPConstraintIF_Ptr oldCstr(new IneqConstraint(true));
+                    ROCPPClassicConstraint_Ptr oldCstr(new IneqConstraint(true));
                     oldCstr->add_lhs(-1.0, Cstr->getLHS());
                     oldCstr->add_lhs(Cstr->get_rhs().first);
                     oldCstr->set_rhs(make_pair(-1*m_epsilon, false));
@@ -947,7 +947,7 @@ ROCPPOptModelIF_Ptr Kadaptability::approxCstrUnc(ROCPPOptModelIF_Ptr pIn)
                         if (u_it_statl==uncStatMapInl.end())
                             throw MyException("Uncertain parameter not found");
                         
-                        ROCPPConstraintIF_Ptr nacl ( new EqConstraint(true,false) );
+                        ROCPPClassicConstraint_Ptr nacl ( new EqConstraint(true,false) );
                         nacl->add_lhs(1., u_it_statl->second ,mv );
                         nacl->add_lhs(-1., u_it_kl->second ,mv );
                         nacl->set_rhs(make_pair(0.,true));
@@ -964,7 +964,7 @@ ROCPPOptModelIF_Ptr Kadaptability::approxCstrUnc(ROCPPOptModelIF_Ptr pIn)
                             if (u_it_statl==uncStatMapInl.end())
                                 throw MyException("Uncertain parameter not found");
                             
-                            ROCPPConstraintIF_Ptr nacl (  new EqConstraint(true,false) );
+                            ROCPPClassicConstraint_Ptr nacl (  new EqConstraint(true,false) );
                             nacl->add_lhs(1., u_it_statl->second );
                             nacl->add_lhs(-1., u_it_kl->second );
                             nacl->set_rhs(make_pair(0.,true));
@@ -975,7 +975,7 @@ ROCPPOptModelIF_Ptr Kadaptability::approxCstrUnc(ROCPPOptModelIF_Ptr pIn)
             }
             
             // eipigrah for the objective function for each l
-            ROCPPConstraintIF_Ptr pcstrl ( new IneqConstraint() );
+            ROCPPClassicConstraint_Ptr pcstrl ( new IneqConstraint() );
             pcstrl->add_lhs(obj_lnew);
             pcstrl->add_lhs(-1.0, pEpi);
             pcstrl->set_rhs(make_pair(0.,true));
@@ -983,7 +983,7 @@ ROCPPOptModelIF_Ptr Kadaptability::approxCstrUnc(ROCPPOptModelIF_Ptr pIn)
             pOut->add_constraint(pcstrl, elstring);
             
             //constraint for lambda for each l
-            ROCPPConstraintIF_Ptr lcstrl ( new EqConstraint(false, false) );
+            ROCPPClassicConstraint_Ptr lcstrl ( new EqConstraint(false, false) );
             lcstrl->add_lhs(lambda_l);
             lcstrl->set_rhs(make_pair(1.,false));
             
@@ -999,7 +999,7 @@ ROCPPOptModelIF_Ptr Kadaptability::approxCstrUnc(ROCPPOptModelIF_Ptr pIn)
             string elstring(to_string(elcnt));
             
             // add infeasible constraint to the problem
-            ROCPPConstraintIF_Ptr pcstr_inf( new IneqConstraint() );
+            ROCPPClassicConstraint_Ptr pcstr_inf( new IneqConstraint() );
             pcstr_inf->add_lhs(1.);
             pcstr_inf->set_rhs(make_pair(0.,true));
             pRobust->add_constraint(pcstr_inf);
@@ -1048,14 +1048,15 @@ ROCPPOptModelIF_Ptr Kadaptability::approxCstrUnc(ROCPPOptModelIF_Ptr pIn)
                 
                 ROCPPClassicConstraint_Ptr Cstr = dynamic_pointer_cast<ClassicConstraintIF>(oldCstr);
                 
-                ROCPPConstraintIF_Ptr newCstr(new IneqConstraint(true) );
+                ROCPPClassicConstraint_Ptr newCstr(new IneqConstraint(true) );
                 
                 newCstr->add_lhs(-1.0, Cstr->getLHS() );
                 newCstr->add_lhs(Cstr->get_rhs().first);
                 newCstr->set_rhs(make_pair(-1*m_epsilon, false) );
-                newCstr = newCstr->mapVars(dvMapit->second);
-                newCstr = newCstr->mapUnc(uncMapit->second);
-                pRobust->add_constraint(newCstr);
+                
+                ROCPPConstraintIF_Ptr newCstr2 = newCstr->mapVars(dvMapit->second);
+                newCstr2 = newCstr2->mapUnc(uncMapit->second);
+                pRobust->add_constraint(newCstr2);
                 
                 for (OptimizationModelIF::uncertaintiesIterator u_it = pIn->uncertaintiesBegin(); u_it != pIn->uncertaintiesEnd(); u_it++)
                 {
@@ -1068,7 +1069,7 @@ ROCPPOptModelIF_Ptr Kadaptability::approxCstrUnc(ROCPPOptModelIF_Ptr pIn)
                         if (u_it_k==uncMapit->second.end())
                             throw MyException("Uncertain parameter not found");
                         
-                        ROCPPConstraintIF_Ptr nac (  new EqConstraint(true,false) );
+                        ROCPPClassicConstraint_Ptr nac (  new EqConstraint(true,false) );
                         nac->add_lhs(1., u_it->second ,mv );
                         nac->add_lhs(-1., u_it_k->second ,mv );
                         nac->set_rhs(make_pair(0.,true));
@@ -1083,7 +1084,7 @@ ROCPPOptModelIF_Ptr Kadaptability::approxCstrUnc(ROCPPOptModelIF_Ptr pIn)
                             if (u_it_k==uncMapit->second.end())
                                 throw MyException("Uncertain parameter not found");
                             
-                            ROCPPConstraintIF_Ptr nac (  new EqConstraint(true,false) );
+                            ROCPPClassicConstraint_Ptr nac (  new EqConstraint(true,false) );
                             nac->add_lhs(1., u_it->second );
                             nac->add_lhs(-1., u_it_k->second );
                             nac->set_rhs(make_pair(0.,true));

@@ -123,7 +123,7 @@ void OptimizationModelIF::add_constraint(ROCPPConstraintIF_Ptr pConstraint, stri
         newConstraint = tempConstraint;
     
     push_constraint(newConstraint);
-    if(newConstraint->definesUncertaintySet() )
+    if ( newConstraint->definesUncertaintySet() )
         m_uncertaintySet.push_back(newConstraint);
     
     
@@ -197,7 +197,7 @@ void OptimizationModelIF::add_epigraph()
         throw MyException("unknown objective type");
     
     for (auto& lhs : getObj()->getObj() ){
-        ROCPPConstraintIF_Ptr pCstr(new IneqConstraint() );
+        ROCPPClassicConstraint_Ptr pCstr(new IneqConstraint() );
         pCstr->add_lhs(lhs);
         pCstr->add_lhs(-1.,pEpi);
         pCstr->set_rhs(make_pair(0.,true));
@@ -801,7 +801,13 @@ map<string, ROCPPUnc_Ptr> UncertainOptimizationModel:: createUncMap(ROCPPConstra
 {
     map<string, ROCPPUnc_Ptr> uncMap;
     
-    for(ConstraintIF::uncertaintiesIterator uit = pConstraint->uncertaintiesBegin(); uit != pConstraint->uncertaintiesEnd(); uit++)
+    if (!pConstraint->isClassicConstraint())
+        return uncMap;
+    
+    
+    ROCPPClassicConstraint_Ptr pCstrClassic = dynamic_pointer_cast<ClassicConstraintIF>(pConstraint);
+    
+    for(ClassicConstraintIF::uncertaintiesIterator uit = pCstrClassic->uncertaintiesBegin(); uit != pCstrClassic->uncertaintiesEnd(); uit++)
     {
         if (uncIsDefined(uit->first)){
             uncMap.insert(make_pair(uit->first, this->getUnc(uit->first)));
