@@ -111,7 +111,7 @@ void SimpleObjective::convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPP
 {
     epigraphConstraints.clear();
     
-    ROCPPConstraintIF_Ptr epicst(new IneqConstraint());
+    ROCPPClassicConstraint_Ptr epicst(new IneqConstraint());
     epicst->add_lhs(m_pObjFun);
     epicst->add_lhs(-1., epigraphVar);
     
@@ -349,7 +349,7 @@ void MaxObjective::convertToEpigraph(ROCPPVarIF_Ptr epigraphVar, vector<ROCPPCon
     
     for (vector<ROCPPExpr_Ptr>::const_iterator oit = m_pObjFuns.begin(); oit != m_pObjFuns.end(); oit++)
     {
-        ROCPPConstraintIF_Ptr epicst(new IneqConstraint());
+        ROCPPClassicConstraint_Ptr epicst(new IneqConstraint());
         epicst->add_lhs(*oit);
         epicst->add_lhs(-1., epigraphVar);
         

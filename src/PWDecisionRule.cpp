@@ -797,13 +797,13 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
                     ROCPPVarIF_Ptr ldrCoeffp( getVarOnPartition(mp_it->first, ldrCoeff->getName()) );//Y_{t, ij}^p
                     
                     // add non-anticipativity constraints
-                    ROCPPConstraintIF_Ptr pConstraint1( new IneqConstraint(false,true) );
+                    ROCPPClassicConstraint_Ptr pConstraint1( new IneqConstraint(false,true) );
                     pConstraint1->add_lhs(1.,ldrCoeffp);
                     pConstraint1->add_lhs(-1.*m_bigM,mvp);
                     pConstraint1->set_rhs(make_pair(0.,true));
                     pOut->add_constraint(pConstraint1);
                     
-                    ROCPPConstraintIF_Ptr pConstraint2( new IneqConstraint(false,true) );
+                    ROCPPClassicConstraint_Ptr pConstraint2( new IneqConstraint(false,true) );
                     pConstraint2->add_lhs(-1.,ldrCoeffp);
                     pConstraint2->add_lhs(-1.*m_bigM,mvp);
                     pConstraint2->set_rhs(make_pair(0.,true));
@@ -869,14 +869,14 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
                                             ROCPPVarIF_Ptr ldrCoeffp2( getVarOnPartition(mpi_it->first, ldrCoeff->getName()) );
                                             
                                             // for each coefficient, add NACs
-                                            ROCPPConstraintIF_Ptr pConstraint1( new IneqConstraint(false,true) );
+                                            ROCPPClassicConstraint_Ptr pConstraint1( new IneqConstraint(false,true) );
                                             pConstraint1->add_lhs(1.,ldrCoeffp1);
                                             pConstraint1->add_lhs(-1.,ldrCoeffp2);
                                             pConstraint1->add_lhs(-1.*m_bigM,mvp);
                                             pConstraint1->set_rhs(make_pair(0.,true));
                                             pOut->add_constraint(pConstraint1);
                                             
-                                            ROCPPConstraintIF_Ptr pConstraint2( new IneqConstraint(false,true) );
+                                            ROCPPClassicConstraint_Ptr pConstraint2( new IneqConstraint(false,true) );
                                             pConstraint2->add_lhs(1.,ldrCoeffp2);
                                             pConstraint2->add_lhs(-1.,ldrCoeffp1);
                                             pConstraint2->add_lhs(-1.*m_bigM,mvp);
@@ -898,7 +898,7 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
                                         ROCPPVarIF_Ptr cdrCoeffp1( getVarOnPartition(mp_it->first, cdrCoeff->getName()) );
                                         ROCPPVarIF_Ptr cdrCoeffp2( getVarOnPartition(mpi_it->first, cdrCoeff->getName()) );
                                         
-                                        ROCPPConstraintIF_Ptr pConstraint1( new IneqConstraint(false,true) );
+                                        ROCPPClassicConstraint_Ptr pConstraint1( new IneqConstraint(false,true) );
                                         pConstraint1->add_lhs(1.,cdrCoeffp1);
                                         pConstraint1->add_lhs(-1.,cdrCoeffp2);
                                         if (odv->getType()==intDV)
@@ -908,7 +908,7 @@ ROCPPOptModelIF_Ptr PiecewiseDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
                                         pConstraint1->set_rhs(make_pair(0.,true));
                                         pOut->add_constraint(pConstraint1);
                                         
-                                        ROCPPConstraintIF_Ptr pConstraint2( new IneqConstraint(false,true) );
+                                        ROCPPClassicConstraint_Ptr pConstraint2( new IneqConstraint(false,true) );
                                         pConstraint2->add_lhs(1.,cdrCoeffp2);
                                         pConstraint2->add_lhs(-1.,cdrCoeffp1);
                                         if (odv->getType()==intDV)
