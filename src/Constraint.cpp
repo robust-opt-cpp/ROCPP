@@ -31,89 +31,89 @@ m_isNAC(isNAC){}
 //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ConstraintIF::uncertaintiesIterator ConstraintIF::uncertaintiesBegin() const
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-ConstraintIF::uncertaintiesIterator ConstraintIF::uncertaintiesEnd() const
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-ConstraintIF::const_iterator ConstraintIF::begin() const
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-ConstraintIF::const_iterator ConstraintIF::end() const
-{
-    throw MyException("not applicable to this type of constraint");
-}
+//ConstraintIF::uncertaintiesIterator ConstraintIF::uncertaintiesBegin() const
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//ConstraintIF::uncertaintiesIterator ConstraintIF::uncertaintiesEnd() const
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//ConstraintIF::const_iterator ConstraintIF::begin() const
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//ConstraintIF::const_iterator ConstraintIF::end() const
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void ConstraintIF::add_lhs(double c)
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-void ConstraintIF::add_lhs(double c, ROCPPVarIF_Ptr pVariable)
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-void ConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty,  ROCPPVarIF_Ptr pVariable)
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-void ConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty)
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-void ConstraintIF::add_lhs(double c, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2)
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-void ConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2)
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-void ConstraintIF::add_lhs(ROCPPconstCstrTermIF_Ptr term)
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-void ConstraintIF::add_lhs(double c, ROCPPconstCstrTermIF_Ptr term)
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-void ConstraintIF::add_lhs(ROCPPconstExpr_Ptr pExpression)
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-void ConstraintIF::add_lhs(double c, ROCPPconstExpr_Ptr pExpression)
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-void ConstraintIF::add_lhs(double c, ROCPPconstExpr_Ptr pExpression,  ROCPPVarIF_Ptr pVariable)
-{
-    throw MyException("not applicable to this type of constraint");
-}
-
-void ConstraintIF::set_rhs(pair<double,bool> rhs)
-{
-    throw MyException("not applicable to this type of constraint");
-}
+//
+//void ConstraintIF::add_lhs(double c)
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//void ConstraintIF::add_lhs(double c, ROCPPVarIF_Ptr pVariable)
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//void ConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty,  ROCPPVarIF_Ptr pVariable)
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//void ConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty)
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//void ConstraintIF::add_lhs(double c, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2)
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//void ConstraintIF::add_lhs(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2)
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//void ConstraintIF::add_lhs(ROCPPconstCstrTermIF_Ptr term)
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//void ConstraintIF::add_lhs(double c, ROCPPconstCstrTermIF_Ptr term)
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//void ConstraintIF::add_lhs(ROCPPconstExpr_Ptr pExpression)
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//void ConstraintIF::add_lhs(double c, ROCPPconstExpr_Ptr pExpression)
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//void ConstraintIF::add_lhs(double c, ROCPPconstExpr_Ptr pExpression,  ROCPPVarIF_Ptr pVariable)
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
+//
+//void ConstraintIF::set_rhs(pair<double,bool> rhs)
+//{
+//    throw MyException("not applicable to this type of constraint");
+//}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -149,9 +149,9 @@ ConstraintIF::varsIterator ClassicConstraintIF::varsBegin() const {return m_pLHS
 
 ConstraintIF::varsIterator ClassicConstraintIF::varsEnd() const {return m_pLHS->varsEnd();}
 
-ConstraintIF::uncertaintiesIterator ClassicConstraintIF::uncertaintiesBegin() const {return m_pLHS->uncBegin();}
+ClassicConstraintIF::uncertaintiesIterator ClassicConstraintIF::uncertaintiesBegin() const {return m_pLHS->uncBegin();}
 
-ConstraintIF::uncertaintiesIterator ClassicConstraintIF::uncertaintiesEnd() const {return m_pLHS->uncEnd();}
+ClassicConstraintIF::uncertaintiesIterator ClassicConstraintIF::uncertaintiesEnd() const {return m_pLHS->uncEnd();}
 
 void ClassicConstraintIF::add_lhs(double c)
 {
@@ -290,14 +290,14 @@ ROCPPConstraintIF_Ptr ClassicConstraintIF::replaceBilinearTerm(map<pair<string,s
     ROCPPExpr_Ptr newLhs;
     
     if(isEqConstraint()){
-        ROCPPConstraintIF_Ptr newCstr(new EqConstraint(definesUncertaintySet(), isNAC()));
+        ROCPPClassicConstraint_Ptr newCstr(new EqConstraint(definesUncertaintySet(), isNAC()));
         newLhs = m_pLHS->replaceBilinearTerm(allTerm, count);
         newCstr->add_lhs(newLhs);
         newCstr->set_rhs(get_rhs());
         return newCstr;
     }
     else{
-        ROCPPConstraintIF_Ptr newCstr(new IneqConstraint(definesUncertaintySet(), isNAC()));
+        ROCPPClassicConstraint_Ptr newCstr(new IneqConstraint(definesUncertaintySet(), isNAC()));
         newLhs = m_pLHS->replaceBilinearTerm(allTerm, count);
         newCstr->add_lhs(newLhs);
         newCstr->set_rhs(get_rhs());
@@ -502,405 +502,408 @@ bool EqConstraint::isUseful(double epsilon) const
     }
     
 }
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%% SOS CONSTRAINT %%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-SOSConstraint::SOSConstraint(uint SOSType) : ConstraintIF(false, false), m_SOSType(SOSType), m_pDVContainer ( new dvContainer() )
-{
-    if ( (SOSType != 1) && (SOSType != 2) )
-        throw MyException("unkown sos type");
-    
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-SOSConstraint::varsIterator SOSConstraint::varsBegin() const
-{
-    return m_pDVContainer->begin();
-}
-
-SOSConstraint::varsIterator SOSConstraint::varsEnd() const
-{
-    return m_pDVContainer->end();
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void SOSConstraint::add(ROCPPVarIF_Ptr dv, double weight)
-{
-    if ( (dv->isAdaptive()) &&  (!dv->isBooleanVar()) && (!dv->isIntegerVar()) )
-        throw MyException("cannot have adaptive real-valued variable in SOS set");
-    
-    pair<map<string, pair<ROCPPVarIF_Ptr, double> >::iterator,bool> it( m_sosMap.insert(make_pair( dv->getName(), make_pair(dv,weight) ) ) );
-    
-    if (!it.second)
-        throw MyException("variable was already present in the set");
-    
-    *m_pDVContainer += dv;
-}
-
-void SOSConstraint::add_int_vars(dvContainer &dvs) const
-{
-    m_pDVContainer->add_int_vars(dvs);
-}
-
-ROCPPConstraintIF_Ptr SOSConstraint::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const
-{
-    for (map<string, ROCPPExpr_Ptr>::const_iterator it = mapFromVarToExpression.begin(); it != mapFromVarToExpression.end(); it++)
-    {
-        dvContainer::const_iterator vit ( m_pDVContainer->find( it->first ) );
-        if (vit != m_pDVContainer->end())
-            throw MyException("cannot map variable to expression in SOSConstraint: consider modelling as classical constraint");
-    }
-    
-    return this->Clone();
-}
-
-ROCPPConstraintIF_Ptr SOSConstraint::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
-{
-    if (term.size()>1)
-        return this->Clone();
-    
-    if (term.size()==0)
-        throw MyException("something wrong in SOSConstraint::getNumTimesTermAppears");
-    
-    
-    if ( (m_pDVContainer->find(term.begin()->first)) == m_pDVContainer->end() )
-        return this->Clone();
-    
-    map<string,ROCPPVarIF_Ptr> tmp;
-    tmp.insert(make_pair(term.begin()->first, var) );
-    
-    return mapVars(tmp);
-}
-
-ROCPPConstraintIF_Ptr SOSConstraint::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const
-{
-    return this->Clone();
-}
-
-ROCPPConstraintIF_Ptr SOSConstraint::mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
-{
-    ROCPPSOSConstraint_Ptr out ( new SOSConstraint(this->getSOSType()) );
-    
-    for (SOSMapType::const_iterator it = m_sosMap.begin(); it != m_sosMap.end(); it++)
-    {
-        // try to find the current variable in the map
-        map<string,ROCPPVarIF_Ptr>::const_iterator tsl_it ( mapFromOldToNewVars.find( it->second.first->getName() ) );
-        
-        if (tsl_it == mapFromOldToNewVars.end())
-        {
-            out->add( it->second.first, it->second.second );
-        }
-        else
-        {
-            out->add( tsl_it->second, it->second.second );
-        }
-    }
-    
-    return out;
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-ROCPPconstdvContainer_Ptr SOSConstraint::getDVContainer() const
-{
-    return m_pDVContainer;
-}
-
-ROCPPconstuncContainer_Ptr SOSConstraint::getUncContainer() const
-{
-    return ROCPPconstuncContainer_Ptr(new uncContainer());
-}
-
-bool SOSConstraint::hasNoDVs() const
-{
-    return m_pDVContainer->getNumVars()==0;
-}
-
-bool SOSConstraint::isWellDefined() const
-{
-    return m_sosMap.size()>1;
-}
-
-uint SOSConstraint::getNumContVars() const
-{
-    return m_pDVContainer->getNumContVars();
-}
-
-uint SOSConstraint::getNumIntVars() const
-{
-    return m_pDVContainer->getNumIntVars();
-}
-
-uint SOSConstraint::getNumBoolVars() const
-{
-    return m_pDVContainer->getNumBoolVars();
-}
-
-uint SOSConstraint::getNumAdaptiveContVars() const
-{
-    return m_pDVContainer->getNumAdaptiveContVars();
-}
-
-uint SOSConstraint::getNumAdaptiveVars() const
-{
-    return m_pDVContainer->getNumAdaptiveVars();
-}
-
-size_t SOSConstraint::getNumVars() const
-{
-    return m_pDVContainer->getNumVars();
-}
-
-uint SOSConstraint::getTimeStage() const
-{
-    return m_pDVContainer->getTimeStage();
-}
-
-size_t SOSConstraint::getNumUncertainties() const
-{
-    return 0;
-}
-
-bool SOSConstraint::hasNonlinearities() const
-{
-    return false;
-}
-
-bool SOSConstraint::hasProdsUncertainties() const
-{
-    return false;
-}
-
-bool SOSConstraint::hasProdsContVars() const
-{
-    return false;
-}
-
-bool SOSConstraint::AnyVarIsInvolved(dvContainer& dvs) const
-{
-    return m_pDVContainer->AnyVarIsInvolved(dvs);
-}
-
-uint SOSConstraint::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const
-{
-    if (term.size()>1)
-        return 0;
-    
-    if (term.size()==0)
-        throw MyException("something wrong in SOSConstraint::getNumTimesTermAppears");
-    
-    
-    if ( (m_pDVContainer->find(term.begin()->first)) == m_pDVContainer->end() )
-        return 0;
-    
-    
-    throw MyException("probably shouldn't be here?");
-    return 1;
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-ROCPPConstraintIF_Ptr SOSConstraint::Clone() const
-{
-    ROCPPSOSConstraint_Ptr pOut ( new SOSConstraint( getSOSType() ) );
-    
-    for (SOSMapType::const_iterator it = m_sosMap.begin(); it != m_sosMap.end(); it++)
-        pOut->add(it->second.first, it->second.second);
-    
-    return pOut;
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void SOSConstraint::WriteToStream(ofstream &ofs, uint cnt) const
-{
-    if (!isWellDefined())
-        throw MyException("constraint is not well defined");
-    
-    ofs << "s" << cnt << ": S" << m_SOSType << ":: ";
-    
-    for ( SOSMapType::const_iterator mit = m_sosMap.begin(); mit != m_sosMap.end(); mit++)
-    {
-        ofs << mit->second.first->getName() << " : " << mit->second.second << " ";
-    }
-    
-    ofs << endl;
-    
-    ofs << endl;
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%% IF THEN CONSTRAINT %%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-IfThenConstraint::IfThenConstraint(ROCPPConstraintIF_Ptr lhs, ROCPPConstraintIF_Ptr rhs) : ConstraintIF(false, false), m_lhs(lhs), m_rhs(rhs), m_pDVContainer(new dvContainer()), m_pUncContainer(new uncContainer())
-{
-    if ( (!lhs->isClassicConstraint()) || (!rhs->isClassicConstraint()) )
-        throw MyException("can only have classic constraints in if then constraint arguments");
-    
-    *m_pDVContainer+=*lhs->getDVContainer();
-    *m_pDVContainer+=*rhs->getDVContainer();
-    
-    *m_pUncContainer+=*lhs->getUncContainer();
-    *m_pUncContainer+=*rhs->getUncContainer();
-    
-    for(const_iterator tit = lhs->begin(); tit != lhs->end(); tit++)
-        m_terms.push_back((*tit));
-    
-    for(const_iterator tit = rhs->begin(); tit != rhs->end(); tit++)
-        m_terms.push_back((*tit));
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-IfThenConstraint::varsIterator IfThenConstraint::varsBegin() const {return m_pDVContainer->begin();}
-
-IfThenConstraint::varsIterator IfThenConstraint::varsEnd() const {return m_pDVContainer->end();}
-
-IfThenConstraint::const_iterator IfThenConstraint::begin() const {return m_terms.begin();}
-IfThenConstraint::const_iterator IfThenConstraint::end() const {return m_terms.end();}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-ROCPPConstraintIF_Ptr IfThenConstraint::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const
-{
-    ROCPPConstraintIF_Ptr mapped_lhs ( m_lhs->mapVars(mapFromVarToExpression) );
-    ROCPPConstraintIF_Ptr mapped_rhs ( m_rhs->mapVars(mapFromVarToExpression) );
-    
-    ROCPPConstraintIF_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
-    
-    return pOut;
-}
-
-ROCPPConstraintIF_Ptr IfThenConstraint::mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const
-{
-    ROCPPConstraintIF_Ptr mapped_lhs ( m_lhs->mapUncs(mapFromUncToExpression) );
-    ROCPPConstraintIF_Ptr mapped_rhs ( m_rhs->mapUncs(mapFromUncToExpression) );
-    
-    ROCPPConstraintIF_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
-    
-    return pOut;
-}
-
-ROCPPConstraintIF_Ptr IfThenConstraint::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
-{
-    ROCPPConstraintIF_Ptr mapped_lhs ( m_lhs->replaceTermWithVar(term,var) );
-    ROCPPConstraintIF_Ptr mapped_rhs ( m_rhs->replaceTermWithVar(term,var) );
-    ROCPPConstraintIF_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
-    
-    return pOut;
-}
-
-ROCPPConstraintIF_Ptr IfThenConstraint::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const
-{
-    ROCPPConstraintIF_Ptr newCstr(new IfThenConstraint(m_lhs->replaceBilinearTerm(allTerm, count),m_rhs->replaceBilinearTerm(allTerm, count)));
-    
-    return newCstr;
-}
-
-ROCPPConstraintIF_Ptr IfThenConstraint::mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
-{
-    ROCPPConstraintIF_Ptr mapped_lhs ( m_lhs->mapVars(mapFromOldToNewVars) );
-    ROCPPConstraintIF_Ptr mapped_rhs ( m_rhs->mapVars(mapFromOldToNewVars) );
-    
-    ROCPPConstraintIF_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
-    
-    return pOut;
-}
-
-ROCPPConstraintIF_Ptr IfThenConstraint::mapUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const
-{
-    ROCPPConstraintIF_Ptr mapped_lhs ( m_lhs->mapUnc(mapFromOldToNewUnc) );
-    ROCPPConstraintIF_Ptr mapped_rhs ( m_rhs->mapUnc(mapFromOldToNewUnc) );
-    
-    ROCPPConstraintIF_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
-    
-    return pOut;
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-ROCPPconstdvContainer_Ptr IfThenConstraint::getDVContainer() const {return
-    m_pDVContainer;}
-
-ROCPPconstuncContainer_Ptr IfThenConstraint::getUncContainer() const {return m_pUncContainer;}
-
-uint IfThenConstraint::getNumContVars() const {return m_pDVContainer->getNumContVars();}
-uint IfThenConstraint::getNumIntVars() const {return m_pDVContainer->getNumIntVars();}
-uint IfThenConstraint::getNumBoolVars() const {return m_pDVContainer->getNumBoolVars();}
-uint IfThenConstraint::getNumAdaptiveContVars() const {return m_pDVContainer->getNumAdaptiveContVars();}
-uint IfThenConstraint::getNumAdaptiveVars() const {return m_pDVContainer->getNumAdaptiveVars();}
-size_t IfThenConstraint::getNumVars() const {return m_pDVContainer->getNumVars();}
-
-bool IfThenConstraint::hasNoDVs() const {return m_pDVContainer->getNumVars()==0;}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-ROCPPConstraintIF_Ptr IfThenConstraint::Clone() const
-{
-    ROCPPConstraintIF_Ptr pOut ( new IfThenConstraint(m_lhs->Clone(), m_rhs->Clone()) );
-    return pOut;
-}
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-void IfThenConstraint::WriteToStream(ofstream &ofs, uint ccnt) const
-{
-    
-    if (!isWellDefined())
-        throw MyException("constraint is not well defined");
-    
-    
-    // lhs
-    ofs << "( ";
-    m_lhs->WriteToStream(ofs,1);
-    ofs << " )    ->    ( ";
-    
-    
-    // rhs
-    m_rhs->WriteToStream(ofs,2);
-    ofs << " )";
-    
-    ofs << endl;
-    
-    ofs << endl;
-    
-}
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%% SOS CONSTRAINT %%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//SOSConstraint::SOSConstraint(uint SOSType) : ConstraintIF(false, false), m_SOSType(SOSType), m_pDVContainer ( new dvContainer() )
+//{
+//    if ( (SOSType != 1) && (SOSType != 2) )
+//        throw MyException("unkown sos type");
+//
+//}
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//SOSConstraint::varsIterator SOSConstraint::varsBegin() const
+//{
+//    return m_pDVContainer->begin();
+//}
+//
+//SOSConstraint::varsIterator SOSConstraint::varsEnd() const
+//{
+//    return m_pDVContainer->end();
+//}
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//void SOSConstraint::add(ROCPPVarIF_Ptr dv, double weight)
+//{
+//    if ( (dv->isAdaptive()) &&  (!dv->isBooleanVar()) && (!dv->isIntegerVar()) )
+//        throw MyException("cannot have adaptive real-valued variable in SOS set");
+//
+//    pair<map<string, pair<ROCPPVarIF_Ptr, double> >::iterator,bool> it( m_sosMap.insert(make_pair( dv->getName(), make_pair(dv,weight) ) ) );
+//
+//    if (!it.second)
+//        throw MyException("variable was already present in the set");
+//
+//    *m_pDVContainer += dv;
+//}
+//
+//void SOSConstraint::add_int_vars(dvContainer &dvs) const
+//{
+//    m_pDVContainer->add_int_vars(dvs);
+//}
+//
+//ROCPPConstraintIF_Ptr SOSConstraint::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const
+//{
+//    for (map<string, ROCPPExpr_Ptr>::const_iterator it = mapFromVarToExpression.begin(); it != mapFromVarToExpression.end(); it++)
+//    {
+//        dvContainer::const_iterator vit ( m_pDVContainer->find( it->first ) );
+//        if (vit != m_pDVContainer->end())
+//            throw MyException("cannot map variable to expression in SOSConstraint: consider modelling as classical constraint");
+//    }
+//
+//    return this->Clone();
+//}
+//
+//ROCPPConstraintIF_Ptr SOSConstraint::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
+//{
+//    if (term.size()>1)
+//        return this->Clone();
+//
+//    if (term.size()==0)
+//        throw MyException("something wrong in SOSConstraint::getNumTimesTermAppears");
+//
+//
+//    if ( (m_pDVContainer->find(term.begin()->first)) == m_pDVContainer->end() )
+//        return this->Clone();
+//
+//    map<string,ROCPPVarIF_Ptr> tmp;
+//    tmp.insert(make_pair(term.begin()->first, var) );
+//
+//    return mapVars(tmp);
+//}
+//
+//ROCPPConstraintIF_Ptr SOSConstraint::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const
+//{
+//    return this->Clone();
+//}
+//
+//ROCPPConstraintIF_Ptr SOSConstraint::mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
+//{
+//    ROCPPSOSConstraint_Ptr out ( new SOSConstraint(this->getSOSType()) );
+//
+//    for (SOSMapType::const_iterator it = m_sosMap.begin(); it != m_sosMap.end(); it++)
+//    {
+//        // try to find the current variable in the map
+//        map<string,ROCPPVarIF_Ptr>::const_iterator tsl_it ( mapFromOldToNewVars.find( it->second.first->getName() ) );
+//
+//        if (tsl_it == mapFromOldToNewVars.end())
+//        {
+//            out->add( it->second.first, it->second.second );
+//        }
+//        else
+//        {
+//            out->add( tsl_it->second, it->second.second );
+//        }
+//    }
+//
+//    return out;
+//}
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//ROCPPconstdvContainer_Ptr SOSConstraint::getDVContainer() const
+//{
+//    return m_pDVContainer;
+//}
+//
+//ROCPPconstuncContainer_Ptr SOSConstraint::getUncContainer() const
+//{
+//    return ROCPPconstuncContainer_Ptr(new uncContainer());
+//}
+//
+//bool SOSConstraint::hasNoDVs() const
+//{
+//    return m_pDVContainer->getNumVars()==0;
+//}
+//
+//bool SOSConstraint::isWellDefined() const
+//{
+//    return m_sosMap.size()>1;
+//}
+//
+//uint SOSConstraint::getNumContVars() const
+//{
+//    return m_pDVContainer->getNumContVars();
+//}
+//
+//uint SOSConstraint::getNumIntVars() const
+//{
+//    return m_pDVContainer->getNumIntVars();
+//}
+//
+//uint SOSConstraint::getNumBoolVars() const
+//{
+//    return m_pDVContainer->getNumBoolVars();
+//}
+//
+//uint SOSConstraint::getNumAdaptiveContVars() const
+//{
+//    return m_pDVContainer->getNumAdaptiveContVars();
+//}
+//
+//uint SOSConstraint::getNumAdaptiveVars() const
+//{
+//    return m_pDVContainer->getNumAdaptiveVars();
+//}
+//
+//size_t SOSConstraint::getNumVars() const
+//{
+//    return m_pDVContainer->getNumVars();
+//}
+//
+//uint SOSConstraint::getTimeStage() const
+//{
+//    return m_pDVContainer->getTimeStage();
+//}
+//
+//size_t SOSConstraint::getNumUncertainties() const
+//{
+//    return 0;
+//}
+//
+//bool SOSConstraint::hasNonlinearities() const
+//{
+//    return false;
+//}
+//
+//bool SOSConstraint::hasProdsUncertainties() const
+//{
+//    return false;
+//}
+//
+//bool SOSConstraint::hasProdsContVars() const
+//{
+//    return false;
+//}
+//
+//bool SOSConstraint::AnyVarIsInvolved(dvContainer& dvs) const
+//{
+//    return m_pDVContainer->AnyVarIsInvolved(dvs);
+//}
+//
+//uint SOSConstraint::getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const
+//{
+//    if (term.size()>1)
+//        return 0;
+//
+//    if (term.size()==0)
+//        throw MyException("something wrong in SOSConstraint::getNumTimesTermAppears");
+//
+//
+//    if ( (m_pDVContainer->find(term.begin()->first)) == m_pDVContainer->end() )
+//        return 0;
+//
+//
+//    throw MyException("probably shouldn't be here?");
+//    return 1;
+//}
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//ROCPPConstraintIF_Ptr SOSConstraint::Clone() const
+//{
+//    ROCPPSOSConstraint_Ptr pOut ( new SOSConstraint( getSOSType() ) );
+//
+//    for (SOSMapType::const_iterator it = m_sosMap.begin(); it != m_sosMap.end(); it++)
+//        pOut->add(it->second.first, it->second.second);
+//
+//    return pOut;
+//}
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//void SOSConstraint::WriteToStream(ofstream &ofs, uint cnt) const
+//{
+//    if (!isWellDefined())
+//        throw MyException("constraint is not well defined");
+//
+//    ofs << "s" << cnt << ": S" << m_SOSType << ":: ";
+//
+//    for ( SOSMapType::const_iterator mit = m_sosMap.begin(); mit != m_sosMap.end(); mit++)
+//    {
+//        ofs << mit->second.first->getName() << " : " << mit->second.second << " ";
+//    }
+//
+//    ofs << endl;
+//
+//    ofs << endl;
+//}
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%% IF THEN CONSTRAINT %%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//IfThenConstraint::IfThenConstraint(ROCPPConstraintIF_Ptr lhs, ROCPPConstraintIF_Ptr rhs) : ConstraintIF(false, false), m_lhs(lhs), m_rhs(rhs), m_pDVContainer(new dvContainer()), m_pUncContainer(new uncContainer())
+//{
+//    if ( (!lhs->isClassicConstraint()) || (!rhs->isClassicConstraint()) )
+//        throw MyException("can only have classic constraints in if then constraint arguments");
+//
+//    *m_pDVContainer+=*lhs->getDVContainer();
+//    *m_pDVContainer+=*rhs->getDVContainer();
+//
+//    *m_pUncContainer+=*lhs->getUncContainer();
+//    *m_pUncContainer+=*rhs->getUncContainer();
+//
+//    for(const_iterator tit = lhs->begin(); tit != lhs->end(); tit++)
+//        m_terms.push_back((*tit));
+//
+//    for(const_iterator tit = rhs->begin(); tit != rhs->end(); tit++)
+//        m_terms.push_back((*tit));
+//}
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//IfThenConstraint::varsIterator IfThenConstraint::varsBegin() const {return m_pDVContainer->begin();}
+//
+//IfThenConstraint::varsIterator IfThenConstraint::varsEnd() const {return m_pDVContainer->end();}
+//
+//IfThenConstraint::const_iterator IfThenConstraint::begin() const {return m_terms.begin();}
+//IfThenConstraint::const_iterator IfThenConstraint::end() const {return m_terms.end();}
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//ROCPPConstraintIF_Ptr IfThenConstraint::mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const
+//{
+//    ROCPPConstraintIF_Ptr mapped_lhs ( m_lhs->mapVars(mapFromVarToExpression) );
+//    ROCPPConstraintIF_Ptr mapped_rhs ( m_rhs->mapVars(mapFromVarToExpression) );
+//
+//    ROCPPConstraintIF_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
+//
+//    return pOut;
+//}
+//
+//ROCPPConstraintIF_Ptr IfThenConstraint::mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const
+//{
+//    ROCPPConstraintIF_Ptr mapped_lhs ( m_lhs->mapUncs(mapFromUncToExpression) );
+//    ROCPPConstraintIF_Ptr mapped_rhs ( m_rhs->mapUncs(mapFromUncToExpression) );
+//
+//    ROCPPConstraintIF_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
+//
+//    return pOut;
+//}
+//
+//ROCPPConstraintIF_Ptr IfThenConstraint::replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const
+//{
+//    ROCPPConstraintIF_Ptr mapped_lhs ( m_lhs->replaceTermWithVar(term,var) );
+//    ROCPPConstraintIF_Ptr mapped_rhs ( m_rhs->replaceTermWithVar(term,var) );
+//    ROCPPConstraintIF_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
+//
+//    return pOut;
+//}
+//
+//ROCPPConstraintIF_Ptr IfThenConstraint::replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const
+//{
+//    ROCPPConstraintIF_Ptr newCstr(new IfThenConstraint(m_lhs->replaceBilinearTerm(allTerm, count),m_rhs->replaceBilinearTerm(allTerm, count)));
+//
+//    return newCstr;
+//}
+//
+//ROCPPConstraintIF_Ptr IfThenConstraint::mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const
+//{
+//    ROCPPConstraintIF_Ptr mapped_lhs ( m_lhs->mapVars(mapFromOldToNewVars) );
+//    ROCPPConstraintIF_Ptr mapped_rhs ( m_rhs->mapVars(mapFromOldToNewVars) );
+//
+//    ROCPPConstraintIF_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
+//
+//    return pOut;
+//}
+//
+//ROCPPConstraintIF_Ptr IfThenConstraint::mapUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const
+//{
+//    ROCPPConstraintIF_Ptr mapped_lhs ( m_lhs->mapUnc(mapFromOldToNewUnc) );
+//    ROCPPConstraintIF_Ptr mapped_rhs ( m_rhs->mapUnc(mapFromOldToNewUnc) );
+//
+//    ROCPPConstraintIF_Ptr pOut ( new IfThenConstraint(mapped_lhs, mapped_rhs) );
+//
+//    return pOut;
+//}
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//ROCPPconstdvContainer_Ptr IfThenConstraint::getDVContainer() const {return
+//    m_pDVContainer;}
+//
+//ROCPPconstuncContainer_Ptr IfThenConstraint::getUncContainer() const {return m_pUncContainer;}
+//
+//uint IfThenConstraint::getNumContVars() const {return m_pDVContainer->getNumContVars();}
+//uint IfThenConstraint::getNumIntVars() const {return m_pDVContainer->getNumIntVars();}
+//uint IfThenConstraint::getNumBoolVars() const {return m_pDVContainer->getNumBoolVars();}
+//uint IfThenConstraint::getNumAdaptiveContVars() const {return m_pDVContainer->getNumAdaptiveContVars();}
+//uint IfThenConstraint::getNumAdaptiveVars() const {return m_pDVContainer->getNumAdaptiveVars();}
+//size_t IfThenConstraint::getNumVars() const {return m_pDVContainer->getNumVars();}
+//
+//bool IfThenConstraint::hasNoDVs() const {return m_pDVContainer->getNumVars()==0;}
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//ROCPPConstraintIF_Ptr IfThenConstraint::Clone() const
+//{
+//    ROCPPConstraintIF_Ptr pOut ( new IfThenConstraint(m_lhs->Clone(), m_rhs->Clone()) );
+//    return pOut;
+//}
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//void IfThenConstraint::WriteToStream(ofstream &ofs, uint ccnt) const
+//{
+//
+//    if (!isWellDefined())
+//        throw MyException("constraint is not well defined");
+//
+//
+//    // lhs
+//    ofs << "( ";
+//    m_lhs->WriteToStream(ofs,1);
+//    ofs << " )    ->    ( ";
+//
+//
+//    // rhs
+//    m_rhs->WriteToStream(ofs,2);
+//    ofs << " )";
+//
+//    ofs << endl;
+//
+//    ofs << endl;
+//
+//}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -919,14 +922,14 @@ ROCPPConstraintIF_Ptr createConstraint(ROCPPExpr_Ptr lhs, double rhs, bool isEqu
     bool isZero = (DoublesAreEssentiallyEqual(rhs, 0., 10e-4));
     if(isEqual)
     {
-        ROCPPConstraintIF_Ptr newCstr(new EqConstraint(definesUncertaintySet, isNAC));
+        ROCPPClassicConstraint_Ptr newCstr(new EqConstraint(definesUncertaintySet, isNAC));
         newCstr->add_lhs(lhs);
         newCstr->set_rhs(make_pair(rhs, isZero));
         return newCstr;
     }
     else
     {
-        ROCPPConstraintIF_Ptr newCstr(new IneqConstraint(definesUncertaintySet, isNAC));
+        ROCPPClassicConstraint_Ptr newCstr(new IneqConstraint(definesUncertaintySet, isNAC));
         newCstr->add_lhs(lhs);
         newCstr->set_rhs(make_pair(rhs, isZero));
             //newCstr->set_rhs(make_pair(rhs, false));

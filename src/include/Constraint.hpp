@@ -72,27 +72,27 @@ public:
     /// Return a constant iterator pointing to the end of the decision variable map
     virtual varsIterator varsEnd() const = 0;
     
-    /// Constant iterator in the uncertain parameter map
-    typedef uncMapType::const_iterator uncertaintiesIterator;
-    
-    /// Return a constant iterator pointing to the beginning of the uncertain parameter map
-    /// @warning Not valid in SOS constraint
-    virtual uncertaintiesIterator uncertaintiesBegin() const;
-    
-    /// Return a constant iterator pointing to the end of the uncertain parameter map
-    /// @warning Not valid in SOS constraint
-    virtual uncertaintiesIterator uncertaintiesEnd() const;
-    
-    /// Constant iterator in LHSExpression terms
-    typedef ConstraintLHS_const_iterator const_iterator;
-    
-    /// Return a constant iterator pointing to the beginning of the LHSExpression terms
-    /// @warning Not valid in SOS constraint
-    virtual const_iterator begin() const;
-    
-    /// Return a constant iterator pointing to the end of the LHSExpression terms
-    /// @warning Not valid in SOS constraint
-    virtual const_iterator end() const;
+//    /// Constant iterator in the uncertain parameter map
+//    typedef uncMapType::const_iterator uncertaintiesIterator;
+//
+//    /// Return a constant iterator pointing to the beginning of the uncertain parameter map
+//    /// @warning Not valid in SOS constraint
+//    virtual uncertaintiesIterator uncertaintiesBegin() const;
+//
+//    /// Return a constant iterator pointing to the end of the uncertain parameter map
+//    /// @warning Not valid in SOS constraint
+//    virtual uncertaintiesIterator uncertaintiesEnd() const;
+//
+//    /// Constant iterator in LHSExpression terms
+//    typedef ConstraintLHS_const_iterator const_iterator;
+//
+//    /// Return a constant iterator pointing to the beginning of the LHSExpression terms
+//    /// @warning Not valid in SOS constraint
+//    virtual const_iterator begin() const;
+//
+//    /// Return a constant iterator pointing to the end of the LHSExpression terms
+//    /// @warning Not valid in SOS constraint
+//    virtual const_iterator end() const;
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -122,38 +122,38 @@ public:
     /// Add the integer variables in this term to the given container
     virtual void add_int_vars(dvContainer &dvs) const = 0;
     
-    /// @note Only valid in classic constraint
-    virtual void add_lhs(double c);
-    
-    /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, ROCPPVarIF_Ptr pVariable);
-    
-    /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, ROCPPUnc_Ptr pUncertainty,  ROCPPVarIF_Ptr pVariable);
-    
-    /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, ROCPPUnc_Ptr pUncertainty);
-    
-    /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2);
-    
-    /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2);
-    
-    /// @note Only valid in classic constraint
-    virtual void add_lhs(ROCPPconstCstrTermIF_Ptr term);
-    
-    /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, ROCPPconstCstrTermIF_Ptr term);
-    
-    /// @note Only valid in classic constraint
-    virtual void add_lhs(ROCPPconstExpr_Ptr pExpression);
-    
-    /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, ROCPPconstExpr_Ptr pExpression);
-    
-    /// @note Only valid in classic constraint
-    virtual void add_lhs(double c, ROCPPconstExpr_Ptr pExpression,  ROCPPVarIF_Ptr pVariable);
+//    /// @note Only valid in classic constraint
+//    virtual void add_lhs(double c);
+//
+//    /// @note Only valid in classic constraint
+//    virtual void add_lhs(double c, ROCPPVarIF_Ptr pVariable);
+//
+//    /// @note Only valid in classic constraint
+//    virtual void add_lhs(double c, ROCPPUnc_Ptr pUncertainty,  ROCPPVarIF_Ptr pVariable);
+//
+//    /// @note Only valid in classic constraint
+//    virtual void add_lhs(double c, ROCPPUnc_Ptr pUncertainty);
+//
+//    /// @note Only valid in classic constraint
+//    virtual void add_lhs(double c, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2);
+//
+//    /// @note Only valid in classic constraint
+//    virtual void add_lhs(double c, ROCPPUnc_Ptr pUncertainty, ROCPPVarIF_Ptr pVariable1, ROCPPVarIF_Ptr pVariable2);
+//
+//    /// @note Only valid in classic constraint
+//    virtual void add_lhs(ROCPPconstCstrTermIF_Ptr term);
+//
+//    /// @note Only valid in classic constraint
+//    virtual void add_lhs(double c, ROCPPconstCstrTermIF_Ptr term);
+//
+//    /// @note Only valid in classic constraint
+//    virtual void add_lhs(ROCPPconstExpr_Ptr pExpression);
+//
+//    /// @note Only valid in classic constraint
+//    virtual void add_lhs(double c, ROCPPconstExpr_Ptr pExpression);
+//
+//    /// @note Only valid in classic constraint
+//    virtual void add_lhs(double c, ROCPPconstExpr_Ptr pExpression,  ROCPPVarIF_Ptr pVariable);
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -248,7 +248,7 @@ public:
     
     /// Set the right hand side of this constraint
     /// @note Only valid in classic constraint
-    virtual void set_rhs(pair<double,bool> rhs);
+//    virtual void set_rhs(pair<double,bool> rhs);
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -280,6 +280,9 @@ protected:
 };
 
 
+
+
+
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%% CLASSIC CONSTRAINT %%%%%%%%%%%%%%%%%%%%%%%%
@@ -307,6 +310,9 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
+    /// Constant iterator in LHSExpression terms
+    typedef ConstraintLHS_const_iterator const_iterator;
+    
     /// @note Call LHExpression::begin() for the left-hand side expression of this constraint
     const_iterator begin() const;
     
@@ -318,6 +324,11 @@ public:
     
     /// @note Call LHExpression::varsEnd() for the left-hand side expression of this constraint
     varsIterator varsEnd() const;
+    
+    
+    /// Constant iterator in the uncertain parameter map
+        typedef uncMapType::const_iterator uncertaintiesIterator;
+    
     
     /// @note Call LHExpression::uncBegin() for the left-hand side expression of this constraint
     uncertaintiesIterator uncertaintiesBegin() const;
@@ -557,318 +568,318 @@ public:
 };
 
 
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%% SOS CONSTRAINT %%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-/// SOS constraint
-class SOSConstraint : public ConstraintIF
-{
-public:
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    /// Constructor of the SOSConstraint class
-    /// @param SOSType denotes the type of the SOS constraint: can be 1 or 2: 1 means at most one of the decision variables can take value other than 0; 2 means at most two of the decision variables can take value other than 0
-    SOSConstraint(uint SOSType);
-    
-    /// Destructor of the SOSConstraint class
-    ~SOSConstraint(){}
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// Map from decision variable name to pair of the decision variable and weight associated with the variable in the SOS constraint
-    typedef map<string, pair<ROCPPVarIF_Ptr, double> > SOSMapType;
-    
-    /// Constant iterator into SOSMapType
-    typedef SOSMapType::const_iterator sos_iterator;
-    
-    /// Return constant iterator pointing to the beginning of the m_sosMap
-    sos_iterator sosBegin() const {return m_sosMap.begin();}
-    
-    /// Return constant iterator pointing to the end of the m_sosMap
-    sos_iterator sosEnd() const {return m_sosMap.end();}
-    
-    /// Return iterator pointing to the beginning of the dvContainer of this constraint
-    /// @note Call dvContainer::begin() for the dvContainer of this constraint
-     varsIterator varsBegin() const;
-    
-    /// Return iterator pointing to the end of the dvContainer of this constraint
-    /// @note Call dvContainer::end() for the dvContainer of this constraint
-    varsIterator varsEnd() const;
-
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// Added the decision variable dv with associated weight to the constraint
-    /// @param weight is the weight associated with the decision variable in the SOS constraint
-    void add(ROCPPVarIF_Ptr dv, double weight);
-    
-    /// @note Call dvContainer::add_int_vars() for the dvContainer of this constraint
-    void add_int_vars(dvContainer &dvs) const;
-    
-    /// @note No products of variables in SOSConstraint
-    void add_vars_involved_in_prod(dvContainer &dvs) const {}
-    
-    /// @warning Should consider modelling it as a classic constaint if the given expression has more than a single variable
-    ROCPPConstraintIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
-    
-    /// @note Return a copy of the original constraint because there is no uncertainty in the SOS constraint
-    ROCPPConstraintIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const {return this->Clone();}
-    
-    /// @note Only replaces the term in the given map if the term is a single variable
-    ROCPPConstraintIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
-    
-    /// @note Returns a copy of the original constraint since there is no uncertain parameters in SOSConstraint
-    ROCPPConstraintIF_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const;
-    
-    ROCPPConstraintIF_Ptr mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
-    
-    /// @note Returns a copy of the original constraint since there is no uncertain parameters in SOSConstraint
-    ROCPPConstraintIF_Ptr mapUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const {return this->Clone();}
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// Return the type of the SOS constraint
-    /// @return 1 if at most one of the decision variables can take value other than 0, 2 if at most two of the decision variables can take value other than 0
-    uint getSOSType() const {return m_SOSType;}
-    
-    /// Return the number of decision variables in this constraint
-    size_t getSize() const {return m_sosMap.size();}
-    
-    ROCPPconstdvContainer_Ptr getDVContainer() const;
-    ROCPPconstuncContainer_Ptr getUncContainer() const;
-    
-    /// Check whether this constraint has decision variables or not
-    /// @return True if there is no decision variable in this constraint
-    bool hasNoDVs() const;
-    
-    /// @return True if there are at least two variables in this constraint
-    bool isWellDefined() const;
-    
-    uint getNumContVars() const;
-    uint getNumIntVars() const;
-    uint getNumBoolVars() const;
-    uint getNumAdaptiveContVars() const;
-    uint getNumAdaptiveVars() const;
-    size_t getNumVars() const;
-    size_t getNumUncertainties() const;
-    
-    /// Return the maximum time-stage of the decision variables in this constraint
-    uint getTimeStage() const;
-    
-    /// @note Always false for SOSConstraint
-     bool hasNonlinearities() const;
-    
-     /// @note Always false for SOSConstraint
-     bool hasProdsUncertainties() const;
-    
-     /// @note Always false for SOSConstraint
-     bool hasProdsContVars() const;
-    
-    /// @note Call dvContainer::AnyVarIsInvolved() for the dvContainer of this constraint
-    bool AnyVarIsInvolved(dvContainer& dvs) const;
-    
-    /// @note Only counts the term in the given map if it is a single variable
-    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const;
-    
-    /// @note There are no products of decision variables in SOSConstraints
-    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const {};
-    
-    bool hasNormTerm() const {return false;}
-    bool isSOSConstraint() const {return true;}
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// Create a copy of this constraint
-    ROCPPConstraintIF_Ptr Clone() const;
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    void WriteToStream(ofstream &ofs, uint cnt) const;
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%% Private Members %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-private:
-    
-    /// Type of the SOSContraint
-    uint m_SOSType;
-    
-    /// Decision variable container
-    ROCPPdvContainer_Ptr m_pDVContainer;
-    
-    /// Map from the variable name to the pair of the variable and its weight
-    SOSMapType m_sosMap;
-};
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%% IF THEN CONSTRAINT %%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-/// If-then constraint
-class IfThenConstraint : public ConstraintIF
-{
-public:
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    /// IfThenConstraint constructor
-    /// @param lhs "If" part
-    /// @param rhs "Then" part
-    IfThenConstraint(ROCPPConstraintIF_Ptr lhs, ROCPPConstraintIF_Ptr rhs);
-    
-    /// IfThenConstraint destructor
-    ~IfThenConstraint(){}
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    /// @note Call dvContainer::begin() for the dvContainer of this constraint
-    varsIterator varsBegin() const;
-    
-    /// @note Call dvContainer::end() for the dvContainer of this constraint
-    varsIterator varsEnd() const;
-    
-    /// Return a constant iterator pointing to the beginning of the m_terms
-    const_iterator begin() const;
-    
-    /// Return the end of the m_terms
-    const_iterator end() const;
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// @note Call ClassicConstraintIF::mapVars(const map<string, ROCPPExpr_Ptr>) for both statements in the if-then constraint
-    ROCPPConstraintIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
-    
-    /// @note Call ClassicConstraintIF::mapUncs() for both statements in the if-then constraint
-    ROCPPConstraintIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const;
-    
-    /// @note Call ClassicConstraintIF::replaceTermWithVar() for both statements in the if-then constraint
-    ROCPPConstraintIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
-    
-    /// @note Call ClassicConstraintIF::replaceBilinearTerm() for both of two statements in the if-then constraint
-    ROCPPConstraintIF_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const;
-    
-    /// @note Call ClassicConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr>) for both of two statements in the if-then constraint
-    ROCPPConstraintIF_Ptr mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
-    
-    /// @note Call ClassicConstraintIF::mapUnc() for both statements in the if-then constraint
-    ROCPPConstraintIF_Ptr mapUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const;
-    
-    void add_vars_involved_in_prod(dvContainer &dvs) const { m_lhs->add_vars_involved_in_prod(dvs); m_rhs->add_vars_involved_in_prod(dvs); }
-    void add_int_vars(dvContainer &dvs) const { m_lhs->add_int_vars(dvs); m_rhs->add_int_vars(dvs); }
-
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// Returns the "If" part of the constraint
-    ROCPPConstraintIF_Ptr get_lhs() const {return m_lhs->Clone();}
-    
-    /// Returns the "Then" part of the constraint
-    ROCPPConstraintIF_Ptr get_rhs() const {return m_rhs->Clone();}
-    
-    /// @note Calculate the total number of times the term appears in both statements of the if-then constraint
-    /// @note Call ClassicConstraintIF::getNumTimesTermAppears() for both statements in the if-then constraint
-    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const {return (m_lhs->getNumTimesTermAppears(term) + m_rhs->getNumTimesTermAppears(term));}
-    
-    /// @note Get all products of two variables in both statements in the if-then constraint
-    /// @note Call ClassicConstraintIF::getAllProductsOf2Variables() for both statements in the if-then constraint
-    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const
-    {m_lhs->getAllProductsOf2Variables(freqMap,termMap); m_rhs->getAllProductsOf2Variables(freqMap,termMap);}
-    
-    
-    ROCPPconstdvContainer_Ptr getDVContainer() const;
-    ROCPPconstuncContainer_Ptr getUncContainer() const;
-    
-    uint getNumContVars() const;
-    uint getNumIntVars() const;
-    uint getNumBoolVars() const;
-    uint getNumAdaptiveContVars() const;
-    uint getNumAdaptiveVars() const;
-    size_t getNumVars() const;
-    
-    uint getTimeStage() const {return max(m_lhs->getTimeStage(),m_rhs->getTimeStage());}
-    size_t getNumUncertainties() const {return m_pUncContainer->getNumUncertainties();}
-    
-    /// Return true if any of the two statements has nonlinearities
-    /// @note Call ClassicConstraintIF::hasNonlinearities() for both statements in the if-then constraint
-    bool hasNonlinearities() const {return ( (m_lhs->hasNonlinearities()) || (m_rhs->hasNonlinearities()) );}
-    
-    /// Return true if any of the two statement has a product of uncertain parameters
-    /// @note Call ClassicConstraintIF::hasProdsUncertainties() for both statements in the if-then constraint
-    bool hasProdsUncertainties() const {return ( (m_lhs->hasProdsUncertainties()) || (m_rhs->hasProdsUncertainties()) );}
-    
-    /// Return true if any of the two statement has products of continuous variables
-    /// @note Call ClassicConstraintIF::hasProdsContVars() for both statements in the if-then constraint
-    bool hasProdsContVars() const {return ( (m_lhs->hasProdsContVars()) || (m_rhs->hasProdsContVars()) );}
-    
-    /// Return true if both of the two statements are well defined
-    /// @note Call ClassicConstraintIF::isWellDefined() for both statements in the if-then constraint
-    bool isWellDefined() const {return ( (m_lhs->isWellDefined()) && (m_rhs->isWellDefined()) );}
-    
-    bool isIfThenConstraint() const {return true;}
-    
-    bool AnyVarIsInvolved(dvContainer& dvs) const {return ( (m_lhs->AnyVarIsInvolved(dvs)) || (m_rhs->AnyVarIsInvolved(dvs)) );}
-    bool hasNormTerm() const {return ( (m_lhs->hasNormTerm()) || (m_rhs->hasNormTerm()) );}
-    bool hasNoDVs() const;
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    ROCPPConstraintIF_Ptr Clone() const;
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    void WriteToStream(ofstream &ofs, uint cnt) const;
-    
-private:
-    
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%% Private Members %%%%%%%%%%%%%%%%%%%%%%
-    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    /// If part of constraint
-    ROCPPConstraintIF_Ptr m_lhs;
-    
-    /// Else part of constraint
-    ROCPPConstraintIF_Ptr m_rhs;
-    
-    /// Decision variable container of this constraint
-    ROCPPdvContainer_Ptr m_pDVContainer;
-    
-    /// Uncertain parameter container of this constraint
-    ROCPPuncContainer_Ptr m_pUncContainer;
-    
-    /// Vector of terms in this constraint
-    vector<ROCPPCstrTermIF_Ptr> m_terms;
-};
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%% SOS CONSTRAINT %%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+///// SOS constraint
+//class SOSConstraint : public ConstraintIF
+//{
+//public:
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//    /// Constructor of the SOSConstraint class
+//    /// @param SOSType denotes the type of the SOS constraint: can be 1 or 2: 1 means at most one of the decision variables can take value other than 0; 2 means at most two of the decision variables can take value other than 0
+//    SOSConstraint(uint SOSType);
+//
+//    /// Destructor of the SOSConstraint class
+//    ~SOSConstraint(){}
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//    /// Map from decision variable name to pair of the decision variable and weight associated with the variable in the SOS constraint
+//    typedef map<string, pair<ROCPPVarIF_Ptr, double> > SOSMapType;
+//
+//    /// Constant iterator into SOSMapType
+//    typedef SOSMapType::const_iterator sos_iterator;
+//
+//    /// Return constant iterator pointing to the beginning of the m_sosMap
+//    sos_iterator sosBegin() const {return m_sosMap.begin();}
+//
+//    /// Return constant iterator pointing to the end of the m_sosMap
+//    sos_iterator sosEnd() const {return m_sosMap.end();}
+//
+//    /// Return iterator pointing to the beginning of the dvContainer of this constraint
+//    /// @note Call dvContainer::begin() for the dvContainer of this constraint
+//     varsIterator varsBegin() const;
+//
+//    /// Return iterator pointing to the end of the dvContainer of this constraint
+//    /// @note Call dvContainer::end() for the dvContainer of this constraint
+//    varsIterator varsEnd() const;
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//    /// Added the decision variable dv with associated weight to the constraint
+//    /// @param weight is the weight associated with the decision variable in the SOS constraint
+//    void add(ROCPPVarIF_Ptr dv, double weight);
+//
+//    /// @note Call dvContainer::add_int_vars() for the dvContainer of this constraint
+//    void add_int_vars(dvContainer &dvs) const;
+//
+//    /// @note No products of variables in SOSConstraint
+//    void add_vars_involved_in_prod(dvContainer &dvs) const {}
+//
+//    /// @warning Should consider modelling it as a classic constaint if the given expression has more than a single variable
+//    ROCPPConstraintIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
+//
+//    /// @note Return a copy of the original constraint because there is no uncertainty in the SOS constraint
+//    ROCPPConstraintIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const {return this->Clone();}
+//
+//    /// @note Only replaces the term in the given map if the term is a single variable
+//    ROCPPConstraintIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
+//
+//    /// @note Returns a copy of the original constraint since there is no uncertain parameters in SOSConstraint
+//    ROCPPConstraintIF_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const;
+//
+//    ROCPPConstraintIF_Ptr mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
+//
+//    /// @note Returns a copy of the original constraint since there is no uncertain parameters in SOSConstraint
+//    ROCPPConstraintIF_Ptr mapUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const {return this->Clone();}
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//    /// Return the type of the SOS constraint
+//    /// @return 1 if at most one of the decision variables can take value other than 0, 2 if at most two of the decision variables can take value other than 0
+//    uint getSOSType() const {return m_SOSType;}
+//
+//    /// Return the number of decision variables in this constraint
+//    size_t getSize() const {return m_sosMap.size();}
+//
+//    ROCPPconstdvContainer_Ptr getDVContainer() const;
+//    ROCPPconstuncContainer_Ptr getUncContainer() const;
+//
+//    /// Check whether this constraint has decision variables or not
+//    /// @return True if there is no decision variable in this constraint
+//    bool hasNoDVs() const;
+//
+//    /// @return True if there are at least two variables in this constraint
+//    bool isWellDefined() const;
+//
+//    uint getNumContVars() const;
+//    uint getNumIntVars() const;
+//    uint getNumBoolVars() const;
+//    uint getNumAdaptiveContVars() const;
+//    uint getNumAdaptiveVars() const;
+//    size_t getNumVars() const;
+//    size_t getNumUncertainties() const;
+//
+//    /// Return the maximum time-stage of the decision variables in this constraint
+//    uint getTimeStage() const;
+//
+//    /// @note Always false for SOSConstraint
+//     bool hasNonlinearities() const;
+//
+//     /// @note Always false for SOSConstraint
+//     bool hasProdsUncertainties() const;
+//
+//     /// @note Always false for SOSConstraint
+//     bool hasProdsContVars() const;
+//
+//    /// @note Call dvContainer::AnyVarIsInvolved() for the dvContainer of this constraint
+//    bool AnyVarIsInvolved(dvContainer& dvs) const;
+//
+//    /// @note Only counts the term in the given map if it is a single variable
+//    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const;
+//
+//    /// @note There are no products of decision variables in SOSConstraints
+//    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const {};
+//
+//    bool hasNormTerm() const {return false;}
+//    bool isSOSConstraint() const {return true;}
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//    /// Create a copy of this constraint
+//    ROCPPConstraintIF_Ptr Clone() const;
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//    void WriteToStream(ofstream &ofs, uint cnt) const;
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%% Private Members %%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//private:
+//
+//    /// Type of the SOSContraint
+//    uint m_SOSType;
+//
+//    /// Decision variable container
+//    ROCPPdvContainer_Ptr m_pDVContainer;
+//
+//    /// Map from the variable name to the pair of the variable and its weight
+//    SOSMapType m_sosMap;
+//};
+//
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%% IF THEN CONSTRAINT %%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+////%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+///// If-then constraint
+//class IfThenConstraint : public ConstraintIF
+//{
+//public:
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//    /// IfThenConstraint constructor
+//    /// @param lhs "If" part
+//    /// @param rhs "Then" part
+//    IfThenConstraint(ROCPPConstraintIF_Ptr lhs, ROCPPConstraintIF_Ptr rhs);
+//
+//    /// IfThenConstraint destructor
+//    ~IfThenConstraint(){}
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%% Iterators %%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//    /// @note Call dvContainer::begin() for the dvContainer of this constraint
+//    varsIterator varsBegin() const;
+//
+//    /// @note Call dvContainer::end() for the dvContainer of this constraint
+//    varsIterator varsEnd() const;
+//
+//    /// Return a constant iterator pointing to the beginning of the m_terms
+//    const_iterator begin() const;
+//
+//    /// Return the end of the m_terms
+//    const_iterator end() const;
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//    /// @note Call ClassicConstraintIF::mapVars(const map<string, ROCPPExpr_Ptr>) for both statements in the if-then constraint
+//    ROCPPConstraintIF_Ptr mapVars(const map<string, ROCPPExpr_Ptr> &mapFromVarToExpression) const;
+//
+//    /// @note Call ClassicConstraintIF::mapUncs() for both statements in the if-then constraint
+//    ROCPPConstraintIF_Ptr mapUncs(const map<string, ROCPPExpr_Ptr> &mapFromUncToExpression) const;
+//
+//    /// @note Call ClassicConstraintIF::replaceTermWithVar() for both statements in the if-then constraint
+//    ROCPPConstraintIF_Ptr replaceTermWithVar(const multimap<string, ROCPPVarIF_Ptr> &term, ROCPPVarIF_Ptr var) const;
+//
+//    /// @note Call ClassicConstraintIF::replaceBilinearTerm() for both of two statements in the if-then constraint
+//    ROCPPConstraintIF_Ptr replaceBilinearTerm(map<pair<string,string>, ROCPPVarIF_Ptr> &allTerm, uint &count) const;
+//
+//    /// @note Call ClassicConstraintIF::mapVars(const map<string,ROCPPVarIF_Ptr>) for both of two statements in the if-then constraint
+//    ROCPPConstraintIF_Ptr mapVars(const map<string,ROCPPVarIF_Ptr> &mapFromOldToNewVars) const;
+//
+//    /// @note Call ClassicConstraintIF::mapUnc() for both statements in the if-then constraint
+//    ROCPPConstraintIF_Ptr mapUnc(const map<string,ROCPPUnc_Ptr> &mapFromOldToNewUnc) const;
+//
+//    void add_vars_involved_in_prod(dvContainer &dvs) const { m_lhs->add_vars_involved_in_prod(dvs); m_rhs->add_vars_involved_in_prod(dvs); }
+//    void add_int_vars(dvContainer &dvs) const { m_lhs->add_int_vars(dvs); m_rhs->add_int_vars(dvs); }
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//    /// Returns the "If" part of the constraint
+//    ROCPPConstraintIF_Ptr get_lhs() const {return m_lhs->Clone();}
+//
+//    /// Returns the "Then" part of the constraint
+//    ROCPPConstraintIF_Ptr get_rhs() const {return m_rhs->Clone();}
+//
+//    /// @note Calculate the total number of times the term appears in both statements of the if-then constraint
+//    /// @note Call ClassicConstraintIF::getNumTimesTermAppears() for both statements in the if-then constraint
+//    uint getNumTimesTermAppears(const multimap<string, ROCPPVarIF_Ptr> &term) const {return (m_lhs->getNumTimesTermAppears(term) + m_rhs->getNumTimesTermAppears(term));}
+//
+//    /// @note Get all products of two variables in both statements in the if-then constraint
+//    /// @note Call ClassicConstraintIF::getAllProductsOf2Variables() for both statements in the if-then constraint
+//    void getAllProductsOf2Variables(map< pair<string,string>, uint> &freqMap, map< pair<string,string>, multimap<string, ROCPPVarIF_Ptr> > &termMap) const
+//    {m_lhs->getAllProductsOf2Variables(freqMap,termMap); m_rhs->getAllProductsOf2Variables(freqMap,termMap);}
+//
+//
+//    ROCPPconstdvContainer_Ptr getDVContainer() const;
+//    ROCPPconstuncContainer_Ptr getUncContainer() const;
+//
+//    uint getNumContVars() const;
+//    uint getNumIntVars() const;
+//    uint getNumBoolVars() const;
+//    uint getNumAdaptiveContVars() const;
+//    uint getNumAdaptiveVars() const;
+//    size_t getNumVars() const;
+//
+//    uint getTimeStage() const {return max(m_lhs->getTimeStage(),m_rhs->getTimeStage());}
+//    size_t getNumUncertainties() const {return m_pUncContainer->getNumUncertainties();}
+//
+//    /// Return true if any of the two statements has nonlinearities
+//    /// @note Call ClassicConstraintIF::hasNonlinearities() for both statements in the if-then constraint
+//    bool hasNonlinearities() const {return ( (m_lhs->hasNonlinearities()) || (m_rhs->hasNonlinearities()) );}
+//
+//    /// Return true if any of the two statement has a product of uncertain parameters
+//    /// @note Call ClassicConstraintIF::hasProdsUncertainties() for both statements in the if-then constraint
+//    bool hasProdsUncertainties() const {return ( (m_lhs->hasProdsUncertainties()) || (m_rhs->hasProdsUncertainties()) );}
+//
+//    /// Return true if any of the two statement has products of continuous variables
+//    /// @note Call ClassicConstraintIF::hasProdsContVars() for both statements in the if-then constraint
+//    bool hasProdsContVars() const {return ( (m_lhs->hasProdsContVars()) || (m_rhs->hasProdsContVars()) );}
+//
+//    /// Return true if both of the two statements are well defined
+//    /// @note Call ClassicConstraintIF::isWellDefined() for both statements in the if-then constraint
+//    bool isWellDefined() const {return ( (m_lhs->isWellDefined()) && (m_rhs->isWellDefined()) );}
+//
+//    bool isIfThenConstraint() const {return true;}
+//
+//    bool AnyVarIsInvolved(dvContainer& dvs) const {return ( (m_lhs->AnyVarIsInvolved(dvs)) || (m_rhs->AnyVarIsInvolved(dvs)) );}
+//    bool hasNormTerm() const {return ( (m_lhs->hasNormTerm()) || (m_rhs->hasNormTerm()) );}
+//    bool hasNoDVs() const;
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//    ROCPPConstraintIF_Ptr Clone() const;
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%% Print Functions %%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//    void WriteToStream(ofstream &ofs, uint cnt) const;
+//
+//private:
+//
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%% Private Members %%%%%%%%%%%%%%%%%%%%%%
+//    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//    /// If part of constraint
+//    ROCPPConstraintIF_Ptr m_lhs;
+//
+//    /// Else part of constraint
+//    ROCPPConstraintIF_Ptr m_rhs;
+//
+//    /// Decision variable container of this constraint
+//    ROCPPdvContainer_Ptr m_pDVContainer;
+//
+//    /// Uncertain parameter container of this constraint
+//    ROCPPuncContainer_Ptr m_pUncContainer;
+//
+//    /// Vector of terms in this constraint
+//    vector<ROCPPCstrTermIF_Ptr> m_terms;
+//};
 
 bool DoublesAreEssentiallyEqual(double A, double B, double epsilon);
 ROCPPConstraintIF_Ptr createConstraint(ROCPPExpr_Ptr lhs, double rhs, bool isEqual, bool definesUncertaintySet=false, bool isNAC=false);

@@ -158,13 +158,13 @@ ROCPPOptModelIF_Ptr LinearDecisionRule::approximate(ROCPPOptModelIF_Ptr pIn)
                 ROCPPVarIF_Ptr ldrCoeff (getCoeffDV( odv->getName(),ddu_it->second->getName()) );//Y_{t, ij}
                 
                 // add non-anticipativity constraints
-                ROCPPConstraintIF_Ptr pConstraint1( new IneqConstraint(false,true) );
+                ROCPPClassicConstraint_Ptr pConstraint1( new IneqConstraint(false,true) );
                 pConstraint1->add_lhs(1.,ldrCoeff);
                 pConstraint1->add_lhs(-1.*m_bigM, mv);
                 pConstraint1->set_rhs(make_pair(0.,true));
                 pLDRModel->add_constraint(pConstraint1);
                 
-                ROCPPConstraintIF_Ptr pConstraint2( new IneqConstraint(false,true) );
+                ROCPPClassicConstraint_Ptr pConstraint2( new IneqConstraint(false,true) );
                 pConstraint2->add_lhs(-1.,ldrCoeff);
                 pConstraint2->add_lhs(-1.*m_bigM, mv);
                 pConstraint2->set_rhs(make_pair(0.,true));
