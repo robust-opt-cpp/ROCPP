@@ -20,19 +20,15 @@
 //%%%%%%%%%%%%%%%%% Constructors & Destructors %%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-DecisionVariableIF::DecisionVariableIF(string name, decVariableType type, double lb, double ub, bool isAdaptive, uint timeStage):
+DecisionVariableIF::DecisionVariableIF(string name, decVariableType type, double lb, double ub):
 m_name(name),
 m_type(type),
 m_lb(lb),
-m_ub(ub),
-m_isAdaptive(isAdaptive),
-m_timeStage(timeStage)
+m_ub(ub)
 {
     if (name.length()==0)
         throw MyException("dv name cannot be empty");
 
-    if ( (timeStage == 1) && (isAdaptive) )
-        throw MyException("attempted to create an adaptive variable with time stage =1");
     
     if (m_lb > m_ub)
         throw MyException("the lower bound should be <= the upper bound");
@@ -164,6 +160,15 @@ ROCPPVarIF_Ptr VariableDouble::Clone()
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+AdaptiveVariableIF::AdaptiveVariableIF(string name, decVariableType type, uint timeStage, double lb, double ub):
+    DecisionVariableIF(name, type, lb, ub),
+    m_timeStage(timeStage)
+{
+    if ( timeStage == 1 )
+        throw MyException("attempted to create an adaptive variable with time stage =1");
+
+}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%% ADAPTIVE BOOL %%%%%%%%%%%%%%%%%%%%%%%%%%%

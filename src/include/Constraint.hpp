@@ -608,7 +608,7 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%% Doer Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    /// Added the decision variable dv with associated weight weight to the constraint
+    /// Added the decision variable dv with associated weight to the constraint
     /// @param weight is the weight associated with the decision variable in the SOS constraint
     void add(ROCPPVarIF_Ptr dv, double weight);
     

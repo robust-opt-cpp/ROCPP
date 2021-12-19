@@ -49,10 +49,8 @@ public:
     /// @param type type of the decision variable
     /// @param lb lower bound of the variable
     /// @param ub upper bound of the variable
-    /// @param isAdaptive is true if and only if the decision variable can adapt to the history of observations
-    /// @param timeStage time-stage when the decision is made
     /// @note The time-stage of an adaptive variable must greater than 1 (strictly).
-    DecisionVariableIF(string name, decVariableType type, double lb, double ub, bool isAdaptive = false, uint timeStage = 1);
+    DecisionVariableIF(string name, decVariableType type, double lb, double ub);
     
     /// Destructor of the DecisionVariableIF class
     virtual ~DecisionVariableIF(){}
@@ -73,20 +71,20 @@ public:
     /// @return time-stage, uint type
     ///
     /// An adaptive decision taken at time-stage t can depend on all uncertain parameters revealed up to and including time t
-    uint getTimeStage() const {return m_timeStage;}
+    virtual uint getTimeStage() const = 0;
     
     /// Return indicator of adaptability, return value equals true if and only if the decision variable can adapt to the history of observations
     /// @return adaptability indicator, boolean type
-    bool isAdaptive() const {return m_isAdaptive;}
+    virtual bool isAdaptive() const = 0;
 
     /// Return true if and only if the decision variable is of boolean type
-    virtual bool isBooleanVar() const {return false;}
+    virtual bool isBooleanVar() const = 0;
     
     /// Return true if and only if the decision variable is of integer type
-    virtual bool isIntegerVar() const {return false;}
+    virtual bool isIntegerVar() const = 0;
     
     /// Return true if and only if the decision variable is of real-valued type
-    virtual bool isRealVar() const {return false;}
+    virtual bool isRealVar() const = 0;
     
     /// Return the lower bound of the decision variable
     /// @return lower bound, double type
@@ -137,12 +135,6 @@ private:
     /// Type of the decision variable
     const decVariableType m_type;
     
-    /// Indicator of adaptability: true if and only if the decision variable can adapt to the history of observations
-    const bool m_isAdaptive;
-    
-    /// Time-stage of the decision variable
-    uint m_timeStage;
-    
     /// Lower bound of the decision variable
     double m_lb;
     
@@ -173,10 +165,18 @@ public:
     /// @param lb lower bound of the variable
     /// @param ub upper bound of the variable
     VariableIF(string name, decVariableType type, double lb, double ub):
-        DecisionVariableIF(name, type, lb, ub, false, 1){};
+        DecisionVariableIF(name, type, lb, ub){};
     
     /// Destructor of the VariableIF class
     virtual ~VariableIF(){}
+    
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    bool isAdaptive() const {return false;}
+    uint getTimeStage() const {return 1;}
+    
     
 };
 
@@ -206,8 +206,12 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
+    
     /// Always returns true for VariableBool
     bool isBooleanVar() const {return true;}
+    
+    bool isIntegerVar() const {return false;}
+    bool isRealVar() const {return false;}
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -255,6 +259,9 @@ public:
     
     /// Always returns true for VariableInt
     bool isIntegerVar() const {return true;}
+    
+    bool isBooleanVar() const {return false;}
+    bool isRealVar() const {return false;}
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -292,6 +299,13 @@ public:
     
     /// Always returns true for VariableDouble
     bool isRealVar() const {return true;}
+    
+    bool isIntegerVar() const {return false;}
+    bool isBooleanVar() const {return false;}
+    
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     /// Return a copy of the decision variable
     ROCPPVarIF_Ptr Clone();
@@ -313,11 +327,18 @@ public:
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     /// Constructor of the AdaptiveVariableIF class
-    AdaptiveVariableIF(string name, decVariableType type, uint timeStage, double lb, double ub):
-        DecisionVariableIF(name, type, lb, ub, true, timeStage){};
+    /// @param timeStage time-stage when the decision is made
+    AdaptiveVariableIF(string name, decVariableType type, uint timeStage, double lb, double ub);
     
     /// Destructor of the AdaptiveVariableIF class
     virtual ~AdaptiveVariableIF(){}
+    
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%% Getter Functions %%%%%%%%%%%%%%%%%%%%%%
+    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    bool isAdaptive() const {return true;}
+    uint getTimeStage() const {return m_timeStage;}
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -325,6 +346,11 @@ public:
     
     /// Return a copy of this variable
     virtual ROCPPVarIF_Ptr Clone() = 0;
+    
+private:
+    
+    uint m_timeStage;
+    
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -354,6 +380,9 @@ public:
     
     /// Always returns true for AdaptVarBool
     bool isBooleanVar() const {return true;}
+    
+    bool isIntegerVar() const {return false;}
+    bool isRealVar() const {return false;}
     
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%% Setter Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -399,6 +428,9 @@ public:
     
     /// Always returns true for AdaptVarInt
     bool isIntegerVar() const {return true;}
+    
+    bool isBooleanVar() const {return false;}
+    bool isRealVar() const {return false;}
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
@@ -436,6 +468,9 @@ public:
     
     /// Always returns true for AdaptVarDouble
     bool isRealVar() const {return true;}
+    
+    bool isIntegerVar() const {return false;}
+    bool isBooleanVar() const {return false;}
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%% Clone Functions %%%%%%%%%%%%%%%%%%%%%%
