@@ -14,7 +14,7 @@ ROC++ requires at least one of the following MILP solvers:
     * Note that SCIP needs at least one LP solver. The supported LP solver interfaces are listed [here](https://www.scipopt.org/doc/html/LPI.php).
     * If you want to solve a nonlinear MIP porblem, you need to have at least one of the [NLP solvers](https://www.scipopt.org/doc/html/NLPISOLVERS.php) supported by SCIP.
     * The compilation instructions of SCIP are [here](https://www.scipopt.org/doc/html/CMAKE.php) using CMake and [here](https://www.scipopt.org/doc/html/MAKE.php) using Makefiles.
-For Windows users, [Visual Studio](https://visualstudio.microsoft.com/vs/) is needed for compiling the library.
+For Windows users, [Visual Studio](https://visualstudio.microsoft.com/vs/) is needed for compiling the library. We recommend VS2019 but other versions should also work. Please make sure the `Desktop development with C++` is also installed, you can check and install it in the Visual Studio Installer.
 ### Compiling the project
 #### ROCPP project
 After installing the solvers, `ROCPP` can be built using CMake by running the following commands:   
@@ -85,7 +85,7 @@ cmake -DBUILD_PYTHON=ON -DGUROBI_DIR=/path/to/gurobi ..
 msbuild ROPy.sln
 ```
 
-For Windows users, if there is a `/bigobj` issue, please follow the instruction [here](https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=msvc-170) and redo the `msbuild ROPy.sln` step. A library `ROPy.python-version.so` will be created and put in the folder `lib`. To use the library, put it in the same directory as the python files and add a line `from ROPy import *` at the top of the file. See more examples in the `scripts/examples_py` folder.
+For Windows users, if there is a `/bigobj` issue, please double click to open the `ROPy.sln` file, follow the instruction [here](https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=msvc-170) and rebuild the project directly from Visual Studio by clicking `build` on the menu bar. A library `ROPy.python-version.so` will be created and put in the folder `lib`. To use the library, put it in the same directory as the python files and add a line `from ROPy import *` at the top of the file. See more examples in the `scripts/examples_py` folder.
   
 ## Replicating
 To replicate the results in the paper, run the RSFC, PB, and BB examples by following the instructions above.
