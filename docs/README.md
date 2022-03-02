@@ -1,1 +1,0 @@
-Our documentation can be found [here](https://robust-opt-cpp.github.io/ROCPPDocumentation/).
