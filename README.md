@@ -88,7 +88,7 @@ msbuild ROPy.sln
 For Windows users, if there is a `/bigobj` issue, please double click to open the `ROPy.sln` file, follow the instruction [here](https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=msvc-170) and rebuild the project directly from Visual Studio by clicking `build` on the menu bar. A library `ROPy.python-version.so` will be created and put in the folder `lib`. To use the library, put it in the same directory as the python files and add a line `from ROPy import *` at the top of the file. See more examples in the `scripts/examples_py` folder.
   
 ## Replicating
-To replicate the results in the paper, run the RSFC, PB, and BB examples by following the instructions above.
+To replicate the results in the paper, run the RSFC, PB, and BB examples by following the instructions above. We also summarize the data in the appendix of the [paper](http://www.optimization-online.org/DB_FILE/2020/06/7835.pdf).
 
 ## Getting Started
 In this section, we briefly describe how to build optimization models and apply the reformulation methods. For more detailed class structure of our platform, please see the [doxygen documenation](https://robust-opt-cpp.github.io/ROCPPDocumentation/). In the example snippets, the first line is coded in C++ and the second in Python.
