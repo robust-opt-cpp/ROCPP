@@ -1,3 +1,7 @@
+#
+# ROPy/RSFC.py
+#
+
 from ROPy import *
 
 def RSFC():
